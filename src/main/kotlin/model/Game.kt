@@ -63,5 +63,9 @@ class Game(val parameters: GameParameters, val players: MutableList<Player> = mu
      */
     fun startGame() {
         TODO("Implémenter la logique de démarrage de la partie")
+
+        // Distribution
+
+        // Echange des cartes (pas d'echange pour la première partie)
     }
 }

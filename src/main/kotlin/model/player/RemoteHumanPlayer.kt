@@ -3,9 +3,9 @@ package model.player
 import model.Card
 
 class RemoteHumanPlayer(
-    hand: MutableList<Card>,
-    id: String
-) : Player(hand, id) {
+    id: String,
+    hand: MutableList<Card>
+) : Player(id, hand) {
     override fun playTurn() {
         TODO("Not yet implemented")
     }

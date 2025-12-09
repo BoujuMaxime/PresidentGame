@@ -15,10 +15,6 @@ object Utils {
         deck.shuffle()
     }
 
-    fun dealCard(deck: MutableList<Card>): Card {
-        return deck.removeAt(0)
-    }
-
     fun printDeck(deck: MutableList<Card>) {
         deck.forEach { printCard(it) }
     }

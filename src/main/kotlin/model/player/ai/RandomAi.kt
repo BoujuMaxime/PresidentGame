@@ -3,9 +3,9 @@ package model.player.ai
 import model.Card
 
 class RandomAi(
-    hand: MutableList<Card>,
-    id: String
-) : Ai(hand, id) {
+    id: String,
+    hand: MutableList<Card>
+) : Ai(id, hand) {
     override fun playTurn() {
         TODO("Not yet implemented")
     }
