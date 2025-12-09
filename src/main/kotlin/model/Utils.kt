@@ -3,8 +3,8 @@ package model
 object Utils {
     fun createDeck(): MutableList<Card> {
         val deck = mutableListOf<Card>()
-        for (suit in Card.Suit.values()) {
-            for (rank in Card.Rank.values()) {
+        for (suit in Card.Suit.entries) {
+            for (rank in Card.Rank.entries) {
                 deck.add(Card(rank, suit))
             }
         }
@@ -20,7 +20,7 @@ object Utils {
     }
 
     fun printDeck(deck: MutableList<Card>) {
-        deck.forEach { println(it) }
+        deck.forEach { printCard(it) }
     }
 
     fun printCard(card: Card) {

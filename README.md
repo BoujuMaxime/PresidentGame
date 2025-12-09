@@ -28,11 +28,11 @@ Les cartes sont classées dans l'ordre suivant (de la plus faible à la plus for
 6. Le jeu continue jusqu'à ce qu'il ne reste qu'un seul joueur avec des cartes
 
 ### Rôles sociaux
-- **Président** : Le premier joueur à vider sa main
-- **Vice-Président** : Le deuxième joueur
+- **Président** : Le premier joueur à vider sa main (Reçois les deux meilleures cartes du **Trou du Cul**)
+- **Vice-Président** : Le deuxième joueur (Reçois la meilleure carte du **Vice-Trou du Cul**)
 - **Neutre** : Les joueurs au milieu
-- **Vice-Trou du Cul** : L'avant-dernier joueur
-- **Trou du Cul** : Le dernier joueur avec des cartes
+- **Vice-Trou du Cul** : L'avant-dernier joueur (Reçois une carte du **Vice-Président**)
+- **Trou du Cul** : Le dernier joueur avec des cartes (Reçois deux cartes du **Président**)
 
 ## 🏗️ Architecture du projet
 
