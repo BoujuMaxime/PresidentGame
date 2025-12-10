@@ -11,9 +11,10 @@ class EvaluateAi(
     override fun playTurn(
         pile: MutableList<Card>,
         discardPile: MutableList<Card>,
-        lastPlay: Play?
+        lastPlay: Play?,
+        straightRank: Card.Rank?
     ): Play? {
-        val possible = PlayerUtils.possiblePlays(hand, lastPlay, pile)
+        val possible = PlayerUtils.possiblePlays(hand, lastPlay, pile, straightRank)
         if (possible.isEmpty()) return null
         if (lastPlay == null) {
             // Commence : jouer le coup le plus faible

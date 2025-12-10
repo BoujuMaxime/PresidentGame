@@ -11,9 +11,10 @@ class RandomAi(
     override fun playTurn(
         pile: MutableList<Card>,
         discardPile: MutableList<Card>,
-        lastPlay: Play?
+        lastPlay: Play?,
+        straightRank: Card.Rank?
     ): Play? {
-        val possible = PlayerUtils.possiblePlays(hand, lastPlay, pile)
+        val possible = PlayerUtils.possiblePlays(hand, lastPlay, pile, straightRank)
         return AiUtils.chooseRandomPlay(possible)
     }
 

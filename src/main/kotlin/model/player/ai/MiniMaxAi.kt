@@ -12,10 +12,11 @@ class MiniMaxAi(
     override fun playTurn(
         pile: MutableList<Card>,
         discardPile: MutableList<Card>,
-        lastPlay: Play?
+        lastPlay: Play?,
+        straightRank: Card.Rank?
     ): Play? {
         // Pour l'instant, utiliser l'heuristique EvaluateAi
-        return fallback.playTurn(pile, discardPile, lastPlay)
+        return fallback.playTurn(pile, discardPile, lastPlay, straightRank)
     }
 
     override fun giveCardsToPlayer(cards: List<Card>) {

@@ -1,5 +1,7 @@
 import model.Game
 import model.player.HumanPlayer
+import model.player.ai.EvaluateAi
+import model.player.ai.RandomAi
 import java.io.PrintStream
 
 /**
@@ -12,9 +14,9 @@ fun main() {
 
     val game1 = Game(Game.GameParameters(nbPlayers = 4))
     game1.players.addAll(listOf(
-        HumanPlayer("G1-P1", mutableListOf()),
+        RandomAi("G1-P1", mutableListOf()),
         HumanPlayer("G1-P2", mutableListOf()),
-        HumanPlayer("G1-P3", mutableListOf()),
+        EvaluateAi("G1-P3", mutableListOf()),
         HumanPlayer("G1-P4", mutableListOf())
     ))
 

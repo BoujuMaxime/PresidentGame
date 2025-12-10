@@ -7,7 +7,7 @@ import model.Play
  * Interface des joueurs
  */
 interface PlayerInterface {
-    fun playTurn(pile: MutableList<Card>, discardPile: MutableList<Card>, lastPlay: Play?): Play?
+    fun playTurn(pile: MutableList<Card>, discardPile: MutableList<Card>, lastPlay: Play?, straightRank: Card.Rank?): Play?
 
     fun giveCardsToPlayer(cards: List<Card>)
 }

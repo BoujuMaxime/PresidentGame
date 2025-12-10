@@ -10,10 +10,10 @@ class HumanPlayer(
     override fun playTurn(
         pile: MutableList<Card>,
         discardPile: MutableList<Card>,
-        lastPlay: Play?
+        lastPlay: Play?,
+        straightRank: Card.Rank?
     ): Play? {
-        // Implémentation non bloquante / testable : choisir le premier coup valide disponible.
-        val possible = PlayerUtils.possiblePlays(hand, lastPlay, pile)
+        val possible = PlayerUtils.possiblePlays(hand, lastPlay, pile, straightRank)
         return if (possible.isEmpty()) null else possible.first()
     }
 
