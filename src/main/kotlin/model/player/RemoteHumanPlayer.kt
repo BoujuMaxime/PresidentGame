@@ -10,8 +10,8 @@ class RemoteHumanPlayer(
     override fun playTurn(
         pile: MutableList<Card>,
         discardPile: MutableList<Card>,
-        lastPlay: Play
-    ): Play {
+        lastPlay: Play?
+    ): Play? {
         TODO("Not yet implemented")
     }
 
