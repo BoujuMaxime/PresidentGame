@@ -13,12 +13,14 @@ fun main() {
     System.setErr(PrintStream(System.err, true, "UTF-8"))
 
     val game1 = Game(Game.GameParameters(nbPlayers = 4))
-    game1.players.addAll(listOf(
-        RandomAi("G1-P1", mutableListOf()),
-        HumanPlayer("G1-P2", mutableListOf()),
-        EvaluateAi("G1-P3", mutableListOf()),
-        HumanPlayer("G1-P4", mutableListOf())
-    ))
+    game1.players.addAll(
+        listOf(
+            RandomAi("G1-P1", mutableListOf()),
+            HumanPlayer("G1-P2", mutableListOf()),
+            EvaluateAi("G1-P3", mutableListOf()),
+            HumanPlayer("G1-P4", mutableListOf())
+        )
+    )
 
     // Lance et affiche chaque partie
     println("=== Lancement de la partie 1 ===")

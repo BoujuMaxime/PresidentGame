@@ -25,22 +25,49 @@ data class Card(val rank: Rank, val suit: Suit) : Comparable<Card> {
      * Les valeurs sont ordonnées selon leur puissance dans le jeu.
      */
     enum class Rank {
-        THREE { override fun toString() = "3" },
-        FOUR { override fun toString() = "4" },
-        FIVE { override fun toString() = "5" },
-        SIX { override fun toString() = "6" },
-        SEVEN { override fun toString() = "7" },
-        EIGHT { override fun toString() = "8" },
-        NINE { override fun toString() = "9" },
-        TEN { override fun toString() = "10" },
-        JACK { override fun toString() = "Valet" },
-        QUEEN { override fun toString() = "Dame" },
-        KING { override fun toString() = "Roi" },
-        ACE { override fun toString() = "As" },
-        TWO { override fun toString() = "2" };
+        THREE {
+            override fun toString() = "3"
+        },
+        FOUR {
+            override fun toString() = "4"
+        },
+        FIVE {
+            override fun toString() = "5"
+        },
+        SIX {
+            override fun toString() = "6"
+        },
+        SEVEN {
+            override fun toString() = "7"
+        },
+        EIGHT {
+            override fun toString() = "8"
+        },
+        NINE {
+            override fun toString() = "9"
+        },
+        TEN {
+            override fun toString() = "10"
+        },
+        JACK {
+            override fun toString() = "Valet"
+        },
+        QUEEN {
+            override fun toString() = "Dame"
+        },
+        KING {
+            override fun toString() = "Roi"
+        },
+        ACE {
+            override fun toString() = "As"
+        },
+        TWO {
+            override fun toString() = "2"
+        };
 
         override fun toString(): String = name
     }
+
     /**
      * Vérifie l'égalité entre deux cartes.
      * Deux cartes sont égales si elles ont la même valeur (`rank`) et la même couleur (`suit`).

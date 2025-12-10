@@ -1,9 +1,9 @@
 package model
 
 import model.player.Player
-import model.player.ai.RandomAi
 import model.player.ai.EvaluateAi
-import org.junit.jupiter.api.Assertions.*
+import model.player.ai.RandomAi
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 
 class GameTest {
@@ -22,7 +22,7 @@ class GameTest {
 
         // After startGame, roles should have been assigned (one PRESIDENT and one ASSHOLE)
         val roles = players.map { it.role }
-        assertEquals(1, roles.count { it == model.player.Player.Role.PRESIDENT })
-        assertEquals(1, roles.count { it == model.player.Player.Role.ASSHOLE })
+        assertEquals(1, roles.count { it == Player.Role.PRESIDENT })
+        assertEquals(1, roles.count { it == Player.Role.ASSHOLE })
     }
 }

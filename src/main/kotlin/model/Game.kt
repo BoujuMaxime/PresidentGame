@@ -144,8 +144,14 @@ class Game(
                 transferCards(sender, receiver, highestFromSender)
                 transferCards(receiver, sender, lowestFromReceiver)
 
-                Utils.printAction(sender.id, "donne ${highestFromSender.size} cartes à ${receiver.id}: ${highestFromSender.joinToString()}")
-                Utils.printAction(receiver.id, "donne ${lowestFromReceiver.size} cartes à ${sender.id}: ${lowestFromReceiver.joinToString()}")
+                Utils.printAction(
+                    sender.id,
+                    "donne ${highestFromSender.size} cartes à ${receiver.id}: ${highestFromSender.joinToString()}"
+                )
+                Utils.printAction(
+                    receiver.id,
+                    "donne ${lowestFromReceiver.size} cartes à ${sender.id}: ${lowestFromReceiver.joinToString()}"
+                )
             }
 
             if (lastGameRanking.size < 2) {
