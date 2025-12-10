@@ -7,4 +7,4 @@ import model.player.PlayerUtils
 abstract class Ai(
     id: String,
     hand: MutableList<Card>
-) : AiInterface, Player(id, hand)
+) : Player(id, hand), AiInterface

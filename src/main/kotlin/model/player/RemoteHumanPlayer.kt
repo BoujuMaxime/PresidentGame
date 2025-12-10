@@ -12,10 +12,13 @@ class RemoteHumanPlayer(
         discardPile: MutableList<Card>,
         lastPlay: Play?
     ): Play? {
-        TODO("Not yet implemented")
+        // Stub non-bloquant : se comporte comme un HumanPlayer par défaut
+        val possible = PlayerUtils.possiblePlays(hand, lastPlay)
+        return if (possible.isEmpty()) null else possible.first()
     }
 
     override fun giveCardsToPlayer(cards: List<Card>) {
-        TODO("Not yet implemented")
+        hand.addAll(cards)
+        PlayerUtils.sortHandByRank(hand)
     }
 }

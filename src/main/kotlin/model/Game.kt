@@ -1,7 +1,6 @@
 package model
 
 import model.player.Player
-import kotlin.compareTo
 
 /**
  * Classe représentant le déroulement d'une partie de Président.

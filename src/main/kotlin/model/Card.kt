@@ -26,8 +26,7 @@ data class Card(val rank: Rank, val suit: Suit) : Comparable<Card> {
      * @param other L'objet à comparer avec cette carte.
      * @return `true` si les deux cartes sont égales, `false` sinon.
      */
-    override fun equals(other: Any?): Boolean =
-        other is Card && rank == other.rank && suit == other.suit
+    override fun equals(other: Any?): Boolean = other is Card && rank == other.rank && suit == other.suit
 
     /**
      * Compare cette carte avec une autre carte en fonction de leur valeur (`rank`).

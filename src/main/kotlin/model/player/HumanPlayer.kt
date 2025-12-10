@@ -12,10 +12,14 @@ class HumanPlayer(
         discardPile: MutableList<Card>,
         lastPlay: Play?
     ): Play? {
-        TODO("Not yet implemented")
+        // Implémentation non bloquante / testable : choisir le premier coup valide disponible.
+        val possible = PlayerUtils.possiblePlays(hand, lastPlay)
+        return if (possible.isEmpty()) null else possible.first()
     }
 
     override fun giveCardsToPlayer(cards: List<Card>) {
-        TODO("Not yet implemented")
+        // Ajouter les cartes reçues à la main et trier
+        hand.addAll(cards)
+        PlayerUtils.sortHandByRank(hand)
     }
 }
