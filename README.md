@@ -21,7 +21,7 @@ Les cartes sont classées dans l'ordre suivant (de la plus faible à la plus for
 
 ### Déroulement
 1. Les cartes sont distribuées équitablement entre tous les joueurs
-2. Le joueur avec le 3 de trèfle commence (ou le joueur à gauche du donneur)
+2. Le **Trou du Cul** commence
 3. Chaque joueur doit jouer une ou plusieurs cartes de même valeur supérieures à celles jouées précédemment
 4. Si un joueur ne peut pas ou ne veut pas jouer, il passe son tour
 5. Quand tous les joueurs passent, le dernier joueur à avoir posé des cartes remporte le pli et commence un nouveau tour
