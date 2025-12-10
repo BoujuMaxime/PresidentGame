@@ -37,7 +37,7 @@ class Game(val parameters: GameParameters, val players: MutableList<Player> = mu
         /**
          * Classe imbriquée contenant les paramètres spécifiques au mode de jeu.
          *
-         * @property withCarreMagique Active ou désactive la règle *Carré Magique*.
+         * @property withCarreMagique Active ou désactive la règle `Carré Magique`.
          *   Description : règle optionnelle qui s'applique lorsqu'à l'intérieur d'un même pli
          *   les quatre cartes d'une même valeur sont jouées consécutivement (quelle que soit
          *   leur provenance). Dans ce cas, le joueur ayant posé la quatrième carte remporte
@@ -64,8 +64,18 @@ class Game(val parameters: GameParameters, val players: MutableList<Player> = mu
     fun startGame() {
         TODO("Implémenter la logique de démarrage de la partie")
 
-        // Distribution
+        // Début boucle principale du jeu
 
-        // Echange des cartes (pas d'echange pour la première partie)
+            // Distribution
+
+            // Échange des cartes (pas d'échange pour la première partie)
+
+            // Début de la partie
+
+            // Fin de la partie
+
+            // Attribution des rôles
+
+        // Fin boucle principale du jeu
     }
 }

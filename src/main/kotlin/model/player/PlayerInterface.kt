@@ -1,8 +1,10 @@
 package model.player
 
+import model.Card
+
 /**
  * Interface des joueurs
  */
 interface PlayerInterface {
-    fun playTurn()
+    fun playTurn(cardPlayed: MutableList<Card>)
 }
