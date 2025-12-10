@@ -13,7 +13,7 @@ class RemoteHumanPlayer(
         lastPlay: Play?
     ): Play? {
         // Stub non-bloquant : se comporte comme un HumanPlayer par défaut
-        val possible = PlayerUtils.possiblePlays(hand, lastPlay)
+        val possible = PlayerUtils.possiblePlays(hand, lastPlay, pile)
         return if (possible.isEmpty()) null else possible.first()
     }
 

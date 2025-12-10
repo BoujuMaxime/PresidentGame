@@ -23,11 +23,14 @@ object PlayerUtils {
      * Le résultat est trié pour assurer une stabilité : d'abord par rang (ordinal de la première
      * carte du coup), puis par type de coup (SINGLE < PAIR < THREE_OF_A_KIND < FOUR_OF_A_KIND).
      *
+     * Ajout : vérification de la règle "TaGueule" à partir de la `pile`.
+     *
      * @param hand liste de `Card` représentant la main du joueur.
      * @param lastPlay coup précédent (optionnel) utilisé pour filtrer les coups valides.
+     * @param pile pile de cartes jouées (utilisée pour détecter la contrainte TaGueule).
      * @return liste de `Play` représentant les coups possibles triés.
      */
-    fun possiblePlays(hand: List<Card>, lastPlay: Play?): List<Play> {
+    fun possiblePlays(hand: List<Card>, lastPlay: Play?, pile: List<Card>): List<Play> {
         /**
          * Génère toutes les combinaisons (sans ordre) de taille `k` à partir de `list`.
          *
@@ -83,26 +86,53 @@ object PlayerUtils {
             }
         }
 
-        // Filtrer selon lastPlay si présent : ne garder que les coups jouables sur lastPlay
+        // Détection de la contrainte TaGueule :
+        // si les 4 dernières cartes forment deux paires consécutives du même rang,
+        // alors le joueur suivant est forcé de jouer au moins une carte de ce rang s'il en a.
+        val taGueuleRank: Card.Rank? = run {
+            if (pile.size >= 4) {
+                val last4 = pile.takeLast(4)
+                val r0 = last4[0].rank
+                val pair1Same = last4[0].rank == last4[1].rank
+                val pair2Same = last4[2].rank == last4[3].rank
+                val sameBetweenPairs = last4[0].rank == last4[2].rank
+                if (pair1Same && pair2Same && sameBetweenPairs) {
+                    r0
+                } else null
+            } else null
+        }
+
+        // Si TaGueule active et que la main contient des cartes de ce rang, ne garder que les coups
+        // qui incluent au moins une carte de ce rang. Si la main ne contient aucune carte de ce rang,
+        // renvoyer la liste vide (le joueur doit passer).
+        val playsAfterTaGueule = if (taGueuleRank != null) {
+            val candidate = plays.filter { play -> play.any { it.rank == taGueuleRank } }
+            candidate.ifEmpty {
+                return emptyList() // force le passage
+            }
+        } else plays
+
+        // Filtrer selon lastPlay si présent : ne garder que les coups jouables sur `lastPlay`
         val filtered = if (lastPlay == null) {
-            plays
+            playsAfterTaGueule
         } else {
-            plays.filter { it.canBePlayedOn(lastPlay) }
+            playsAfterTaGueule.filter { it.canBePlayedOn(lastPlay) }
         }
 
         // Tri pour stabilité : par rang ordinal de la première carte puis par type de coup
         return filtered.sortedWith(
             compareBy(
-            { it[0].rank.ordinal },
-            {
-                when (it.playType) {
-                    Play.PlayType.SINGLE -> 1
-                    Play.PlayType.PAIR -> 2
-                    Play.PlayType.THREE_OF_A_KIND -> 3
-                    Play.PlayType.FOUR_OF_A_KIND -> 4
+                { it[0].rank.ordinal },
+                {
+                    when (it.playType) {
+                        Play.PlayType.SINGLE -> 1
+                        Play.PlayType.PAIR -> 2
+                        Play.PlayType.THREE_OF_A_KIND -> 3
+                        Play.PlayType.FOUR_OF_A_KIND -> 4
+                    }
                 }
-            }
-        ))
+            )
+        )
     }
 
     /**

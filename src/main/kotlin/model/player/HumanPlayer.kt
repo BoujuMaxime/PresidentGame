@@ -13,7 +13,7 @@ class HumanPlayer(
         lastPlay: Play?
     ): Play? {
         // Implémentation non bloquante / testable : choisir le premier coup valide disponible.
-        val possible = PlayerUtils.possiblePlays(hand, lastPlay)
+        val possible = PlayerUtils.possiblePlays(hand, lastPlay, pile)
         return if (possible.isEmpty()) null else possible.first()
     }
 

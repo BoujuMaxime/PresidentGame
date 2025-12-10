@@ -12,7 +12,7 @@ import model.player.Player
 class Game(
     val parameters: GameParameters,
     val players: MutableList<Player> = mutableListOf(),
-    val deck: MutableList<Card> = Utils.createDeck()
+    val deck: MutableList<Card> = Utils.createDeck(),
 ) {
 
     /**
@@ -27,6 +27,7 @@ class Game(
         val nbPlayers: Int = 4,
         val gameMode: GameMode = GameMode.LOCAL,
         val aiDifficulty: DifficultyLevel = DifficultyLevel.MEDIUM,
+        val consoleOutput: Boolean = true,
         val gameModeParameters: GameModeParameters = GameModeParameters()
     ) {
         /**
@@ -165,113 +166,145 @@ class Game(
             var round = 0
 
             /**
-             * Gère le déroulement d'un pli (tour de jeu où chaque joueur peut jouer ou passer).
+             * Joue un pli complet (séquence de tours où chaque joueur peut jouer ou passer).
              *
-             * C'est le Trou-du-Cul qui commence le premier pli.
+             * Comportement principal
+             * - Le pli démarre avec le joueur désigné (le « Trou-du-Cul » pour le premier pli,
+             *   puis le gagnant du pli précédent pour les suivants).
+             * - À son tour, un joueur peut jouer un coup valide ou passer. Un joueur qui passe
+             *   ne peut plus jouer sur ce pli jusqu'à ce que la pile soit résolue.
+             * - Le premier coup du pli détermine le type (simple, paire, brelan, carré) et le
+             *   nombre de cartes à jouer; les suivants doivent jouer le même nombre de cartes
+             *   d'un rang supérieur ou équivalent, ou passer.
              *
-             * Chaque joueur joue l'un après l'autre, on peut jouer ou passer.
+             * Règles spéciales
+             * - `TaGueule` (si activée) : lorsqu'il y a deux poses consécutives de deux cartes
+             *   du même rang, le joueur suivant est contraint d'ajouter une carte de ce rang
+             *   s'il le peut; sinon il passe (et pourra rejouer lors du pli suivant). La contrainte
+             *   peut se propager selon la règle décrite dans l'implémentation.
+             * - `Carré magique` (si activée) : poser la quatrième carte d'une même valeur
+             *   remporte immédiatement le pli.
+             * - Carte « 2 » (rang maximum) : poser un 2 remporte immédiatement le pli.
+             * - Si le premier joueur vide sa main en posant, le gagnant du pli devient le joueur
+             *   suivant (on ne compte pas le président pour remporter ce pli).
              *
-             * Si un joueur passe, il ne peut plus jouer.
+             * Effets de bord
+             * - Modifie les mains des joueurs (retrait/ajout de cartes).
+             * - Met à jour `firstPlayer` pour indiquer qui commencera le pli suivant.
+             * - Déplace les cartes de la pile vers la défausse lorsque le pli est conclu.
              *
-             * Si un joueur joue, il doit jouer au moins une carte supérieure ou équivalente en rangs.
+             * Conditions de terminaison
+             * - Le pli se poursuit tant qu'il y a au moins deux joueurs avec des cartes.
+             * - Le pli se termine immédiatement si une condition de victoire instantanée
+             *   (pose d'un 2, carré magique) est remplie, ou quand tous les autres joueurs
+             *   ont passé après une pose valide.
              *
-             * Si la règle `TaGueule` est active :
-             * - Dès que deux joueurs jouent consécutivement deux cartes de meme rangs le troisième doit joue une carte de ce rang
-             * - S'il ne peut pas, il passe son tour (il pourra rejouer au prochain tour).
-             * - S'il peut jouer, alors c'est au quatrième de jouer une carte de ce rang.
-             * - S'il ne peut pas, il passe son tour (il pourra rejouer au prochain tour).
+             * Robustesse
+             * - Les exceptions levées par `Player.playTurn` sont interceptées et considérées
+             *   comme un passage pour le joueur concerné.
              *
-             * Le premier joueur peut decidé de jouer une carte simple, une paire, un brelan ou un carré.
-             *
-             * Les joueurs suivants doivent jouer le même nombre de cartes de rang supérieur ou équivalent ou passer.
-             *
-             * Si un joueur s'est défaussé de toutes ses cartes, il est ajouté au classement.
-             *
-             * Règles de victoire d'un pli :
-             * - Un joueur joue un "2" : il remporte immédiatement le pli.
-             * - Un joueur pose la quatrième carte d'une même valeur ("Carré magique", si la règle est activée) : il remporte le pli.
-             * - Tous les autres joueurs passent après une pose : le dernier joueur à avoir joué remporte le pli.
-             * - Si le premier joueur vide sa main pendant le pli, le joueur suivant remporte le pli (on ne joue pas sur le président).
-             *
-             * Le vainqueur du pli commence le pli suivant.
+             * Remarque
+             * - Cette fonction n'effectue pas la distribution ni l'attribution des rôles; elle
+             *   met à jour uniquement l'état lié au déroulement des plis.
              */
             fun playPile() {
+                // Fonction interne pour récupérer les joueurs encore actifs (ayant des cartes en main)
                 fun activePlayers() = players.filter { it.hand.isNotEmpty() }
-                if (activePlayers().size <= 1) return
+                if (activePlayers().size <= 1) return // Arrête si un seul joueur ou moins a encore des cartes
 
-                val passes = mutableSetOf<Player>()
-                var lastPlay: Play? = null
-                var lastPlayer: Player? = null
-                val maxRank = Card.Rank.entries.maxByOrNull { it.ordinal }
-                val carreEnabled = parameters.gameModeParameters.withCarreMagique
-                val forceEnabled = parameters.gameModeParameters.withTaGueule
+                val pile = mutableListOf<Card>() // Pile de cartes jouées
+                val discardPile = mutableListOf<Card>() // Pile de défausse
+                val maxRank = Card.Rank.entries.maxByOrNull { it.ordinal } // Rang maximum des cartes
+                val carreEnabled =
+                    parameters.gameModeParameters.withCarreMagique // Règle "Carré magique" activée ou non
+                val starter = firstPlayer // Premier joueur du pli
+                val starterIndex = players.indexOf(starter).takeIf { it >= 0 } ?: 0 // Index du premier joueur
 
-                val starter = firstPlayer
-                val starterIndex = players.indexOf(starter).takeIf { it >= 0 } ?: 0
-                var turnOffset = 0
+                /**
+                 * Fonction récursive pour gérer les tours de jeu.
+                 *
+                 * @param turnOffset Décalage pour déterminer le joueur actuel.
+                 * @param passes Ensemble des joueurs ayant passé leur tour.
+                 * @param lastPlay Dernier coup joué.
+                 * @param lastPlayer Dernier joueur ayant joué.
+                 * @param anyPlayHappened Indique si un coup valide a été joué dans ce pli.
+                 * @return Le joueur qui remporte le pli, ou `null` si aucun.
+                 */
+                tailrec fun recurse(
+                    turnOffset: Int,
+                    passes: Set<Player>,
+                    lastPlay: Play?,
+                    lastPlayer: Player?,
+                    anyPlayHappened: Boolean
+                ): Player? {
+                    val current = players[(starterIndex + turnOffset) % players.size] // Joueur actuel
+                    val mutablePasses = passes.toMutableSet() // Copie mutable des joueurs ayant passé
+                    var lp = lastPlay // Dernier coup joué
+                    var lplayer = lastPlayer // Dernier joueur ayant joué
+                    var anyPlay = anyPlayHappened // Indique si un coup valide a été joué
 
-                var anyPlayHappened = false
-
-                while (true) {
-                    val current = players[(starterIndex + turnOffset) % players.size]
-                    turnOffset++
-
+                    // Si le joueur actuel n'a plus de cartes, passer au joueur suivant
                     if (current.hand.isEmpty()) {
-                        continue
+                        return recurse(turnOffset + 1, mutablePasses, lp, lplayer, anyPlay)
                     }
 
-                    if (lastPlay != null && lastPlayer != null) {
-                        val others = players.filter { it.hand.isNotEmpty() && it != lastPlayer }
-                        if (others.all { it in passes }) {
-                            discardPile.addAll(pile)
-                            pile.clear()
-                            firstPlayer = lastPlayer
-                            return
+                    // Vérifie si tous les autres joueurs ont passé après le dernier joueur ayant joué
+                    if (lp != null && lplayer != null) {
+                        val others = players.filter { it.hand.isNotEmpty() && it != lplayer }
+                        if (others.all { it in mutablePasses }) {
+                            discardPile.addAll(pile) // Défausse les cartes de la pile
+                            pile.clear() // Vide la pile
+                            return lplayer // Le dernier joueur ayant joué remporte le pli
                         }
                     }
 
+                    // Si aucun coup n'a été joué et que tous les joueurs actifs ont passé
                     val active = activePlayers()
-                    if (!anyPlayHappened && passes.containsAll(active)) {
-                        val nextStarter = players.subList((starterIndex + 1) % players.size, players.size) +
-                                players.subList(0, (starterIndex + 1) % players.size)
-                        firstPlayer = nextStarter.firstOrNull { it.hand.isNotEmpty() } ?: starter
-                        return
+                    if (!anyPlay && mutablePasses.containsAll(active)) {
+                        val nextStartIndex = (starterIndex + 1) % players.size
+                        val nextStarter = players.subList(nextStartIndex, players.size) +
+                                players.subList(0, nextStartIndex)
+                        return nextStarter.firstOrNull { it.hand.isNotEmpty() } ?: starter
                     }
 
+                    // Le joueur actuel tente de jouer
                     val play = try {
-                        current.playTurn(pile, discardPile, lastPlay)
+                        current.playTurn(pile, discardPile, lp)
                     } catch (e: Exception) {
-                        null
+                        null // En cas d'erreur, le joueur passe son tour
                     }
 
                     if (play == null) {
-                        passes.add(current)
+                        mutablePasses.add(current) // Ajoute le joueur à ceux ayant passé
+                        return recurse(turnOffset + 1, mutablePasses, lp, lplayer, anyPlay)
                     } else {
-                        if (lastPlay != null && play.playType != lastPlay.playType) {
-                            passes.add(current)
-                            continue
+                        // Vérifie si le coup est valide
+                        if (lp != null && play.playType != lp.playType) {
+                            mutablePasses.add(current)
+                            return recurse(turnOffset + 1, mutablePasses, lp, lplayer, anyPlay)
                         }
-                        if (!play.canBePlayedOn(lastPlay)) {
-                            passes.add(current)
-                            continue
+                        if (!play.canBePlayedOn(lp)) {
+                            mutablePasses.add(current)
+                            return recurse(turnOffset + 1, mutablePasses, lp, lplayer, anyPlay)
                         }
 
+                        // Ajoute les cartes jouées à la pile et les retire de la main du joueur
                         play.forEach { card ->
                             if (current.hand.remove(card)) {
                                 pile.add(card)
                             }
                         }
 
-                        anyPlayHappened = true
-                        passes.clear()
-                        lastPlay = play
-                        lastPlayer = current
+                        anyPlay = true // Indique qu'un coup valide a été joué
+                        mutablePasses.clear() // Réinitialise les joueurs ayant passé
+                        lp = play // Met à jour le dernier coup joué
+                        lplayer = current // Met à jour le dernier joueur ayant joué
 
+                        // Vérifie si le pli est remporté par un "2" ou un "Carré magique"
                         if (maxRank != null && play.any { it.rank == maxRank }) {
                             discardPile.addAll(pile)
                             pile.clear()
-                            firstPlayer = current
-                            return
+                            return current
                         }
 
                         if (carreEnabled && pile.size >= 4) {
@@ -280,11 +313,11 @@ class Game(
                             if (allSameRank) {
                                 discardPile.addAll(pile)
                                 pile.clear()
-                                firstPlayer = current
-                                return
+                                return current
                             }
                         }
 
+                        // Si le premier joueur vide sa main, le joueur suivant remporte le pli
                         if (current == starter && current.hand.isEmpty()) {
                             val nextWinner = players.dropWhile { it != current }
                                 .drop(1)
@@ -292,11 +325,17 @@ class Game(
                                 .firstOrNull { it.hand.isNotEmpty() } ?: current
                             discardPile.addAll(pile)
                             pile.clear()
-                            firstPlayer = nextWinner
-                            return
+                            return nextWinner
                         }
+
+                        // Passe au joueur suivant
+                        return recurse(turnOffset + 1, mutablePasses, lp, lplayer, anyPlay)
                     }
                 }
+
+                // Lance la récursion pour jouer le pli
+                val winner = recurse(0, emptySet(), null, null, false)
+                if (winner != null) firstPlayer = winner // Met à jour le premier joueur pour le prochain pli
             }
 
             while (players.count { it.hand.isNotEmpty() } > 1) {

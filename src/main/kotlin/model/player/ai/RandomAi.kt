@@ -13,7 +13,7 @@ class RandomAi(
         discardPile: MutableList<Card>,
         lastPlay: Play?
     ): Play? {
-        val possible = PlayerUtils.possiblePlays(hand, lastPlay)
+        val possible = PlayerUtils.possiblePlays(hand, lastPlay, pile)
         return AiUtils.chooseRandomPlay(possible)
     }
 
