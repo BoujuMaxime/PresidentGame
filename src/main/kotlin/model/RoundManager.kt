@@ -1,7 +1,6 @@
 package model
 
 import model.player.Player
-import model.player.PlayerUtils
 
 /**
  * Classe gérant le déroulement des manches dans une partie de Président.
@@ -214,16 +213,4 @@ class RoundManager(
         Utils.printGameLifecycle("Fin des plis, classement: ${ranking.map { it.id }}")
         return ranking
     }
-
-    /**
-     * Expose les coups valides pour un joueur.
-     *
-     * @param hand La main du joueur.
-     * @param lastPlay Le dernier coup joué.
-     * @param pile La pile de cartes en jeu.
-     * @param straightRank Le rang pour les suites (si applicable).
-     * @return Une liste des coups possibles pour le joueur.
-     */
-    fun validPlaysForPlayer(hand: List<Card>, lastPlay: Play?, pile: List<Card>, straightRank: Card.Rank?) =
-        PlayerUtils.possiblePlays(hand, lastPlay, pile, straightRank)
 }
