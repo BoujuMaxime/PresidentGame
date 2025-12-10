@@ -10,7 +10,7 @@ object PlayerUtils {
     /**
      * Trie la main en place par rang (ordre croissant selon `Card.rank`).
      *
-     * @param hand liste mutable de `Card` à trier.
+     * @param hand Liste mutable de `Card` à trier.
      */
     fun sortHandByRank(hand: MutableList<Card>) {
         hand.sortBy { it.rank }
@@ -23,14 +23,22 @@ object PlayerUtils {
      * Le résultat est trié pour assurer une stabilité : d'abord par rang (ordinal de la première
      * carte du coup), puis par type de coup (SINGLE < PAIR < THREE_OF_A_KIND < FOUR_OF_A_KIND).
      *
-     * Ajout : vérification de la règle "straigth" à partir de la `pile`.
+     * Ajout : vérification de la règle "straight" à partir de la `pile`.
      *
-     * @param hand liste de `Card` représentant la main du joueur.
-     * @param lastPlay coup précédent (optionnel) utilisé pour filtrer les coups valides.
-     * @param pile pile de cartes jouées (utilisée pour détecter la contrainte straigth).
-     * @return liste de `Play` représentant les coups possibles triés.
+     * @param hand Liste de `Card` représentant la main du joueur.
+     * @param lastPlay Coup précédent (optionnel) utilisé pour filtrer les coups valides.
+     * @param pile Pile de cartes jouées (utilisée pour détecter la contrainte "straight").
+     * @param straightRank Rang pour les suites (si applicable).
+     * @return Liste de `Play` représentant les coups possibles triés.
      */
     fun possiblePlays(hand: List<Card>, lastPlay: Play?, pile: List<Card>, straightRank: Card.Rank?): List<Play> {
+        /**
+         * Génère toutes les combinaisons possibles de taille `k` à partir d'une liste donnée.
+         *
+         * @param list Liste source.
+         * @param k Taille des combinaisons.
+         * @return Liste de combinaisons.
+         */
         fun <T> combinations(list: List<T>, k: Int): List<List<T>> {
             if (k == 0) return listOf(emptyList())
             if (k > list.size) return emptyList()
@@ -52,7 +60,11 @@ object PlayerUtils {
 
         val plays = mutableListOf<Play>()
         val groups = hand.groupBy { it.rank }
+
+        // Ajoute les coups simples (une seule carte).
         hand.forEach { card -> plays.add(Play(listOf(card), Play.PlayType.SINGLE)) }
+
+        // Ajoute les combinaisons de cartes du même rang (paires, brelans, carrés).
         for ((_, cardsOfSameRank) in groups) {
             val maxSize = minOf(4, cardsOfSameRank.size)
             for (size in 2..maxSize) {
@@ -69,6 +81,7 @@ object PlayerUtils {
             }
         }
 
+        // Filtre les coups selon la règle "straight" si applicable.
         val playsAfterStraigth = if (straightRank != null) {
             val candidate = plays.filter { play -> play.any { it.rank == straightRank } }
             candidate.ifEmpty {
@@ -76,12 +89,14 @@ object PlayerUtils {
             }
         } else plays
 
+        // Filtre les coups valides selon le dernier coup joué.
         val filtered = if (lastPlay == null) {
             playsAfterStraigth
         } else {
             playsAfterStraigth.filter { it.canBePlayedOn(lastPlay) }
         }
 
+        // Trie les coups par rang et type.
         return filtered.sortedWith(
             compareBy(
                 { it[0].rank.ordinal },
@@ -100,7 +115,7 @@ object PlayerUtils {
     /**
      * Affiche la main sur la sortie standard avec un index pour chaque carte.
      *
-     * @param hand liste de `Card` à afficher.
+     * @param hand Liste de `Card` à afficher.
      */
     fun printHand(hand: List<Card>) {
         println("Votre main :")

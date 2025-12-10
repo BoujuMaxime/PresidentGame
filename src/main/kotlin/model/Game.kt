@@ -1,8 +1,6 @@
 package model
 
 import model.player.Player
-import model.RoundManager
-import kotlin.compareTo
 
 /**
  * Classe représentant le déroulement d'une partie de Président.
@@ -172,7 +170,6 @@ class Game(
          * tant qu'il reste plus d'un joueur avec des cartes.
          */
         fun playRound() {
-            // Délégation de la logique des plis au RoundManager
             val roundManager = RoundManager(parameters, players)
             lastGameRanking = roundManager.startRound(lastGameRanking.firstOrNull() ?: players.first())
         }
