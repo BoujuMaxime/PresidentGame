@@ -1,7 +1,5 @@
 package model
 
-import kotlin.times
-
 object Utils {
     fun createDeck(): MutableList<Card> {
         val deck = mutableListOf<Card>()

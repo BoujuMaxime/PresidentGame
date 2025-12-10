@@ -32,6 +32,15 @@ class Play(
     }
 
     /**
+     * Retourne le rang des cartes posées par le joueur, par exemple ACE, KING, QUEEN, etc.
+     *
+     * @return Le rang des cartes.
+     */
+    fun getRank(): Card.Rank {
+        return cards[0].rank
+    }
+
+    /**
      * Détermine si ce jeu peut être joué sur un autre jeu.
      *
      * @param top Le jeu actuellement au sommet de la pile, ou `null` s'il n'y a pas de jeu précédent.

@@ -3,7 +3,6 @@ package model.player.ai
 import model.Card
 import model.Play
 import model.player.PlayerUtils
-import kotlin.random.Random
 
 class RandomAi(
     id: String,

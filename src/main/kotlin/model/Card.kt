@@ -11,14 +11,36 @@ data class Card(val rank: Rank, val suit: Suit) : Comparable<Card> {
     /**
      * Énumération représentant les couleurs possibles d'une carte.
      */
-    enum class Suit { CLUBS, DIAMONDS, HEARTS, SPADES }
+    enum class Suit(val displayName: String, val icon: String) {
+        CLUBS("Trèfle", "♣"),
+        DIAMONDS("Carreau", "♦"),
+        HEARTS("Coeur", "♥"),
+        SPADES("Pique", "♠");
+
+        override fun toString(): String = "$displayName $icon"
+    }
 
     /**
      * Énumération représentant les valeurs possibles d'une carte.
      * Les valeurs sont ordonnées selon leur puissance dans le jeu.
      */
-    enum class Rank { THREE, FOUR, FIVE, SIX, SEVEN, EIGHT, NINE, TEN, JACK, QUEEN, KING, ACE, TWO }
+    enum class Rank {
+        THREE { override fun toString() = "3" },
+        FOUR { override fun toString() = "4" },
+        FIVE { override fun toString() = "5" },
+        SIX { override fun toString() = "6" },
+        SEVEN { override fun toString() = "7" },
+        EIGHT { override fun toString() = "8" },
+        NINE { override fun toString() = "9" },
+        TEN { override fun toString() = "10" },
+        JACK { override fun toString() = "Valet" },
+        QUEEN { override fun toString() = "Dame" },
+        KING { override fun toString() = "Roi" },
+        ACE { override fun toString() = "As" },
+        TWO { override fun toString() = "2" };
 
+        override fun toString(): String = name
+    }
     /**
      * Vérifie l'égalité entre deux cartes.
      * Deux cartes sont égales si elles ont la même valeur (`rank`) et la même couleur (`suit`).
@@ -49,5 +71,5 @@ data class Card(val rank: Rank, val suit: Suit) : Comparable<Card> {
      *
      * @return Une chaîne de caractères représentant la carte.
      */
-    override fun toString(): String = "${rank.name} of ${suit.name}"
+    override fun toString(): String = "${rank} de ${suit}"
 }

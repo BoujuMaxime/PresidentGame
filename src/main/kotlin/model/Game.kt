@@ -54,7 +54,7 @@ class Game(
     /**
      * Liste des joueurs classés selon leur performance au dernier tour.
      */
-    private var lastRoundRanking: List<Player> = emptyList()
+    private var lastGameRanking: List<Player> = emptyList()
 
     /**
      * Démarre la partie en initialisant le jeu, distribuant les cartes,
@@ -94,6 +94,7 @@ class Game(
          * du dernier tour.
          */
         fun exchangeCards() {
+
             /**
              * Échange un nombre donné de cartes entre deux joueurs.
              *
@@ -137,8 +138,10 @@ class Game(
                 transferCards(receiver, sender, lowestFromReceiver)
             }
 
-            if (lastRoundRanking.size < 2) return
-            val ordered = lastRoundRanking
+            if (lastGameRanking.size < 2) {
+                return
+            }
+            val ordered = lastGameRanking
             val president = ordered.first()
             val asshole = ordered.last()
             swapCards(president, asshole, 2)
@@ -158,7 +161,7 @@ class Game(
             val ranking = mutableListOf<Player>()
             val pile = mutableListOf<Card>()
             val discardPile = mutableListOf<Card>()
-            var firstPlayer = lastRoundRanking.firstOrNull() ?: players.first()
+            var firstPlayer = lastGameRanking.firstOrNull() ?: players.first()
             var round = 0
 
             /**
@@ -171,6 +174,12 @@ class Game(
              * Si un joueur passe, il ne peut plus jouer.
              *
              * Si un joueur joue, il doit jouer au moins une carte supérieure ou équivalente en rangs.
+             *
+             * Si la règle `TaGueule` est active :
+             * - Dès que deux joueurs jouent consécutivement deux cartes de meme rangs le troisième doit joue une carte de ce rang
+             * - S'il ne peut pas, il passe son tour (il pourra rejouer au prochain tour).
+             * - S'il peut jouer, alors c'est au quatrième de jouer une carte de ce rang.
+             * - S'il ne peut pas, il passe son tour (il pourra rejouer au prochain tour).
              *
              * Le premier joueur peut decidé de jouer une carte simple, une paire, un brelan ou un carré.
              *
@@ -195,12 +204,12 @@ class Game(
                 var lastPlayer: Player? = null
                 val maxRank = Card.Rank.entries.maxByOrNull { it.ordinal }
                 val carreEnabled = parameters.gameModeParameters.withCarreMagique
+                val forceEnabled = parameters.gameModeParameters.withTaGueule
 
                 val starter = firstPlayer
                 val starterIndex = players.indexOf(starter).takeIf { it >= 0 } ?: 0
                 var turnOffset = 0
 
-                // Si personne ne joue (tout le monde passe sans qu'il y ait eu de play), on avance le starter
                 var anyPlayHappened = false
 
                 while (true) {
@@ -208,16 +217,12 @@ class Game(
                     turnOffset++
 
                     if (current.hand.isEmpty()) {
-                        // joueur déjà sorti, on l'ignore
                         continue
                     }
 
-                    // Si un dernier play existe et tous les autres joueurs actifs ont passé → lastPlayer gagne
                     if (lastPlay != null && lastPlayer != null) {
                         val others = players.filter { it.hand.isNotEmpty() && it != lastPlayer }
                         if (others.all { it in passes }) {
-                            // lastPlayer remporte le pli
-                            // Déplacer la pile dans la défausse
                             discardPile.addAll(pile)
                             pile.clear()
                             firstPlayer = lastPlayer
@@ -225,17 +230,14 @@ class Game(
                         }
                     }
 
-                    // Si aucun play n'a eu lieu et tout le monde a passé → on change de starter et termine le pli (pile vide)
                     val active = activePlayers()
                     if (!anyPlayHappened && passes.containsAll(active)) {
-                        // Choisir le joueur suivant non-vide comme starter
                         val nextStarter = players.subList((starterIndex + 1) % players.size, players.size) +
                                 players.subList(0, (starterIndex + 1) % players.size)
                         firstPlayer = nextStarter.firstOrNull { it.hand.isNotEmpty() } ?: starter
                         return
                     }
 
-                    // Demande au joueur de jouer
                     val play = try {
                         current.playTurn(pile, discardPile, lastPlay)
                     } catch (e: Exception) {
@@ -243,22 +245,17 @@ class Game(
                     }
 
                     if (play == null) {
-                        // passe
                         passes.add(current)
                     } else {
-                        // vérification basique : correspond au dernier type de jeu (si lastPlay non nul)
                         if (lastPlay != null && play.playType != lastPlay.playType) {
-                            // Coup invalide par rapport au pli en cours → considérer comme passe
                             passes.add(current)
                             continue
                         }
                         if (!play.canBePlayedOn(lastPlay)) {
-                            // Coup invalide (rang inférieur) → passe
                             passes.add(current)
                             continue
                         }
 
-                        // Retirer les cartes jouées de la main du joueur et les ajouter à la pile
                         play.forEach { card ->
                             if (current.hand.remove(card)) {
                                 pile.add(card)
@@ -270,26 +267,25 @@ class Game(
                         lastPlay = play
                         lastPlayer = current
 
-                        // Vérifier victoire immédiate sur 2
                         if (maxRank != null && play.any { it.rank == maxRank }) {
-                            // current remporte immédiatement le pli
                             discardPile.addAll(pile)
                             pile.clear()
                             firstPlayer = current
                             return
                         }
 
-                        // Vérifier carré magique (si activé) : poser un FOUR_OF_A_KIND gagne
-                        if (carreEnabled && play.playType == Play.PlayType.FOUR_OF_A_KIND) {
-                            discardPile.addAll(pile)
-                            pile.clear()
-                            firstPlayer = current
-                            return
+                        if (carreEnabled && pile.size >= 4) {
+                            val lastFour = pile.takeLast(4)
+                            val allSameRank = lastFour.map { it.rank }.distinct().size == 1
+                            if (allSameRank) {
+                                discardPile.addAll(pile)
+                                pile.clear()
+                                firstPlayer = current
+                                return
+                            }
                         }
 
-                        // Si le starter vide sa main en jouant, le joueur suivant remporte le pli
                         if (current == starter && current.hand.isEmpty()) {
-                            // trouver le suivant actif
                             val nextWinner = players.dropWhile { it != current }
                                 .drop(1)
                                 .plus(players.takeWhile { it != current })
@@ -300,29 +296,26 @@ class Game(
                             return
                         }
                     }
-
-                    // Boucle de protection : si on a fait un tour complet sans changement notable, continuer
-                    // Le while se poursuit jusqu'à ce qu'un gagnant soit déterminé par les conditions ci‑dessus.
                 }
             }
 
-            // Boucle principale : on joue des plis tant qu'il reste plus d'un joueur avec des cartes
             while (players.count { it.hand.isNotEmpty() } > 1) {
                 playPile()
-                players.filter { it.hand.isEmpty() && it !in ranking }.forEach { ranking.add(it) }
+                players.filter { it.hand.isEmpty() && it !in ranking }.forEach {
+                    ranking.add(it)
+                }
                 round++
             }
 
-            // Ajoute le dernier joueur restant
             ranking.addAll(players.filter { it !in ranking })
-            lastRoundRanking = ranking
+            lastGameRanking = ranking
         }
 
         /**
          * Assigne les rôles aux joueurs en fonction de leur classement final.
          */
         fun assignRoles() {
-            val ordered = lastRoundRanking.ifEmpty { players }
+            val ordered = lastGameRanking.ifEmpty { players }
             ordered.forEachIndexed { index, player ->
                 player.role = when (index) {
                     0 -> Player.Role.PRESIDENT
