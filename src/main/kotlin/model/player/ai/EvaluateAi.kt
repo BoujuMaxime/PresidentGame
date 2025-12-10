@@ -15,4 +15,8 @@ class EvaluateAi(
         TODO("Not yet implemented")
     }
 
+    override fun giveCardsToPlayer(cards: List<Card>) {
+        TODO("Not yet implemented")
+    }
+
 }

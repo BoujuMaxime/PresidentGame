@@ -3,9 +3,9 @@ package model
 import java.util.function.IntFunction
 
 /**
- * Représente un ensemble de cartes jouées dans un jeu, avec un type de jeu spécifique.
+ * Représente un ensemble de cartes jouées par un joueur, avec un type de jeu spécifique.
  *
- * @property cards La liste des cartes constituant ce jeu.
+ * @property cards La liste des cartes posées par le joueur.
  * @property playType Le type de jeu (SINGLE, PAIR, THREE_OF_A_KIND, FOUR_OF_A_KIND).
  * Par défaut, il s'agit de SINGLE.
  */
