@@ -1,12 +1,17 @@
 package model.player.ai
 
 import model.Card
+import model.Play
 
 class RandomAi(
     id: String,
     hand: MutableList<Card>
 ) : Ai(id, hand) {
-    override fun playTurn() {
+    override fun playTurn(
+        pile: MutableList<Card>,
+        discardPile: MutableList<Card>,
+        lastPlay: Play
+    ): Play {
         TODO("Not yet implemented")
     }
 }

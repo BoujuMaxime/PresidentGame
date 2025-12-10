@@ -6,7 +6,5 @@ import model.player.PlayerUtils
 
 abstract class Ai(
     id: String,
-    hand: MutableList<Card>,
-    playerUtils: PlayerUtils = PlayerUtils,
-    val aiUtils: AiUtils = AiUtils
+    hand: MutableList<Card>
 ) : AiInterface, Player(id, hand)
