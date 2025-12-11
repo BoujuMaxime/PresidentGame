@@ -7,6 +7,7 @@ import model.player.Player
  *
  * @property parameters Les paramètres de la partie qui définissent les règles et options.
  * @property players La liste des joueurs participant à la partie.
+ * @author BOUJU Maxime
  */
 class GameTurns(
     private val parameters: Game.GameParameters,

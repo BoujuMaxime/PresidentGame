@@ -7,6 +7,7 @@ import java.util.function.IntFunction
  *
  * @property cards La liste des cartes posées par le joueur.
  * @property playType Le type de jeu (SINGLE, PAIR, THREE_OF_A_KIND, FOUR_OF_A_KIND).
+ * @author BOUJU Maxime
  */
 class PlayerMove(
     private val cards: List<Card>,

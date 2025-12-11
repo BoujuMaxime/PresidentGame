@@ -8,6 +8,7 @@ import model.player.Player
  * @property parameters Paramètres de configuration de la partie
  * @property players Liste des joueurs participant à la partie
  * @property deck Paquet de cartes utilisé pour la partie
+ * @author BOUJU Maxime
  */
 class Game(
     val parameters: GameParameters,
