@@ -1,5 +1,4 @@
 import model.Game
-import model.player.HumanPlayer
 import model.player.ai.EvaluateAi
 import model.player.ai.RandomAi
 import java.io.PrintStream

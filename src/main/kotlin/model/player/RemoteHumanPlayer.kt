@@ -12,7 +12,7 @@ class RemoteHumanPlayer(
         discardPile: MutableList<Card>,
         lastPlay: Play?,
         straightRank: Card.Rank?
-    ): Play? {
+    ): Play {
         TODO("Not yet implemented")
     }
 

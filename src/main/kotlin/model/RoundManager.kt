@@ -1,8 +1,6 @@
 package model
 
 import model.player.Player
-import kotlin.rem
-import kotlin.text.get
 
 /**
  * Gère les tours de jeu, incluant les tours des joueurs, la mise à jour des classements et les règles spéciales.
@@ -67,7 +65,7 @@ class RoundManager(
      * @param firstPlayerLocal Le joueur qui commence le pli.
      * @param discardPile La pile de cartes défaussées.
      */
-    private fun playPile(firstPlayerLocal: Player, discardPile: MutableList<Card>):Player? {
+    private fun playPile(firstPlayerLocal: Player, discardPile: MutableList<Card>): Player? {
         if (activePlayers().size <= 1) return null
 
         val pile = mutableListOf<Card>()

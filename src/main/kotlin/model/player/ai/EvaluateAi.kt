@@ -2,7 +2,6 @@ package model.player.ai
 
 import model.Card
 import model.Play
-import model.player.PlayerUtils
 
 class EvaluateAi(
     id: String,
@@ -13,7 +12,7 @@ class EvaluateAi(
         discardPile: MutableList<Card>,
         lastPlay: Play?,
         straightRank: Card.Rank?
-    ): Play? {
+    ): Play {
         TODO("Not yet implemented")
     }
 

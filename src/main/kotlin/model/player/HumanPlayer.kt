@@ -12,8 +12,8 @@ class HumanPlayer(
         discardPile: MutableList<Card>,
         lastPlay: Play?,
         straightRank: Card.Rank?
-    ): Play? {
-        val possible = PlayerUtils.possiblePlays(hand, lastPlay, pile, straightRank)
+    ): Play {
+        PlayerUtils.possiblePlays(hand, lastPlay, pile, straightRank)
         // System d'input externe requis pour un vrai joueur humain
         TODO("Not yet implemented")
     }
