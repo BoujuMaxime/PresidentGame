@@ -150,7 +150,7 @@ class Game(
     private fun exchangePresidentAndAsshole() {
         val president = lastGameRanking.first()
         val asshole = lastGameRanking.last()
-        swapCards(president, asshole, 2)
+        swapCards(asshole, president, 2)
     }
 
     /**
@@ -164,7 +164,7 @@ class Game(
         val asshole = ordered.last()
 
         if (canExchangeViceRoles(vicePresident, viceAsshole, president, asshole)) {
-            swapCards(vicePresident!!, viceAsshole!!, 1)
+            swapCards(viceAsshole!!, vicePresident!!, 1)
         }
     }
 

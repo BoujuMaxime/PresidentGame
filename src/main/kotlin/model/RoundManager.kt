@@ -1,6 +1,8 @@
 package model
 
 import model.player.Player
+import kotlin.rem
+import kotlin.text.get
 
 /**
  * Gère les tours de jeu, incluant les tours des joueurs, la mise à jour des classements et les règles spéciales.
@@ -12,6 +14,10 @@ class RoundManager(
     private val parameters: Game.GameParameters,
     private val players: MutableList<Player>
 ) {
+    /**
+     * Le premier joueur à avoir vidé sa main lors du tour en cours.
+     */
+    private var firstPlayerToEmptyHand: Player? = null
 
     /**
      * Lance un nouveau tour de jeu.
@@ -22,16 +28,15 @@ class RoundManager(
     fun startRound(firstPlayer: Player?): List<Player> {
         Utils.printGameLifecycle("Début des plis")
         val ranking = mutableListOf<Player>()
+        firstPlayerToEmptyHand = null
         val discardPile = mutableListOf<Card>()
-        val firstPlayerLocal = firstPlayer ?: players.first()
+        var currentStarter = firstPlayer ?: players.first()
 
-        // Continue à jouer tant que plus d’un joueur a encore des cartes.
         while (activePlayers().size > 1) {
-            playPile(firstPlayerLocal, discardPile)
+            currentStarter = playPile(currentStarter, discardPile) ?: currentStarter
             updateRanking(ranking)
         }
 
-        // Ajoute les joueurs restants au classement.
         ranking.addAll(players.filter { it !in ranking })
         Utils.printGameLifecycle("Fin des plis, classement: ${ranking.map { it.id }}")
         return ranking
@@ -62,8 +67,8 @@ class RoundManager(
      * @param firstPlayerLocal Le joueur qui commence le pli.
      * @param discardPile La pile de cartes défaussées.
      */
-    private fun playPile(firstPlayerLocal: Player, discardPile: MutableList<Card>) {
-        if (activePlayers().size <= 1) return
+    private fun playPile(firstPlayerLocal: Player, discardPile: MutableList<Card>):Player? {
+        if (activePlayers().size <= 1) return null
 
         val pile = mutableListOf<Card>()
         val starterIndex = players.indexOf(firstPlayerLocal).takeIf { it >= 0 } ?: 0
@@ -74,7 +79,9 @@ class RoundManager(
 
         // Boucle tant que le pli n’est pas résolu.
         while (true) {
-            val current = players[(starterIndex + playsInARow) % players.size]
+            val size = players.size
+            val currentIndex = ((starterIndex + playsInARow) % size + size) % size
+            val current = players[currentIndex]
             if (current.hand.isEmpty()) {
                 playsInARow++
                 continue
@@ -88,18 +95,19 @@ class RoundManager(
             val play = tryPlay(current, pile, discardPile, lastPlay, playsInARow)
             if (play == null) {
                 passes.add(current)
+                Utils.printAction(current.id, "passe")
                 playsInARow++
                 continue
             }
 
             applyPlayToPile(play, current, pile)
-            if (checkSpecialRules(play, pile, discardPile, current)) break
-
             lastPlay = play
             lastPlayer = current
+            if (checkSpecialRules(play, pile, discardPile, current)) break
             playsInARow++
             passes.clear()
         }
+        return lastPlayer
     }
 
     /**
@@ -197,7 +205,8 @@ class RoundManager(
                 true
             }
 
-            current.hand.isEmpty() -> {
+            current.hand.isEmpty() && firstPlayerToEmptyHand == null -> {
+                firstPlayerToEmptyHand = current
                 endPile(discardPile, pile, current, "${current.id} a vidé sa main")
                 true
             }

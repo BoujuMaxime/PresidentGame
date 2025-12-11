@@ -14,12 +14,11 @@ class HumanPlayer(
         straightRank: Card.Rank?
     ): Play? {
         val possible = PlayerUtils.possiblePlays(hand, lastPlay, pile, straightRank)
-        return if (possible.isEmpty()) null else possible.first()
+        // System d'input externe requis pour un vrai joueur humain
+        TODO("Not yet implemented")
     }
 
     override fun giveCardsToPlayer(cards: List<Card>) {
-        // Ajouter les cartes reçues à la main et trier
-        hand.addAll(cards)
-        PlayerUtils.sortHandByRank(hand)
+        TODO("Not yet implemented")
     }
 }

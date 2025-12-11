@@ -13,12 +13,10 @@ class RemoteHumanPlayer(
         lastPlay: Play?,
         straightRank: Card.Rank?
     ): Play? {
-        val possible = PlayerUtils.possiblePlays(hand, lastPlay, pile, straightRank)
-        return if (possible.isEmpty()) null else possible.first()
+        TODO("Not yet implemented")
     }
 
     override fun giveCardsToPlayer(cards: List<Card>) {
-        hand.addAll(cards)
-        PlayerUtils.sortHandByRank(hand)
+        TODO("Not yet implemented")
     }
 }

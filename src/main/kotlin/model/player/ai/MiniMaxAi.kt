@@ -15,7 +15,6 @@ class MiniMaxAi(
         lastPlay: Play?,
         straightRank: Card.Rank?
     ): Play? {
-        // Pour l'instant, utiliser l'heuristique EvaluateAi
         return fallback.playTurn(pile, discardPile, lastPlay, straightRank)
     }
 

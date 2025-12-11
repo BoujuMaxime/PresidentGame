@@ -82,7 +82,7 @@ object PlayerUtils {
         }
 
         // Filtre les coups selon la règle "straight" si applicable.
-        val playsAfterStraigth = if (straightRank != null) {
+        val playsAfterStraight = if (straightRank != null) {
             val candidate = plays.filter { play -> play.any { it.rank == straightRank } }
             candidate.ifEmpty {
                 return emptyList()
@@ -91,9 +91,9 @@ object PlayerUtils {
 
         // Filtre les coups valides selon le dernier coup joué.
         val filtered = if (lastPlay == null) {
-            playsAfterStraigth
+            playsAfterStraight
         } else {
-            playsAfterStraigth.filter { it.canBePlayedOn(lastPlay) }
+            playsAfterStraight.filter { it.canBePlayedOn(lastPlay) }
         }
 
         // Trie les coups par rang et type.
