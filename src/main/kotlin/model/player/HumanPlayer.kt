@@ -6,11 +6,8 @@ import model.player.PlayerUtils
 
 class HumanPlayer(
     id: String,
-    hand: MutableList<Card>,
-    val onTurn: ((List<Play>) -> Unit)? = null
+    hand: MutableList<Card>
 ) : Player(id, hand) {
-    var selectedPlay: Play? = null
-
     private fun displayHand(possiblePlays: List<Play>) {
         PlayerUtils.printHand(hand)
         println("Coups possibles :")
@@ -30,14 +27,17 @@ class HumanPlayer(
         straightRank: Card.Rank?
     ): Play? {
         val possiblePlays = PlayerUtils.possiblePlays(hand, lastPlay, pile, straightRank)
-        onTurn?.invoke(possiblePlays)
-        // Wait for selection
-        while (selectedPlay == null) {
-            Thread.sleep(100) // Simple polling, not ideal
+        displayHand(possiblePlays)
+        println("Sélectionnez l'indice du coup à jouer ou appuyez sur Entrée pour passer :")
+        while (true) {
+            val input = readlnOrNull()?.trim()
+            if (input.isNullOrEmpty()) return null
+            val index = input.toIntOrNull()
+            if (index != null && index in possiblePlays.indices) {
+                return possiblePlays[index]
+            }
+            println("Indice invalide, recommencez ou appuyez sur Entrée pour passer.")
         }
-        val play = selectedPlay
-        selectedPlay = null
-        return play
     }
 
     override fun giveCardsToPlayer(cards: List<Card>) {
