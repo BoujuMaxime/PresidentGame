@@ -8,7 +8,7 @@ import model.player.Player
  * @property parameters Les paramètres de la partie qui définissent les règles et options.
  * @property players La liste des joueurs participant à la partie.
  */
-class RoundManager(
+class GameTurns(
     private val parameters: Game.GameParameters,
     private val players: MutableList<Player>
 ) {
@@ -23,7 +23,7 @@ class RoundManager(
      * @param firstPlayer Le joueur qui commence le tour. Si null, le premier joueur de la liste est utilisé.
      * @return La liste des joueurs classés selon leurs performances sur ce tour.
      */
-    fun startRound(firstPlayer: Player?): List<Player> {
+    fun startTurn(firstPlayer: Player?): List<Player> {
         Utils.printGameLifecycle("Début des plis")
         val ranking = mutableListOf<Player>()
         firstPlayerToEmptyHand = null

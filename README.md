@@ -19,7 +19,7 @@ Une base en Kotlin pour expérimenter le jeu de cartes « Président » : distri
 
 ### Mécanique de partie
 - `model/Game.kt` orchestre le cycle complet (validation du nombre de joueurs, distribution, échanges de cartes selon les rôles précédents, appel à `RoundManager`, attribution finale des rôles).
-- `model/RoundManager.kt` gère les piles, les tours des joueurs, la détection des passes, les règles spéciales (`Carré Magique`, `Force Play`), la mise à jour du classement et la terminaison d’un pli.
+- `model/GameTurns.kt` gère les piles, les tours des joueurs, la détection des passes, les règles spéciales (`Carré Magique`, `Force Play`), la mise à jour du classement et la terminaison d’un pli.
 
 ### Joueurs et IA
 - `model/player/Player.kt` : base abstraite avec `id`, main mutable et énumération des rôles.
@@ -79,7 +79,7 @@ PresidentGame/
 │       ├── PlayerMove.kt
 │       ├── Utils.kt
 │       ├── Game.kt
-│       └── RoundManager.kt
+│       └── GameTurns.kt
 │       └── player/
 │           ├── Player.kt
 │           ├── PlayerInterface.kt

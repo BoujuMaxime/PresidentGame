@@ -60,7 +60,7 @@ class Game(
         resetDeck()
         distributeCards()
         exchangeCards()
-        playRound()
+        playTurn()
         assignRoles()
     }
 
@@ -262,10 +262,10 @@ class Game(
     /**
      * Lance une manche complète et met à jour le classement.
      */
-    private fun playRound() {
-        val roundManager = RoundManager(parameters, players)
+    private fun playTurn() {
+        val gameTurns = GameTurns(parameters, players)
         val startingPlayer = lastGameRanking.lastOrNull() ?: players.first()
-        lastGameRanking = roundManager.startRound(startingPlayer)
+        lastGameRanking = gameTurns.startTurn(startingPlayer)
     }
 
     /**
