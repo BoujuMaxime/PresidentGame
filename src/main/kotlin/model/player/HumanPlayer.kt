@@ -5,11 +5,8 @@ import model.Play
 
 class HumanPlayer(
     id: String,
-    hand: MutableList<Card>,
-    val onTurn: ((List<Play>) -> Unit)? = null
+    hand: MutableList<Card>
 ) : Player(id, hand) {
-    var selectedPlay: Play? = null
-
     private fun displayHand(possiblePlays: List<Play>) {
         PlayerUtils.printHand(hand)
         println("Coups possibles :")
