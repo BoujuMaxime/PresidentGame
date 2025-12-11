@@ -16,12 +16,11 @@ class EvaluateAi(
     ): Play? {
         val possible = PlayerUtils.possiblePlays(hand, lastPlay, pile, straightRank)
         if (possible.isEmpty()) return null
-        if (lastPlay == null) {
-            // Commence : jouer le coup le plus faible
-            return AiUtils.chooseLowestPlay(possible)
+        return if (lastPlay == null) {
+            chooseStarterPlay(possible)
+        } else {
+            chooseResponsePlay(possible)
         }
-        // Choisir le plus faible qui bat lastPlay (PlayerUtils.possiblePlays déjà filtre, donc on prend le plus faible)
-        return AiUtils.chooseLowestPlay(possible)
     }
 
     override fun giveCardsToPlayer(cards: List<Card>) {
@@ -29,4 +28,24 @@ class EvaluateAi(
         PlayerUtils.sortHandByRank(hand)
     }
 
+    private fun chooseStarterPlay(plays: List<Play>): Play {
+        val combos = plays.filter { it.playType != Play.PlayType.SINGLE }
+        return combos.maxWithOrNull(playStrengthComparator)
+            ?: plays.maxWithOrNull(singleRankComparator)
+            ?: plays.first()
+    }
+
+    private fun chooseResponsePlay(plays: List<Play>): Play {
+        val combos = plays.filter { it.playType != Play.PlayType.SINGLE }
+        return combos.maxWithOrNull(playStrengthComparator)
+            ?: plays.maxWithOrNull(singleRankComparator)
+            ?: plays.first()
+    }
+
+    private companion object {
+        private val playStrengthComparator = compareByDescending<Play> { it.size }
+            .thenComparing { it.getRank()}
+
+        private val singleRankComparator = playStrengthComparator
+    }
 }

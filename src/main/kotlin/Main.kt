@@ -16,9 +16,9 @@ fun main() {
     game1.players.addAll(
         listOf(
             RandomAi("G1-P1", mutableListOf()),
-            HumanPlayer("G1-P2", mutableListOf()),
+            EvaluateAi("G1-P2", mutableListOf()),
             EvaluateAi("G1-P3", mutableListOf()),
-            HumanPlayer("G1-P4", mutableListOf())
+            EvaluateAi("G1-P4", mutableListOf())
         )
     )
 

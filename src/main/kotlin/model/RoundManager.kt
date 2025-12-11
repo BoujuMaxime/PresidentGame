@@ -3,10 +3,10 @@ package model
 import model.player.Player
 
 /**
- * Manages the rounds of the game, including player turns, ranking updates, and special rules.
+ * Gère les tours de jeu, incluant les tours des joueurs, la mise à jour des classements et les règles spéciales.
  *
- * @property parameters The game parameters that define the rules and settings.
- * @property players The list of players participating in the game.
+ * @property parameters Les paramètres de la partie qui définissent les règles et options.
+ * @property players La liste des joueurs participant à la partie.
  */
 class RoundManager(
     private val parameters: Game.GameParameters,
@@ -14,10 +14,10 @@ class RoundManager(
 ) {
 
     /**
-     * Starts a new round of the game.
+     * Lance un nouveau tour de jeu.
      *
-     * @param firstPlayer The player who starts the round. If null, the first player in the list is used.
-     * @return A list of players ranked by their performance in the round.
+     * @param firstPlayer Le joueur qui commence le tour. Si null, le premier joueur de la liste est utilisé.
+     * @return La liste des joueurs classés selon leurs performances sur ce tour.
      */
     fun startRound(firstPlayer: Player?): List<Player> {
         Utils.printGameLifecycle("Début des plis")
@@ -25,29 +25,29 @@ class RoundManager(
         val discardPile = mutableListOf<Card>()
         val firstPlayerLocal = firstPlayer ?: players.first()
 
-        // Continue playing until only one player has cards left.
+        // Continue à jouer tant que plus d’un joueur a encore des cartes.
         while (activePlayers().size > 1) {
             playPile(firstPlayerLocal, discardPile)
             updateRanking(ranking)
         }
 
-        // Add remaining players to the ranking.
+        // Ajoute les joueurs restants au classement.
         ranking.addAll(players.filter { it !in ranking })
         Utils.printGameLifecycle("Fin des plis, classement: ${ranking.map { it.id }}")
         return ranking
     }
 
     /**
-     * Retrieves the list of players who still have cards in their hand.
+     * Récupère la liste des joueurs disposant encore de cartes en main.
      *
-     * @return A list of active players.
+     * @return La liste des joueurs actifs.
      */
     private fun activePlayers() = players.filter { it.hand.isNotEmpty() }
 
     /**
-     * Updates the ranking of players who have finished their hands.
+     * Met à jour le classement des joueurs ayant vidé leur main.
      *
-     * @param ranking The current ranking list to be updated.
+     * @param ranking La liste de classement actuelle à mettre à jour.
      */
     private fun updateRanking(ranking: MutableList<Player>) {
         players.filter { it.hand.isEmpty() && it !in ranking }.forEach {
@@ -57,10 +57,10 @@ class RoundManager(
     }
 
     /**
-     * Plays a pile of cards, managing player turns and applying game rules.
+     * Gère un pli de cartes, en orchestrant les tours des joueurs et l’application des règles du jeu.
      *
-     * @param firstPlayerLocal The player who starts the pile.
-     * @param discardPile The pile of discarded cards.
+     * @param firstPlayerLocal Le joueur qui commence le pli.
+     * @param discardPile La pile de cartes défaussées.
      */
     private fun playPile(firstPlayerLocal: Player, discardPile: MutableList<Card>) {
         if (activePlayers().size <= 1) return
@@ -72,13 +72,16 @@ class RoundManager(
         var lastPlayer: Player? = null
         var playsInARow = 0
 
-        // Loop until the pile is resolved.
+        // Boucle tant que le pli n’est pas résolu.
         while (true) {
             val current = players[(starterIndex + playsInARow) % players.size]
-            if (current.hand.isEmpty()) continue
+            if (current.hand.isEmpty()) {
+                playsInARow++
+                continue
+            }
 
             if (hasEveryoneButLastPassed(lastPlay, lastPlayer, passes)) {
-                endPile(discardPile, pile, lastPlayer)
+                endPile(discardPile, pile, lastPlayer, "Tous les autres ont passé")
                 break
             }
 
@@ -100,14 +103,14 @@ class RoundManager(
     }
 
     /**
-     * Attempts to play a turn for the current player.
+     * Tente de jouer pour le joueur actuel.
      *
-     * @param current The player whose turn it is.
-     * @param pile The current pile of cards.
-     * @param discardPile The pile of discarded cards.
-     * @param lastPlay The last play made in the pile.
-     * @param playsInARow The number of consecutive plays made.
-     * @return The play made by the player, or null if the player passes.
+     * @param current Le joueur dont c’est le tour.
+     * @param pile La pile de cartes en cours.
+     * @param discardPile La pile de cartes défaussées.
+     * @param lastPlay Le dernier coup joué dans la pile.
+     * @param playsInARow Le nombre de tours consécutifs déjà joués.
+     * @return Le coup joué par le joueur, ou null s’il passe.
      */
     private fun tryPlay(
         current: Player,
@@ -126,11 +129,11 @@ class RoundManager(
     }
 
     /**
-     * Computes the rank of the card that must be played, if force play is enabled.
+     * Calcule la valeur de la carte qui doit être jouée lorsque le mode force play est activé.
      *
-     * @param lastPlay The last play made in the pile.
-     * @param playsInARow The number of consecutive plays made.
-     * @return The rank of the card to be played, or null if force play is not applicable.
+     * @param lastPlay Le dernier coup joué dans le pli.
+     * @param playsInARow Le nombre de tours consécutifs déjà joués.
+     * @return La valeur de la carte à jouer, ou null si le mode force play n’est pas applicable.
      */
     private fun computeForcePlayRank(lastPlay: Play?, playsInARow: Int): Card.Rank? {
         return if (parameters.gameModeParameters.withForcePlay
@@ -141,38 +144,38 @@ class RoundManager(
     }
 
     /**
-     * Checks if all players except the last player have passed.
+     * Vérifie si tous les joueurs sauf le dernier ont passé.
      *
-     * @param lastPlay The last play made in the pile.
-     * @param lastPlayer The player who made the last play.
-     * @param passes The set of players who have passed.
-     * @return True if all players except the last player have passed, false otherwise.
+     * @param lastPlay Le dernier coup joué dans le pli.
+     * @param lastPlayer Le joueur ayant effectué le dernier coup.
+     * @param passes L’ensemble des joueurs ayant passé.
+     * @return True si tous les joueurs sauf le dernier ont passé, false sinon.
      */
     private fun hasEveryoneButLastPassed(lastPlay: Play?, lastPlayer: Player?, passes: Set<Player>) =
         lastPlay != null && lastPlayer != null &&
                 players.filter { it.hand.isNotEmpty() && it != lastPlayer }.all { it in passes }
 
     /**
-     * Ends the current pile, moving all cards to the discard pile.
+     * Termine le pli courant en transférant toutes les cartes vers la pile de défausse.
      *
-     * @param discardPile The pile of discarded cards.
-     * @param pile The current pile of cards.
-     * @param lastPlayer The player who won the pile.
+     * @param discardPile La pile de cartes défaussées.
+     * @param pile La pile de cartes en cours.
+     * @param lastPlayer Le joueur ayant remporté le pli.
      */
-    private fun endPile(discardPile: MutableList<Card>, pile: MutableList<Card>, lastPlayer: Player?) {
+    private fun endPile(discardPile: MutableList<Card>, pile: MutableList<Card>, lastPlayer: Player?, reason: String) {
         discardPile.addAll(pile)
         pile.clear()
-        Utils.printGameLifecycle("Pli remporté par ${lastPlayer?.id}")
+        Utils.printGameLifecycle("Pli remporté par ${lastPlayer?.id}: $reason")
     }
 
     /**
-     * Checks and applies special rules for the current play.
+     * Vérifie et applique les règles spéciales pour le coup en cours.
      *
-     * @param play The play made by the current player.
-     * @param pile The current pile of cards.
-     * @param discardPile The pile of discarded cards.
-     * @param current The player who made the play.
-     * @return True if the pile ends due to a special rule, false otherwise.
+     * @param play Le coup joué par le joueur actuel.
+     * @param pile La pile de cartes en cours.
+     * @param discardPile La pile de cartes défaussées.
+     * @param current Le joueur ayant effectué le coup.
+     * @return True si le pli se termine à cause d’une règle spéciale, false sinon.
      */
     private fun checkSpecialRules(
         play: Play,
@@ -185,27 +188,30 @@ class RoundManager(
 
         return when {
             maxRank != null && play.any { it.rank == maxRank } -> {
-                endPile(discardPile, pile, current)
+                endPile(discardPile, pile, current, "A joué un $maxRank")
                 true
             }
+
             straightEnable && pile.size >= 4 && pile.takeLast(4).map { it.rank }.distinct().size == 1 -> {
-                endPile(discardPile, pile, current)
+                endPile(discardPile, pile, current, "Carré Magique")
                 true
             }
+
             current.hand.isEmpty() -> {
-                endPile(discardPile, pile, current)
+                endPile(discardPile, pile, current, "${current.id} a vidé sa main")
                 true
             }
+
             else -> false
         }
     }
 
     /**
-     * Applies the current play to the pile, removing cards from the player's hand.
+     * Applique le coup actuel au pli en retirant les cartes de la main du joueur.
      *
-     * @param play The play made by the current player.
-     * @param current The player who made the play.
-     * @param pile The current pile of cards.
+     * @param play Le coup joué par le joueur actuel.
+     * @param current Le joueur ayant effectué le coup.
+     * @param pile La pile de cartes en cours.
      */
     private fun applyPlayToPile(play: Play, current: Player, pile: MutableList<Card>) {
         play.forEach { if (current.hand.remove(it)) pile.add(it) }
