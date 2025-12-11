@@ -3,10 +3,10 @@ package model
 import model.player.Player
 
 /**
- * Classe gérant le déroulement des manches dans une partie de Président.
+ * Manages the rounds of the game, including player turns, ranking updates, and special rules.
  *
- * @property parameters Les paramètres de la partie, définis par la classe `GameParameters`.
- * @property players La liste des joueurs participant à la manche.
+ * @property parameters The game parameters that define the rules and settings.
+ * @property players The list of players participating in the game.
  */
 class RoundManager(
     private val parameters: Game.GameParameters,
@@ -14,203 +14,201 @@ class RoundManager(
 ) {
 
     /**
-     * Démarre une manche complète et renvoie le classement final (dans l'ordre d'arrivée).
+     * Starts a new round of the game.
      *
-     * @param firstPlayer Le joueur qui doit commencer la première mise (optionnel).
-     * @return Une liste des joueurs dans l'ordre de leur classement final.
+     * @param firstPlayer The player who starts the round. If null, the first player in the list is used.
+     * @return A list of players ranked by their performance in the round.
      */
     fun startRound(firstPlayer: Player?): List<Player> {
         Utils.printGameLifecycle("Début des plis")
         val ranking = mutableListOf<Player>()
-        var firstPlayerLocal = firstPlayer ?: players.first()
-        var round = 0
+        val discardPile = mutableListOf<Card>()
+        val firstPlayerLocal = firstPlayer ?: players.first()
 
-        // Fonction locale pour récupérer les joueurs encore actifs (ayant des cartes en main).
-        fun activePlayers() = players.filter { it.hand.isNotEmpty() }
-
-        // Fonction locale pour jouer un pli.
-        fun playPile() {
-            if (activePlayers().size <= 1) return
-
-            val pile = mutableListOf<Card>() // Pile de cartes en jeu.
-            val discardPile = mutableListOf<Card>() // Pile de défausse.
-            val maxRank = Card.Rank.entries.maxByOrNull { it.ordinal } // Rang maximum des cartes.
-            val straightEnable = parameters.gameModeParameters.withStraight // Activation des suites.
-            val starter = firstPlayerLocal // Premier joueur du pli.
-            val starterIndex = players.indexOf(starter).takeIf { it >= 0 } ?: 0
-
-            /**
-             * Fonction récursive pour gérer les tours d'un pli.
-             *
-             * @param turnOffset Décalage pour déterminer le joueur actuel.
-             * @param passes Ensemble des joueurs ayant passé leur tour.
-             * @param lastPlay Dernier coup joué.
-             * @param lastPlayer Dernier joueur ayant joué.
-             * @param anyPlayHappened Indique si un coup valide a été joué dans le pli.
-             * @param prevPlay Avant-dernier coup joué (pour certaines règles spécifiques).
-             * @param playsInARow Nombre de coups consécutifs joués par le même joueur.
-             * @return Le joueur ayant remporté le pli, ou null si aucun.
-             */
-            tailrec fun recurse(
-                turnOffset: Int,
-                passes: Set<Player>,
-                lastPlay: Play?,
-                lastPlayer: Player?,
-                anyPlayHappened: Boolean,
-                prevPlay: Play?,
-                playsInARow: Int
-            ): Player? {
-                val current = players[(starterIndex + turnOffset) % players.size] // Joueur actuel.
-                val mutablePasses = passes.toMutableSet()
-                var lp = lastPlay
-                var lplayer = lastPlayer
-                var anyPlay = anyPlayHappened
-                var prev = prevPlay
-                var consecutive = playsInARow
-
-                // Si le joueur actuel n'a plus de cartes, passer au suivant.
-                if (current.hand.isEmpty()) {
-                    return recurse(turnOffset + 1, mutablePasses, lp, lplayer, anyPlay, prev, consecutive)
-                }
-
-                // Vérifie si tout le monde a passé après un coup valide.
-                if (lp != null && lplayer != null) {
-                    val others = players.filter { it.hand.isNotEmpty() && it != lplayer }
-                    if (others.all { it in mutablePasses }) {
-                        discardPile.addAll(pile) // Défausse les cartes du pli.
-                        pile.clear()
-                        Utils.printGameLifecycle("Pli remporté par ${lplayer.id} (tout le monde a passé)")
-                        return lplayer
-                    }
-                }
-
-                // Si aucun coup n'a été joué et que tous les joueurs actifs ont passé.
-                val active = activePlayers()
-                if (!anyPlay && mutablePasses.containsAll(active)) {
-                    val nextStartIndex = (starterIndex + 1) % players.size
-                    val nextStarter = players.subList(nextStartIndex, players.size) +
-                            players.subList(0, nextStartIndex)
-                    return nextStarter.firstOrNull { it.hand.isNotEmpty() } ?: starter
-                }
-
-                // Détermine si une contrainte de "force play" s'applique.
-                val forcePlayRank: Card.Rank? = if (parameters.gameModeParameters.withForcePlay
-                    && consecutive >= 2 && prev != null && lp != null && prev.getRank() == lp.getRank()
-                ) {
-                    lp.getRank()
-                } else null
-
-                // Le joueur actuel joue son tour.
-                val play = try {
-                    current.playTurn(pile, discardPile, lp, forcePlayRank)
-                } catch (e: Exception) {
-                    Utils.debug("Exception during ${current.id}.playTurn: ${e.message}")
-                    null
-                }
-
-                // Si le joueur ne respecte pas la contrainte de "force play", il passe.
-                if (play != null && forcePlayRank != null && play.none { it.rank == forcePlayRank }) {
-                    Utils.printAction(current.id, "ne respecte pas la contrainte Ta Gueule -> passe")
-                    val newPasses = mutablePasses.toMutableSet()
-                    newPasses.add(current)
-                    consecutive = 0
-                    return recurse(turnOffset + 1, newPasses, lp, lplayer, anyPlay, prev, consecutive)
-                }
-
-                // Si le joueur passe son tour.
-                if (play == null) {
-                    consecutive = 0
-                    mutablePasses.add(current)
-                    Utils.printAction(current.id, "passe")
-                    return recurse(turnOffset + 1, mutablePasses, lp, lplayer, anyPlay, prev, consecutive)
-                } else {
-                    // Vérifie si le coup est valide.
-                    if (lp != null && play.playType != lp.playType) {
-                        consecutive = 0
-                        mutablePasses.add(current)
-                        Utils.printAction(current.id, "pose un type différent -> invalide")
-                        return recurse(turnOffset + 1, mutablePasses, lp, lplayer, anyPlay, prev, consecutive)
-                    }
-                    if (!play.canBePlayedOn(lp)) {
-                        consecutive = 0
-                        mutablePasses.add(current)
-                        Utils.printAction(current.id, "pose mais ne peut pas jouer sur le dernier coup -> passe")
-                        return recurse(turnOffset + 1, mutablePasses, lp, lplayer, anyPlay, prev, consecutive)
-                    }
-
-                    // Ajoute les cartes jouées à la pile et les retire de la main du joueur.
-                    play.forEach { card ->
-                        if (current.hand.remove(card)) {
-                            pile.add(card)
-                        }
-                    }
-
-                    anyPlay = true
-                    mutablePasses.clear()
-
-                    prev = if (consecutive >= 1) lp else null
-                    lp = play
-                    lplayer = current
-                    consecutive += 1
-
-                    Utils.printPlay(current.id, play)
-
-                    // Vérifie si le pli est remporté par un coup spécial.
-                    if (maxRank != null && play.any { it.rank == maxRank }) {
-                        discardPile.addAll(pile)
-                        pile.clear()
-                        Utils.printGameLifecycle("${current.id} remporte le pli en posant un ${maxRank}")
-                        return current
-                    }
-
-                    if (straightEnable && pile.size >= 4) {
-                        val lastFour = pile.takeLast(4)
-                        val allSameRank = lastFour.map { it.rank }.distinct().size == 1
-                        if (allSameRank) {
-                            discardPile.addAll(pile)
-                            pile.clear()
-                            Utils.printGameLifecycle("${current.id} remporte le pli par Carré magique")
-                            return current
-                        }
-                    }
-
-                    // Si le joueur actuel vide sa main, détermine le prochain gagnant.
-                    if (current == starter && current.hand.isEmpty()) {
-                        val nextWinner = players.dropWhile { it != current }
-                            .drop(1)
-                            .plus(players.takeWhile { it != current })
-                            .firstOrNull { it.hand.isNotEmpty() } ?: current
-                        discardPile.addAll(pile)
-                        pile.clear()
-                        Utils.printGameLifecycle("${current.id} a vidé sa main en premier -> ${nextWinner.id} remporte ce pli")
-                        return nextWinner
-                    }
-
-                    return recurse(turnOffset + 1, mutablePasses, lp, lplayer, anyPlay, prev, consecutive)
-                }
-            }
-
-            // Détermine le gagnant du pli.
-            val winner = recurse(0, emptySet(), null, null, false, null, 0)
-            if (winner != null) {
-                firstPlayerLocal = winner
-                Utils.printGameLifecycle("Premier joueur pour le pli suivant: ${winner.id}")
-            }
+        // Continue playing until only one player has cards left.
+        while (activePlayers().size > 1) {
+            playPile(firstPlayerLocal, discardPile)
+            updateRanking(ranking)
         }
 
-        // Boucle principale pour jouer les plis jusqu'à ce qu'il reste un seul joueur actif.
-        while (players.count { it.hand.isNotEmpty() } > 1) {
-            playPile()
-            players.filter { it.hand.isEmpty() && it !in ranking }.forEach {
-                ranking.add(it)
-                Utils.printGameLifecycle("${it.id} a terminé (position ${ranking.size})")
-            }
-            round++
-        }
-
-        // Ajoute les joueurs restants au classement.
+        // Add remaining players to the ranking.
         ranking.addAll(players.filter { it !in ranking })
         Utils.printGameLifecycle("Fin des plis, classement: ${ranking.map { it.id }}")
         return ranking
+    }
+
+    /**
+     * Retrieves the list of players who still have cards in their hand.
+     *
+     * @return A list of active players.
+     */
+    private fun activePlayers() = players.filter { it.hand.isNotEmpty() }
+
+    /**
+     * Updates the ranking of players who have finished their hands.
+     *
+     * @param ranking The current ranking list to be updated.
+     */
+    private fun updateRanking(ranking: MutableList<Player>) {
+        players.filter { it.hand.isEmpty() && it !in ranking }.forEach {
+            ranking.add(it)
+            Utils.printGameLifecycle("${it.id} a terminé (position ${ranking.size})")
+        }
+    }
+
+    /**
+     * Plays a pile of cards, managing player turns and applying game rules.
+     *
+     * @param firstPlayerLocal The player who starts the pile.
+     * @param discardPile The pile of discarded cards.
+     */
+    private fun playPile(firstPlayerLocal: Player, discardPile: MutableList<Card>) {
+        if (activePlayers().size <= 1) return
+
+        val pile = mutableListOf<Card>()
+        val starterIndex = players.indexOf(firstPlayerLocal).takeIf { it >= 0 } ?: 0
+        val passes = mutableSetOf<Player>()
+        var lastPlay: Play? = null
+        var lastPlayer: Player? = null
+        var playsInARow = 0
+
+        // Loop until the pile is resolved.
+        while (true) {
+            val current = players[(starterIndex + playsInARow) % players.size]
+            if (current.hand.isEmpty()) continue
+
+            if (hasEveryoneButLastPassed(lastPlay, lastPlayer, passes)) {
+                endPile(discardPile, pile, lastPlayer)
+                break
+            }
+
+            val play = tryPlay(current, pile, discardPile, lastPlay, playsInARow)
+            if (play == null) {
+                passes.add(current)
+                playsInARow++
+                continue
+            }
+
+            applyPlayToPile(play, current, pile)
+            if (checkSpecialRules(play, pile, discardPile, current)) break
+
+            lastPlay = play
+            lastPlayer = current
+            playsInARow++
+            passes.clear()
+        }
+    }
+
+    /**
+     * Attempts to play a turn for the current player.
+     *
+     * @param current The player whose turn it is.
+     * @param pile The current pile of cards.
+     * @param discardPile The pile of discarded cards.
+     * @param lastPlay The last play made in the pile.
+     * @param playsInARow The number of consecutive plays made.
+     * @return The play made by the player, or null if the player passes.
+     */
+    private fun tryPlay(
+        current: Player,
+        pile: MutableList<Card>,
+        discardPile: MutableList<Card>,
+        lastPlay: Play?,
+        playsInARow: Int
+    ): Play? {
+        val forcePlayRank = computeForcePlayRank(lastPlay, playsInARow)
+        return try {
+            current.playTurn(pile, discardPile, lastPlay, forcePlayRank)
+        } catch (e: Exception) {
+            Utils.debug("Exception during ${current.id}.playTurn: ${e.message}")
+            null
+        }
+    }
+
+    /**
+     * Computes the rank of the card that must be played, if force play is enabled.
+     *
+     * @param lastPlay The last play made in the pile.
+     * @param playsInARow The number of consecutive plays made.
+     * @return The rank of the card to be played, or null if force play is not applicable.
+     */
+    private fun computeForcePlayRank(lastPlay: Play?, playsInARow: Int): Card.Rank? {
+        return if (parameters.gameModeParameters.withForcePlay
+            && playsInARow >= 2 && lastPlay != null
+        ) {
+            lastPlay.getRank()
+        } else null
+    }
+
+    /**
+     * Checks if all players except the last player have passed.
+     *
+     * @param lastPlay The last play made in the pile.
+     * @param lastPlayer The player who made the last play.
+     * @param passes The set of players who have passed.
+     * @return True if all players except the last player have passed, false otherwise.
+     */
+    private fun hasEveryoneButLastPassed(lastPlay: Play?, lastPlayer: Player?, passes: Set<Player>) =
+        lastPlay != null && lastPlayer != null &&
+                players.filter { it.hand.isNotEmpty() && it != lastPlayer }.all { it in passes }
+
+    /**
+     * Ends the current pile, moving all cards to the discard pile.
+     *
+     * @param discardPile The pile of discarded cards.
+     * @param pile The current pile of cards.
+     * @param lastPlayer The player who won the pile.
+     */
+    private fun endPile(discardPile: MutableList<Card>, pile: MutableList<Card>, lastPlayer: Player?) {
+        discardPile.addAll(pile)
+        pile.clear()
+        Utils.printGameLifecycle("Pli remporté par ${lastPlayer?.id}")
+    }
+
+    /**
+     * Checks and applies special rules for the current play.
+     *
+     * @param play The play made by the current player.
+     * @param pile The current pile of cards.
+     * @param discardPile The pile of discarded cards.
+     * @param current The player who made the play.
+     * @return True if the pile ends due to a special rule, false otherwise.
+     */
+    private fun checkSpecialRules(
+        play: Play,
+        pile: MutableList<Card>,
+        discardPile: MutableList<Card>,
+        current: Player
+    ): Boolean {
+        val maxRank = Card.Rank.entries.maxByOrNull { it.ordinal }
+        val straightEnable = parameters.gameModeParameters.withStraight
+
+        return when {
+            maxRank != null && play.any { it.rank == maxRank } -> {
+                endPile(discardPile, pile, current)
+                true
+            }
+            straightEnable && pile.size >= 4 && pile.takeLast(4).map { it.rank }.distinct().size == 1 -> {
+                endPile(discardPile, pile, current)
+                true
+            }
+            current.hand.isEmpty() -> {
+                endPile(discardPile, pile, current)
+                true
+            }
+            else -> false
+        }
+    }
+
+    /**
+     * Applies the current play to the pile, removing cards from the player's hand.
+     *
+     * @param play The play made by the current player.
+     * @param current The player who made the play.
+     * @param pile The current pile of cards.
+     */
+    private fun applyPlayToPile(play: Play, current: Player, pile: MutableList<Card>) {
+        play.forEach { if (current.hand.remove(it)) pile.add(it) }
+        Utils.printPlay(current.id, play)
     }
 }

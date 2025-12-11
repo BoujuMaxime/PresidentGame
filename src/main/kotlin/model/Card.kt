@@ -1,15 +1,20 @@
 package model
 
 /**
- * Représente une carte à jouer avec une valeur et une couleur.
+ * Représente une carte avec un rang et une couleur.
  *
- * @property rank La valeur de la carte, définie par l'énumération `Rank`.
- * @property suit La couleur de la carte, définie par l'énumération `Suit`.
+ * @property rank Le rang (valeur) de la carte (ex: As, Roi, Dame, etc.).
+ * @property suit La couleur de la carte (ex: Trèfle, Carreau, etc.).
+ *
+ * @author BOUJU Maxime
  */
 data class Card(val rank: Rank, val suit: Suit) : Comparable<Card> {
 
     /**
-     * Énumération représentant les couleurs possibles d'une carte.
+     * Enumération représentant les couleurs des cartes.
+     *
+     * @property displayName Le nom affichable de la couleur.
+     * @property icon Le symbole associé à la couleur.
      */
     enum class Suit(val displayName: String, val icon: String) {
         CLUBS("Trèfle", "♣"),
@@ -17,86 +22,60 @@ data class Card(val rank: Rank, val suit: Suit) : Comparable<Card> {
         HEARTS("Coeur", "♥"),
         SPADES("Pique", "♠");
 
-        override fun toString(): String = "$displayName $icon"
+        /**
+         * Retourne une représentation textuelle de la couleur.
+         *
+         * @return Une chaîne contenant le nom affichable et le symbole.
+         */
+        override fun toString() = "$displayName $icon"
     }
 
     /**
-     * Énumération représentant les valeurs possibles d'une carte.
-     * Les valeurs sont ordonnées selon leur puissance dans le jeu.
+     * Enumération représentant les rangs des cartes.
+     *
+     * @property displayName Le nom affichable du rang.
      */
-    enum class Rank {
-        THREE {
-            override fun toString() = "3"
-        },
-        FOUR {
-            override fun toString() = "4"
-        },
-        FIVE {
-            override fun toString() = "5"
-        },
-        SIX {
-            override fun toString() = "6"
-        },
-        SEVEN {
-            override fun toString() = "7"
-        },
-        EIGHT {
-            override fun toString() = "8"
-        },
-        NINE {
-            override fun toString() = "9"
-        },
-        TEN {
-            override fun toString() = "10"
-        },
-        JACK {
-            override fun toString() = "Valet"
-        },
-        QUEEN {
-            override fun toString() = "Dame"
-        },
-        KING {
-            override fun toString() = "Roi"
-        },
-        ACE {
-            override fun toString() = "As"
-        },
-        TWO {
-            override fun toString() = "2"
-        };
+    enum class Rank(val displayName: String) {
+        THREE("3"), FOUR("4"), FIVE("5"), SIX("6"), SEVEN("7"),
+        EIGHT("8"), NINE("9"), TEN("10"), JACK("Valet"),
+        QUEEN("Dame"), KING("Roi"), ACE("As"), TWO("2");
 
-        override fun toString(): String = name
+        /**
+         * Retourne une représentation textuelle du rang.
+         *
+         * @return Une chaîne contenant le nom affichable.
+         */
+        override fun toString() = displayName
     }
 
     /**
-     * Vérifie l'égalité entre deux cartes.
-     * Deux cartes sont égales si elles ont la même valeur (`rank`) et la même couleur (`suit`).
+     * Vérifie si deux cartes sont égales.
      *
      * @param other L'objet à comparer avec cette carte.
-     * @return `true` si les deux cartes sont égales, `false` sinon.
+     * @return `true` si les deux cartes ont le même rang et la même couleur, sinon `false`.
      */
-    override fun equals(other: Any?): Boolean = other is Card && rank == other.rank && suit == other.suit
+    override fun equals(other: Any?) = other is Card && rank == other.rank && suit == other.suit
 
     /**
-     * Compare cette carte avec une autre carte en fonction de leur valeur (`rank`).
+     * Compare cette carte avec une autre carte en fonction de leur rang.
      *
      * @param other La carte à comparer.
-     * @return Un entier négatif, zéro ou un entier positif si cette carte est respectivement
-     * moins, égale ou supérieure à l'autre carte.
+     * @return Un entier négatif, zéro ou un entier positif si cette carte est
+     * respectivement inférieure, égale ou supérieure à l'autre carte.
      */
-    override fun compareTo(other: Card): Int = rank.ordinal.compareTo(other.rank.ordinal)
+    override fun compareTo(other: Card) = rank.ordinal.compareTo(other.rank.ordinal)
 
     /**
-     * Génère un code de hachage unique pour cette carte, basé sur sa valeur et sa couleur.
+     * Calcule le code de hachage de la carte.
      *
-     * @return Le code de hachage de cette carte.
+     * @return Le code de hachage basé sur le rang et la couleur.
      */
-    override fun hashCode(): Int = 31 * rank.hashCode() + suit.hashCode()
+    override fun hashCode() = 31 * rank.hashCode() + suit.hashCode()
 
     /**
-     * Retourne une représentation textuelle de la carte sous la forme "RANK of SUIT".
+     * Retourne une représentation textuelle de la carte.
      *
-     * @return Une chaîne de caractères représentant la carte.
+     * @return Une chaîne au format "Rang de Couleur".
      */
-    override fun toString(): String = "${rank} de ${suit}"
+    override fun toString() = "${rank} de ${suit}"
 }

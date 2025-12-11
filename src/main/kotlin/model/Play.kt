@@ -7,7 +7,6 @@ import java.util.function.IntFunction
  *
  * @property cards La liste des cartes posées par le joueur.
  * @property playType Le type de jeu (SINGLE, PAIR, THREE_OF_A_KIND, FOUR_OF_A_KIND).
- * Par défaut, il s'agit de SINGLE.
  */
 class Play(
     private val cards: List<Card>,
@@ -15,7 +14,6 @@ class Play(
 ) : List<Card> by cards {
 
     init {
-        // Vérifie que la combinaison de cartes est valide pour le type de jeu spécifié.
         require(isValid()) { "Combinaison de cartes invalide pour le type $playType" }
     }
 
@@ -47,18 +45,20 @@ class Play(
      * @return `true` si ce jeu peut être joué, sinon `false`.
      */
     fun canBePlayedOn(top: Play?): Boolean {
-        if (top == null) return true // Premier coup du pli
-        if (this.playType != top.playType) return false // On joue le même nombre de cartes
-        // On compare la valeur des cartes (toutes les cartes d'un play ont le même rang).
+        if (top == null) return true
+        if (this.playType != top.playType) return false
         return this.cards[0].rank.ordinal >= top.cards[0].rank.ordinal
     }
 
     /**
-     * Retourne une représentation textuelle du jeu.
+     * Représentation textuelle du coup.
      *
-     * @return Une chaîne de caractères représentant le type de jeu et les cartes.
+     * @return Chaîne descriptive du coup.
      */
-    override fun toString(): String = "$playType: ${cards.joinToString(", ")}"
+    override fun toString(): String {
+        val cardsStr = cards.joinToString(", ") { it.toString() }
+        return "${playType.displayName.trimEnd()} ${getRank()}: $cardsStr"
+    }
 
     /**
      * Méthode héritée de l'interface `List`. Dépréciée en Kotlin.
@@ -70,8 +70,12 @@ class Play(
 
     /**
      * Enumération représentant les différents types de jeux possibles.
+     *
+     * @property displayName Libellé affichable du type de jeu.
      */
-    enum class PlayType {
-        SINGLE, PAIR, THREE_OF_A_KIND, FOUR_OF_A_KIND
+    enum class PlayType(val displayName: String) {
+        SINGLE("Un "), PAIR("Une paire de "), THREE_OF_A_KIND("Un brelant de "), FOUR_OF_A_KIND("Un carré de ");
+
+        override fun toString() = displayName
     }
 }
