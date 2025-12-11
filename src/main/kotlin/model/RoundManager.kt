@@ -74,6 +74,8 @@ class RoundManager(
         var lastPlay: Play? = null
         var lastPlayer: Player? = null
         var playsInARow = 0
+        var previousRank: Card.Rank? = null
+
 
         // Boucle tant que le pli n’est pas résolu.
         while (true) {
@@ -90,15 +92,17 @@ class RoundManager(
                 break
             }
 
-            val play = tryPlay(current, pile, discardPile, lastPlay, playsInARow)
+            val play = tryPlay(current, pile, discardPile, lastPlay, playsInARow, previousRank)
             if (play == null) {
                 passes.add(current)
                 Utils.printAction(current.id, "passe")
+                previousRank = null
                 playsInARow++
                 continue
             }
 
             applyPlayToPile(play, current, pile)
+            previousRank = lastPlay?.getRank()
             lastPlay = play
             lastPlayer = current
             if (checkSpecialRules(play, pile, discardPile, current)) break
@@ -123,9 +127,10 @@ class RoundManager(
         pile: MutableList<Card>,
         discardPile: MutableList<Card>,
         lastPlay: Play?,
-        playsInARow: Int
+        playsInARow: Int,
+        previousRank: Card.Rank?
     ): Play? {
-        val forcePlayRank = computeForcePlayRank(lastPlay, playsInARow)
+        val forcePlayRank = computeForcePlayRank(lastPlay, playsInARow, previousRank)  // Modifié : passe previousRank
         return try {
             current.playTurn(pile, discardPile, lastPlay, forcePlayRank)
         } catch (e: Exception) {
@@ -141,9 +146,13 @@ class RoundManager(
      * @param playsInARow Le nombre de tours consécutifs déjà joués.
      * @return La valeur de la carte à jouer, ou null si le mode force play n’est pas applicable.
      */
-    private fun computeForcePlayRank(lastPlay: Play?, playsInARow: Int): Card.Rank? {
+    private fun computeForcePlayRank(
+        lastPlay: Play?,
+        playsInARow: Int,
+        previousRank: Card.Rank?
+    ): Card.Rank? {
         return if (parameters.gameModeParameters.withForcePlay
-            && playsInARow >= 2 && lastPlay != null
+            && playsInARow >= 2 && lastPlay != null && previousRank == lastPlay.getRank()
         ) {
             lastPlay.getRank()
         } else null

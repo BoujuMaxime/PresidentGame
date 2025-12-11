@@ -2,23 +2,46 @@ package model.player
 
 import model.Card
 import model.Play
+import model.player.PlayerUtils
 
 class HumanPlayer(
     id: String,
     hand: MutableList<Card>
 ) : Player(id, hand) {
+    private fun displayHand(possiblePlays: List<Play>) {
+        PlayerUtils.printHand(hand)
+        println("Coups possibles :")
+        if (possiblePlays.isEmpty()) {
+            println("  Aucun coup valide")
+        } else {
+            possiblePlays.forEachIndexed { index, play ->
+                println("  $index -> $play")
+            }
+        }
+    }
+
     override fun playTurn(
         pile: MutableList<Card>,
         discardPile: MutableList<Card>,
         lastPlay: Play?,
         straightRank: Card.Rank?
-    ): Play {
-        PlayerUtils.possiblePlays(hand, lastPlay, pile, straightRank)
-        // System d'input externe requis pour un vrai joueur humain
-        TODO("Not yet implemented")
+    ): Play? {
+        val possiblePlays = PlayerUtils.possiblePlays(hand, lastPlay, pile, straightRank)
+        displayHand(possiblePlays)
+        println("Sélectionnez l'indice du coup à jouer ou appuyez sur Entrée pour passer :")
+        while (true) {
+            val input = readLine()?.trim()
+            if (input.isNullOrEmpty()) return null
+            val index = input.toIntOrNull()
+            if (index != null && index in possiblePlays.indices) {
+                return possiblePlays[index]
+            }
+            println("Indice invalide, recommencez ou appuyez sur Entrée pour passer.")
+        }
     }
 
     override fun giveCardsToPlayer(cards: List<Card>) {
-        TODO("Not yet implemented")
+        hand.addAll(cards)
+        PlayerUtils.sortHandByRank(hand)
     }
 }

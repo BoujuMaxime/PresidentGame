@@ -264,7 +264,7 @@ class Game(
      */
     private fun playRound() {
         val roundManager = RoundManager(parameters, players)
-        val startingPlayer = lastGameRanking.firstOrNull() ?: players.first()
+        val startingPlayer = lastGameRanking.lastOrNull() ?: players.first()
         lastGameRanking = roundManager.startRound(startingPlayer)
     }
 

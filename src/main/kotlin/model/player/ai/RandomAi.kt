@@ -19,6 +19,7 @@ class RandomAi(
     }
 
     override fun giveCardsToPlayer(cards: List<Card>) {
-        TODO("Not yet implemented")
+        hand.addAll(cards)
+        PlayerUtils.sortHandByRank(hand)
     }
 }

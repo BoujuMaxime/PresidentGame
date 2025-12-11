@@ -2,6 +2,8 @@ package model.player.ai
 
 import model.Card
 import model.Play
+import model.player.PlayerUtils
+import model.player.ai.AiUtils
 
 class EvaluateAi(
     id: String,
@@ -12,11 +14,14 @@ class EvaluateAi(
         discardPile: MutableList<Card>,
         lastPlay: Play?,
         straightRank: Card.Rank?
-    ): Play {
-        TODO("Not yet implemented")
+    ): Play? {
+        val possible = PlayerUtils.possiblePlays(hand, lastPlay, pile, straightRank)
+        return AiUtils.chooseLowestPlay(possible)
     }
 
     override fun giveCardsToPlayer(cards: List<Card>) {
-        TODO("Not yet implemented")
+        if (cards.isEmpty()) return
+        hand.addAll(cards)
+        PlayerUtils.sortHandByRank(hand)
     }
 }
