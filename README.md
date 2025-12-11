@@ -14,7 +14,7 @@ Une base en Kotlin pour expérimenter le jeu de cartes « Président » : distri
 
 ### Domaine des cartes
 - `model/Card.kt` : représentation `Rank` (de 3 à 2) et `Suit` (Trèfle, Carreau, Cœur, Pique), comparables et affichables.
-- `model/Play.kt` : encapsule une combinaison jouée (SINGLE, PAIR, THREE_OF_A_KIND, FOUR_OF_A_KIND) avec validation et logique `canBePlayedOn`.
+- `model/PlayerMove.kt` : encapsule une combinaison jouée (SINGLE, PAIR, THREE_OF_A_KIND, FOUR_OF_A_KIND) avec validation et logique `canBePlayedOn`.
 - `model/Utils.kt` : création/mélange/vérification du deck, suivi des états de jeu via les helpers `printPlay`, `printAction`, `printRolesSummary`, etc.
 
 ### Mécanique de partie
@@ -24,7 +24,7 @@ Une base en Kotlin pour expérimenter le jeu de cartes « Président » : distri
 ### Joueurs et IA
 - `model/player/Player.kt` : base abstraite avec `id`, main mutable et énumération des rôles.
 - `PlayerInterface` définit `playTurn()` et `giveCardsToPlayer()`.
-- `PlayerUtils` trie les mains et génère les coups possibles en appliquant `lastPlay` et la contrainte de suite (`straightRank`).
+- `PlayerUtils` trie les mains et génère les coups possibles en appliquant `lastPlayerMove` et la contrainte de suite (`straightRank`).
 - `HumanPlayer` & `RemoteHumanPlayer` sont des `TODO` prêts à recevoir de l’input externe.
 - `model/player/ai/` contient :
   - `Ai` + `AiInterface` héritant du système joueur.
@@ -76,7 +76,7 @@ PresidentGame/
 │   ├── Main.kt
 │   └── model/
 │       ├── Card.kt
-│       ├── Play.kt
+│       ├── PlayerMove.kt
 │       ├── Utils.kt
 │       ├── Game.kt
 │       └── RoundManager.kt

@@ -1,7 +1,7 @@
 package model.player
 
 import model.Card
-import model.Play
+import model.PlayerMove
 
 /**
  * Interface des joueurs
@@ -10,9 +10,9 @@ interface PlayerInterface {
     fun playTurn(
         pile: MutableList<Card>,
         discardPile: MutableList<Card>,
-        lastPlay: Play?,
+        lastPlayerMove: PlayerMove?,
         straightRank: Card.Rank?
-    ): Play?
+    ): PlayerMove?
 
     fun giveCardsToPlayer(cards: List<Card>)
 }

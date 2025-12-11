@@ -1,7 +1,7 @@
 package model.player
 
 import model.Card
-import model.Play
+import model.PlayerMove
 
 class RemoteHumanPlayer(
     id: String,
@@ -10,9 +10,9 @@ class RemoteHumanPlayer(
     override fun playTurn(
         pile: MutableList<Card>,
         discardPile: MutableList<Card>,
-        lastPlay: Play?,
+        lastPlayerMove: PlayerMove?,
         straightRank: Card.Rank?
-    ): Play {
+    ): PlayerMove {
         TODO("Not yet implemented")
     }
 

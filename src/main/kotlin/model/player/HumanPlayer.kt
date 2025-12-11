@@ -1,19 +1,19 @@
 package model.player
 
 import model.Card
-import model.Play
+import model.PlayerMove
 
 class HumanPlayer(
     id: String,
     hand: MutableList<Card>
 ) : Player(id, hand) {
-    private fun displayHand(possiblePlays: List<Play>) {
+    private fun displayHand(possiblePlayerMoves: List<PlayerMove>) {
         PlayerUtils.printHand(hand)
         println("Coups possibles :")
-        if (possiblePlays.isEmpty()) {
+        if (possiblePlayerMoves.isEmpty()) {
             println("  Aucun coup valide")
         } else {
-            possiblePlays.forEachIndexed { index, play ->
+            possiblePlayerMoves.forEachIndexed { index, play ->
                 println("  $index -> $play")
             }
         }
@@ -22,10 +22,10 @@ class HumanPlayer(
     override fun playTurn(
         pile: MutableList<Card>,
         discardPile: MutableList<Card>,
-        lastPlay: Play?,
+        lastPlayerMove: PlayerMove?,
         straightRank: Card.Rank?
-    ): Play? {
-        val possiblePlays = PlayerUtils.possiblePlays(hand, lastPlay, pile, straightRank)
+    ): PlayerMove? {
+        val possiblePlays = PlayerUtils.possiblePlays(hand, lastPlayerMove, pile, straightRank)
         displayHand(possiblePlays)
         println("Sélectionnez l'indice du coup à jouer ou appuyez sur Entrée pour passer :")
         while (true) {

@@ -71,7 +71,7 @@ class RoundManager(
         val pile = mutableListOf<Card>()
         val starterIndex = players.indexOf(firstPlayerLocal).takeIf { it >= 0 } ?: 0
         val passes = mutableSetOf<Player>()
-        var lastPlay: Play? = null
+        var lastPlayerMove: PlayerMove? = null
         var lastPlayer: Player? = null
         var playsInARow = 0
         var previousRank: Card.Rank? = null
@@ -87,13 +87,13 @@ class RoundManager(
                 continue
             }
 
-            if (hasEveryoneButLastPassed(lastPlay, lastPlayer, passes)) {
+            if (hasEveryoneButLastPassed(lastPlayerMove, lastPlayer, passes)) {
                 endPile(discardPile, pile, lastPlayer, "Tous les autres ont passé")
                 break
             }
 
-            val play = tryPlay(current, pile, discardPile, lastPlay, playsInARow, previousRank)
-            if (play == null) {
+            val playMove = tryPlayMove(current, pile, discardPile, lastPlayerMove, playsInARow, previousRank)
+            if (playMove == null) {
                 passes.add(current)
                 Utils.printAction(current.id, "passe")
                 previousRank = null
@@ -101,11 +101,11 @@ class RoundManager(
                 continue
             }
 
-            applyPlayToPile(play, current, pile)
-            previousRank = lastPlay?.getRank()
-            lastPlay = play
+            applyPlayToPile(playMove, current, pile)
+            previousRank = lastPlayerMove?.getRank()
+            lastPlayerMove = playMove
             lastPlayer = current
-            if (checkSpecialRules(play, pile, discardPile, current)) break
+            if (checkSpecialRules(playMove, pile, discardPile, current)) break
             playsInARow++
             passes.clear()
         }
@@ -118,21 +118,21 @@ class RoundManager(
      * @param current Le joueur dont c’est le tour.
      * @param pile La pile de cartes en cours.
      * @param discardPile La pile de cartes défaussées.
-     * @param lastPlay Le dernier coup joué dans la pile.
+     * @param lastPlayerMove Le dernier coup joué dans la pile.
      * @param playsInARow Le nombre de tours consécutifs déjà joués.
      * @return Le coup joué par le joueur, ou null s’il passe.
      */
-    private fun tryPlay(
+    private fun tryPlayMove(
         current: Player,
         pile: MutableList<Card>,
         discardPile: MutableList<Card>,
-        lastPlay: Play?,
+        lastPlayerMove: PlayerMove?,
         playsInARow: Int,
         previousRank: Card.Rank?
-    ): Play? {
-        val forcePlayRank = computeForcePlayRank(lastPlay, playsInARow, previousRank)  // Modifié : passe previousRank
+    ): PlayerMove? {
+        val forcePlayRank = computeForcePlayRank(lastPlayerMove, playsInARow, previousRank)  // Modifié : passe previousRank
         return try {
-            current.playTurn(pile, discardPile, lastPlay, forcePlayRank)
+            current.playTurn(pile, discardPile, lastPlayerMove, forcePlayRank)
         } catch (e: Exception) {
             Utils.debug("Exception during ${current.id}.playTurn: ${e.message}")
             null
@@ -142,32 +142,32 @@ class RoundManager(
     /**
      * Calcule la valeur de la carte qui doit être jouée lorsque le mode force play est activé.
      *
-     * @param lastPlay Le dernier coup joué dans le pli.
+     * @param lastPlayerMove Le dernier coup joué dans le pli.
      * @param playsInARow Le nombre de tours consécutifs déjà joués.
      * @return La valeur de la carte à jouer, ou null si le mode force play n’est pas applicable.
      */
     private fun computeForcePlayRank(
-        lastPlay: Play?,
+        lastPlayerMove: PlayerMove?,
         playsInARow: Int,
         previousRank: Card.Rank?
     ): Card.Rank? {
         return if (parameters.gameModeParameters.withForcePlay
-            && playsInARow >= 2 && lastPlay != null && previousRank == lastPlay.getRank()
+            && playsInARow >= 2 && lastPlayerMove != null && previousRank == lastPlayerMove.getRank()
         ) {
-            lastPlay.getRank()
+            lastPlayerMove.getRank()
         } else null
     }
 
     /**
      * Vérifie si tous les joueurs sauf le dernier ont passé.
      *
-     * @param lastPlay Le dernier coup joué dans le pli.
+     * @param lastPlayerMove Le dernier coup joué dans le pli.
      * @param lastPlayer Le joueur ayant effectué le dernier coup.
      * @param passes L’ensemble des joueurs ayant passé.
      * @return True si tous les joueurs sauf le dernier ont passé, false sinon.
      */
-    private fun hasEveryoneButLastPassed(lastPlay: Play?, lastPlayer: Player?, passes: Set<Player>) =
-        lastPlay != null && lastPlayer != null &&
+    private fun hasEveryoneButLastPassed(lastPlayerMove: PlayerMove?, lastPlayer: Player?, passes: Set<Player>) =
+        lastPlayerMove != null && lastPlayer != null &&
                 players.filter { it.hand.isNotEmpty() && it != lastPlayer }.all { it in passes }
 
     /**
@@ -186,14 +186,14 @@ class RoundManager(
     /**
      * Vérifie et applique les règles spéciales pour le coup en cours.
      *
-     * @param play Le coup joué par le joueur actuel.
+     * @param playerMove Le coup joué par le joueur actuel.
      * @param pile La pile de cartes en cours.
      * @param discardPile La pile de cartes défaussées.
      * @param current Le joueur ayant effectué le coup.
      * @return True si le pli se termine à cause d’une règle spéciale, false sinon.
      */
     private fun checkSpecialRules(
-        play: Play,
+        playerMove: PlayerMove,
         pile: MutableList<Card>,
         discardPile: MutableList<Card>,
         current: Player
@@ -202,7 +202,7 @@ class RoundManager(
         val straightEnable = parameters.gameModeParameters.withStraight
 
         return when {
-            maxRank != null && play.any { it.rank == maxRank } -> {
+            maxRank != null && playerMove.any { it.rank == maxRank } -> {
                 endPile(discardPile, pile, current, "A joué un $maxRank")
                 true
             }
@@ -225,12 +225,12 @@ class RoundManager(
     /**
      * Applique le coup actuel au pli en retirant les cartes de la main du joueur.
      *
-     * @param play Le coup joué par le joueur actuel.
+     * @param playerMove Le coup joué par le joueur actuel.
      * @param current Le joueur ayant effectué le coup.
      * @param pile La pile de cartes en cours.
      */
-    private fun applyPlayToPile(play: Play, current: Player, pile: MutableList<Card>) {
-        play.forEach { if (current.hand.remove(it)) pile.add(it) }
-        Utils.printPlay(current.id, play)
+    private fun applyPlayToPile(playerMove: PlayerMove, current: Player, pile: MutableList<Card>) {
+        playerMove.forEach { if (current.hand.remove(it)) pile.add(it) }
+        Utils.printPlay(current.id, playerMove)
     }
 }

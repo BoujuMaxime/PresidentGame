@@ -1,7 +1,7 @@
 package model.player.ai
 
 import model.Card
-import model.Play
+import model.PlayerMove
 
 class MiniMaxAi(
     id: String,
@@ -12,10 +12,10 @@ class MiniMaxAi(
     override fun playTurn(
         pile: MutableList<Card>,
         discardPile: MutableList<Card>,
-        lastPlay: Play?,
+        lastPlayerMove: PlayerMove?,
         straightRank: Card.Rank?
-    ): Play? {
-        return fallback.playTurn(pile, discardPile, lastPlay, straightRank)
+    ): PlayerMove? {
+        return fallback.playTurn(pile, discardPile, lastPlayerMove, straightRank)
     }
 
     override fun giveCardsToPlayer(cards: List<Card>) {

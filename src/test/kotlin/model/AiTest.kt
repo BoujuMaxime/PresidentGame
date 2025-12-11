@@ -50,7 +50,7 @@ class AiTest {
         val play = ai.playTurn(mutableListOf(), mutableListOf(), null, null)
         assertNotNull(play)
         assertEquals(Card.Rank.THREE, play?.getRank())
-        assertEquals(Play.PlayType.SINGLE, play?.playType)
+        assertEquals(PlayerMove.PlayType.SINGLE, play?.playType)
     }
 
     @Test
@@ -62,11 +62,11 @@ class AiTest {
                 card(Card.Rank.TEN, Card.Suit.SPADES)
             )
         )
-        val lastPlay = Play(listOf(card(Card.Rank.EIGHT, Card.Suit.HEARTS)), Play.PlayType.SINGLE)
+        val lastPlayerMove = PlayerMove(listOf(card(Card.Rank.EIGHT, Card.Suit.HEARTS)), PlayerMove.PlayType.SINGLE)
 
-        val play = ai.playTurn(mutableListOf(), mutableListOf(), lastPlay, null)
+        val play = ai.playTurn(mutableListOf(), mutableListOf(), lastPlayerMove, null)
         assertNotNull(play)
-        assertEquals(Play.PlayType.SINGLE, play?.playType)
+        assertEquals(PlayerMove.PlayType.SINGLE, play?.playType)
         assertEquals(Card.Rank.TEN, play?.getRank())
     }
 
@@ -76,9 +76,9 @@ class AiTest {
             id = "eval",
             hand = mutableListOf(card(Card.Rank.FIVE, Card.Suit.CLUBS))
         )
-        val lastPlay = Play(listOf(card(Card.Rank.SIX, Card.Suit.DIAMONDS)), Play.PlayType.SINGLE)
+        val lastPlayerMove = PlayerMove(listOf(card(Card.Rank.SIX, Card.Suit.DIAMONDS)), PlayerMove.PlayType.SINGLE)
 
-        val play = ai.playTurn(mutableListOf(), mutableListOf(), lastPlay, null)
+        val play = ai.playTurn(mutableListOf(), mutableListOf(), lastPlayerMove, null)
         assertNull(play)
     }
 }

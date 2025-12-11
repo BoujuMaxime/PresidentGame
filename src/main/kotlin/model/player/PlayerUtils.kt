@@ -1,7 +1,7 @@
 package model.player
 
 import model.Card
-import model.Play
+import model.PlayerMove
 
 /**
  * Utilitaires du joueur.
@@ -18,7 +18,7 @@ object PlayerUtils {
 
     /**
      * Calcule tous les coups possibles que le joueur peut jouer à partir de `hand`.
-     * Si `lastPlay` est fourni, ne conserve que les coups pouvant être joués sur `lastPlay`.
+     * Si `lastPlayerMove` est fourni, ne conserve que les coups pouvant être joués sur `lastPlayerMove`.
      *
      * Le résultat est trié pour assurer une stabilité : d'abord par rang (ordinal de la première
      * carte du coup), puis par type de coup (SINGLE < PAIR < THREE_OF_A_KIND < FOUR_OF_A_KIND).
@@ -26,12 +26,12 @@ object PlayerUtils {
      * Ajout : vérification de la règle "straight" à partir de la `pile`.
      *
      * @param hand Liste de `Card` représentant la main du joueur.
-     * @param lastPlay Coup précédent (optionnel) utilisé pour filtrer les coups valides.
+     * @param lastPlayerMove Coup précédent (optionnel) utilisé pour filtrer les coups valides.
      * @param pile Pile de cartes jouées (utilisée pour détecter la contrainte "straight").
      * @param straightRank Rang pour les suites (si applicable).
-     * @return Liste de `Play` représentant les coups possibles triés.
+     * @return Liste de `PlayerMove` représentant les coups possibles triés.
      */
-    fun possiblePlays(hand: List<Card>, lastPlay: Play?, pile: List<Card>, straightRank: Card.Rank?): List<Play> {
+    fun possiblePlays(hand: List<Card>, lastPlayerMove: PlayerMove?, pile: List<Card>, straightRank: Card.Rank?): List<PlayerMove> {
         /**
          * Génère toutes les combinaisons possibles de taille `k` à partir d'une liste donnée.
          *
@@ -58,42 +58,42 @@ object PlayerUtils {
             return result
         }
 
-        val plays = mutableListOf<Play>()
+        val playerMoves = mutableListOf<PlayerMove>()
         val groups = hand.groupBy { it.rank }
 
         // Ajoute les coups simples (une seule carte).
-        hand.forEach { card -> plays.add(Play(listOf(card), Play.PlayType.SINGLE)) }
+        hand.forEach { card -> playerMoves.add(PlayerMove(listOf(card), PlayerMove.PlayType.SINGLE)) }
 
         // Ajoute les combinaisons de cartes du même rang (paires, brelans, carrés).
         for ((_, cardsOfSameRank) in groups) {
             val maxSize = minOf(4, cardsOfSameRank.size)
             for (size in 2..maxSize) {
                 val combos = combinations(cardsOfSameRank, size)
-                val playType = when (size) {
-                    2 -> Play.PlayType.PAIR
-                    3 -> Play.PlayType.THREE_OF_A_KIND
-                    4 -> Play.PlayType.FOUR_OF_A_KIND
+                val playerMoveType = when (size) {
+                    2 -> PlayerMove.PlayType.PAIR
+                    3 -> PlayerMove.PlayType.THREE_OF_A_KIND
+                    4 -> PlayerMove.PlayType.FOUR_OF_A_KIND
                     else -> null
                 }
-                if (playType != null) {
-                    combos.forEach { combo -> plays.add(Play(combo, playType)) }
+                if (playerMoveType != null) {
+                    combos.forEach { combo -> playerMoves.add(PlayerMove(combo, playerMoveType)) }
                 }
             }
         }
 
         // Filtre les coups selon la règle "straight" si applicable.
         val playsAfterStraight = if (straightRank != null) {
-            val candidate = plays.filter { play -> play.any { it.rank == straightRank } }
+            val candidate = playerMoves.filter { play -> play.any { it.rank == straightRank } }
             candidate.ifEmpty {
                 return emptyList()
             }
-        } else plays
+        } else playerMoves
 
         // Filtre les coups valides selon le dernier coup joué.
-        val filtered = if (lastPlay == null) {
+        val filtered = if (lastPlayerMove == null) {
             playsAfterStraight
         } else {
-            playsAfterStraight.filter { it.canBePlayedOn(lastPlay) }
+            playsAfterStraight.filter { it.canBePlayedOn(lastPlayerMove) }
         }
 
         // Trie les coups par rang et type.
@@ -102,10 +102,10 @@ object PlayerUtils {
                 { it[0].rank.ordinal },
                 {
                     when (it.playType) {
-                        Play.PlayType.SINGLE -> 1
-                        Play.PlayType.PAIR -> 2
-                        Play.PlayType.THREE_OF_A_KIND -> 3
-                        Play.PlayType.FOUR_OF_A_KIND -> 4
+                        PlayerMove.PlayType.SINGLE -> 1
+                        PlayerMove.PlayType.PAIR -> 2
+                        PlayerMove.PlayType.THREE_OF_A_KIND -> 3
+                        PlayerMove.PlayType.FOUR_OF_A_KIND -> 4
                     }
                 }
             )
