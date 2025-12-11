@@ -1,243 +1,117 @@
 # PresidentGame 🃏
 
-Un jeu de cartes "Président" (également connu sous le nom de "Trou du Cul") implémenté en Kotlin avec support pour les joueurs humains et l'intelligence artificielle.
+Une base en Kotlin pour expérimenter le jeu de cartes « Président » : distribution, échanges, tours de jeu avec règles spéciales (Carré Magique, Force Play) et attribution des rôles sociopolitiques (Président, Vice-Président, Vice-Trou du Cul, Trou du Cul). Le projet expose l’architecture nécessaire pour piloter des IA (Random, Evaluate, MiniMax) et poser les fondations d’un vrai client humain ou distant.
 
-## 📋 Description
+## Vue d’ensemble
 
-PresidentGame est une implémentation du célèbre jeu de cartes "Président", un jeu de défausse stratégique où les joueurs tentent de se débarrasser de toutes leurs cartes le plus rapidement possible. Le premier joueur à vider sa main devient le "Président", tandis que le dernier devient le "Trou du Cul".
+- **Langage** : Kotlin 2.2.20
+- **Cible JVM** : Java 21 (défini via `kotlin.jvmToolchain(21)` dans `build.gradle.kts`)
+- **Build** : Gradle Kotlin DSL (wrapper `gradlew` / `gradlew.bat` inclus)
+- **Tests** : JUnit 5 avec `useJUnitPlatform()`
+- **Entrée** : `src/main/kotlin/Main.kt` lance deux parties consécutives (deux IA `EvaluateAi`/`RandomAi`) et affiche un résumé des mains et rôles.
 
-### À propos du jeu Président
+## Architecture principale
 
-Le Président est un jeu de cartes populaire qui se joue généralement avec 3 à 7 joueurs. Le jeu utilise un jeu standard de 52 cartes, avec des règles de hiérarchie spéciales où le 2 est la carte la plus forte et le 3 la plus faible.
+### Domaine des cartes
+- `model/Card.kt` : représentation `Rank` (de 3 à 2) et `Suit` (Trèfle, Carreau, Cœur, Pique), comparables et affichables.
+- `model/Play.kt` : encapsule une combinaison jouée (SINGLE, PAIR, THREE_OF_A_KIND, FOUR_OF_A_KIND) avec validation et logique `canBePlayedOn`.
+- `model/Utils.kt` : création/mélange/vérification du deck, suivi des états de jeu via les helpers `printPlay`, `printAction`, `printRolesSummary`, etc.
 
-## 🎮 Règles du jeu
+### Mécanique de partie
+- `model/Game.kt` orchestre le cycle complet (validation du nombre de joueurs, distribution, échanges de cartes selon les rôles précédents, appel à `RoundManager`, attribution finale des rôles).
+- `model/RoundManager.kt` gère les piles, les tours des joueurs, la détection des passes, les règles spéciales (`Carré Magique`, `Force Play`), la mise à jour du classement et la terminaison d’un pli.
 
-### Objectif
-Être le premier à se débarrasser de toutes ses cartes pour devenir le Président.
+### Joueurs et IA
+- `model/player/Player.kt` : base abstraite avec `id`, main mutable et énumération des rôles.
+- `PlayerInterface` définit `playTurn()` et `giveCardsToPlayer()`.
+- `PlayerUtils` trie les mains et génère les coups possibles en appliquant `lastPlay` et la contrainte de suite (`straightRank`).
+- `HumanPlayer` & `RemoteHumanPlayer` sont des `TODO` prêts à recevoir de l’input externe.
+- `model/player/ai/` contient :
+  - `Ai` + `AiInterface` héritant du système joueur.
+  - `RandomAi` choisit un coup aléatoire parmi les coups valides.
+  - `EvaluateAi` est prévu pour analyser les positions (implémentation à compléter).
+  - `MiniMaxAi` délègue temporairement à `EvaluateAi` mais ouvre la voie à un vrai MiniMax adaptatif.
+  - `AiUtils` fournit des helpers de sélection (`chooseRandomPlay`, `chooseLowestPlay`).
 
-### Hiérarchie des cartes
-Les cartes sont classées dans l'ordre suivant (de la plus faible à la plus forte) :
-- 3 < 4 < 5 < 6 < 7 < 8 < 9 < 10 < Valet < Dame < Roi < As < 2
+## Fonctionnalités et état actuel
 
-### Déroulement
-1. Les cartes sont distribuées équitablement entre tous les joueurs
-2. Le **Trou du Cul** commence
-3. Chaque joueur doit jouer une ou plusieurs cartes de même valeur supérieures à celles jouées précédemment
-4. Si un joueur ne peut pas ou ne veut pas jouer, il passe son tour
-5. Quand tous les joueurs passent, le dernier joueur à avoir posé des cartes remporte le pli et commence un nouveau tour
-6. Le jeu continue jusqu'à ce qu'il ne reste qu'un seul joueur avec des cartes
+- ✅ Paquet de 52 cartes bien défini et vérifié, avec affichage et mélange dans `Utils`.
+- ✅ Distribution cyclique des cartes et échange automatique entre rôles (Président ↔ Trou du Cul, Vice-Président ↔ Vice-Trou du Cul).
+- ✅ `RoundManager` orchestre les tours, détecte les passes, applique les règles spéciales et maintient un classement dynamique.
+- ✅ Architecture extensible pour intégrer des IA plus poussées et des clients humains.
+- ✅ Tests unitaires sur `Card` (comparaison, égalité, `toString`).
+- 🚧 Les interfaces humaines et AI d’évaluation restent à implémenter.
 
-### Rôles sociaux
-- **Président** : Le premier joueur à vider sa main (Reçois les deux meilleures cartes du **Trou du Cul**)
-- **Vice-Président** : Le deuxième joueur (Reçois la meilleure carte du **Vice-Trou du Cul**)
-- **Neutre** : Les joueurs au milieu
-- **Vice-Trou du Cul** : L'avant-dernier joueur (Reçois une carte du **Vice-Président**)
-- **Trou du Cul** : Le dernier joueur avec des cartes (Reçois deux cartes du **Président**)
+## Prérequis
 
-## 🏗️ Architecture du projet
+1. Java JDK 21 ou supérieur.
+2. Wrapper Gradle fourni (`gradlew`, `gradlew.bat`).
+3. Console UTF-8 (le `main` force déjà UTF-8 pour `System.out` et `System.err`).
 
-### Structure des dossiers
+## Compilation, tests et exécution
 
-```
-PresidentGame/
-├── src/
-│   ├── main/
-│   │   └── kotlin/
-│   │       ├── Main.kt                    # Point d'entrée de l'application
-│   │       └── model/
-│   │           ├── Card.kt                # Classe représentant une carte
-│   │           ├── Game.kt                # Logique principale du jeu
-│   │           ├── Utils.kt               # Utilitaires pour la gestion du jeu
-│   │           └── player/
-│   │               ├── Player.kt          # Classe abstraite de base pour tous les joueurs
-│   │               ├── PlayerInterface.kt # Interface pour les actions des joueurs
-│   │               ├── PlayerUtils.kt     # Utilitaires pour les joueurs
-│   │               ├── HumanPlayer.kt     # Joueur humain local
-│   │               ├── RemoteHumanPlayer.kt # Joueur humain distant
-│   │               └── ai/
-│   │                   ├── Ai.kt          # Classe abstraite de base pour les IA
-│   │                   ├── AiInterface.kt # Interface pour les IA
-│   │                   ├── AiUtils.kt     # Utilitaires pour les IA
-│   │                   ├── RandomAi.kt    # IA jouant aléatoirement
-│   │                   ├── EvaluateAi.kt  # IA avec évaluation de position
-│   │                   └── MiniMaxAi.kt   # IA utilisant l'algorithme MiniMax
-│   └── test/
-│       └── kotlin/
-│           └── model/
-│               └── CardTest.kt            # Tests unitaires pour la classe Card
-├── build.gradle.kts                       # Configuration Gradle
-├── settings.gradle.kts                    # Paramètres du projet
-└── README.md                              # Ce fichier
-```
+Lancez les commandes depuis la racine. Sous PowerShell, les deux variantes (Unix-like et Windows) sont valides :
 
-### Composants principaux
-
-#### 1. **Card** (`model/Card.kt`)
-Représente une carte à jouer avec :
-- **Rank** : Valeur de la carte (THREE à TWO)
-- **Suit** : Couleur de la carte (CLUBS, DIAMONDS, HEARTS, SPADES)
-- Méthodes de comparaison et d'affichage
-
-#### 2. **Player System** (`model/player/`)
-Système de joueurs avec plusieurs types :
-- **Player** : Classe abstraite de base
-- **HumanPlayer** : Pour les joueurs humains locaux
-- **RemoteHumanPlayer** : Pour les joueurs humains distants (multijoueur)
-- **PlayerInterface** : Définit le contrat pour tous les joueurs
-
-#### 3. **AI System** (`model/player/ai/`)
-Système d'intelligence artificielle avec plusieurs stratégies :
-- **RandomAi** : Joue des coups aléatoires
-- **EvaluateAi** : Évalue les positions avant de jouer
-- **MiniMaxAi** : Utilise l'algorithme MiniMax pour optimiser les décisions
-
-#### 4. **Game** (`model/Game.kt`)
-Gère la logique principale du jeu (en cours de développement)
-
-#### 5. **Utils** (`model/Utils.kt`)
-Fournit des utilitaires pour :
-- Créer un jeu de cartes complet
-- Mélanger le jeu
-- Distribuer les cartes
-- Afficher les cartes
-
-## 🚀 Installation et configuration
-
-### Prérequis
-
-- **Java JDK 21** ou supérieur
-- **Gradle** (inclus via Gradle Wrapper)
-- **Kotlin 2.2.20**
-
-### Installation
-
-1. Clonez le dépôt :
-```bash
-git clone https://github.com/BoujuMaxime/PresidentGame.git
-cd PresidentGame
-```
-
-2. Compilez le projet :
-```bash
-./gradlew build
-```
-
-3. Exécutez les tests :
-```bash
+```powershell
+./gradlew clean build
 ./gradlew test
-```
-
-### Configuration de l'environnement de développement
-
-Le projet utilise :
-- **Gradle** comme système de build
-- **Kotlin 2.2.20** avec JVM target 21
-- **JUnit 5** pour les tests unitaires
-
-## 💻 Utilisation
-
-### Exécuter l'application
-
-```bash
 ./gradlew run
 ```
 
-### Lancer les tests
-
-```bash
-./gradlew test
+```powershell
+.\gradlew.bat clean build
+.\gradlew.bat test
+.\gradlew.bat run
 ```
 
-### Compiler le projet
+- `clean build` compile les sources et produit `PresidentGame-1.0-SNAPSHOT.jar` dans `build/libs`.
+- `test` exécute la suite JUnit 5 (notamment `CardTest`).
+- `run` exécute `Main.kt`, qui joue deux parties d’IA et affiche leur statut.
 
-```bash
-./gradlew build
+## Organisation des sources
+
+```
+PresidentGame/
+├── src/main/kotlin/
+│   ├── Main.kt
+│   └── model/
+│       ├── Card.kt
+│       ├── Play.kt
+│       ├── Utils.kt
+│       ├── Game.kt
+│       └── RoundManager.kt
+│       └── player/
+│           ├── Player.kt
+│           ├── PlayerInterface.kt
+│           ├── HumanPlayer.kt
+│           ├── RemoteHumanPlayer.kt
+│           └── ai/
+│               ├── Ai.kt
+│               ├── AiInterface.kt
+│               ├── RandomAi.kt
+│               ├── EvaluateAi.kt
+│               ├── MiniMaxAi.kt
+│               └── AiUtils.kt
+└── src/test/kotlin/model/
+    ├── AiTest.kt
+    ├── CardTest.kt
+    ├── GameTest.kt
+    ├── PlayerUtilsTest.kt
+    └── PlayTest.kt
 ```
 
-## 🔧 Technologies utilisées
+## Roadmap
 
-- **Langage** : Kotlin 2.2.20
-- **JVM** : Java 21
-- **Build Tool** : Gradle avec Kotlin DSL
-- **Testing** : JUnit 5 (JUnit Platform)
-- **IDE recommandé** : IntelliJ IDEA
+1. Implémenter la prise d’input humain (CLI/GUI) et l’intégration des `TODO` restants.
+2. Finaliser `EvaluateAi` et ajouter des tests de stratégie supplémentaires.
+3. Lancer l’IA `MiniMax` réelle et documenter les scénarios de parties.
 
-## 📊 État du développement
+## Contribution
 
-### Fonctionnalités implémentées ✅
+1. Forkez le dépôt et créez une branche dédiée (`feature/…`).
+2. Travaillez avec `./gradlew build`, `./gradlew test` pour valider vos modifications.
+3. Ouvrez une PR décrivant les changements et les tests effectués.
 
-- ✅ Système de cartes avec valeurs et couleurs
-- ✅ Hiérarchie des cartes conforme aux règles du Président
-- ✅ Utilitaires de gestion du jeu (création, mélange, distribution)
-- ✅ Architecture de base pour les joueurs
-- ✅ Architecture de base pour les IA
-- ✅ Tests unitaires pour les cartes
-- ✅ Système de comparaison des cartes
+## Licence
 
-### Fonctionnalités en cours de développement 🚧
-
-- 🚧 Logique complète du jeu (Game.kt)
-- 🚧 Implémentation des tours de jeu
-- 🚧 Implémentation de RandomAi
-- 🚧 Implémentation de EvaluateAi
-- 🚧 Implémentation de MiniMaxAi
-- 🚧 Gestion des plis et des tours
-- 🚧 Interface utilisateur (CLI ou GUI)
-
-### Fonctionnalités prévues 🔮
-
-- 🔮 Mode multijoueur en ligne (RemoteHumanPlayer)
-- 🔮 Interface graphique complète
-- 🔮 Statistiques et historique des parties
-- 🔮 Sauvegarde et chargement de parties
-- 🔮 Configuration des règles du jeu
-- 🔮 Mode tournoi
-- 🔮 IA avancée avec apprentissage automatique
-
-## 🧪 Tests
-
-Le projet utilise JUnit 5 pour les tests unitaires. Les tests actuels couvrent :
-
-- **CardTest.kt** : Tests pour la classe Card
-  - Comparaison de cartes avec différents rangs
-  - Comparaison de cartes avec le même rang
-  - Format de la méthode toString()
-  - Gestion des couleurs
-
-Pour exécuter les tests avec un rapport détaillé :
-```bash
-./gradlew test --info
-```
-
-## 🤝 Contribution
-
-Les contributions sont les bienvenues ! Si vous souhaitez contribuer :
-
-1. Forkez le projet
-2. Créez une branche pour votre fonctionnalité (`git checkout -b feature/AmazingFeature`)
-3. Committez vos changements (`git commit -m 'Add some AmazingFeature'`)
-4. Poussez vers la branche (`git push origin feature/AmazingFeature`)
-5. Ouvrez une Pull Request
-
-### Standards de code
-
-- Suivez les conventions Kotlin standard
-- Documentez les nouvelles fonctionnalités avec des commentaires KDoc
-- Ajoutez des tests unitaires pour les nouvelles fonctionnalités
-- Assurez-vous que tous les tests passent avant de soumettre
-
-## 📝 License
-
-Ce projet est actuellement sans licence spécifiée. Veuillez contacter l'auteur pour plus d'informations sur l'utilisation.
-
-## 👤 Auteur
-
-**Maxime Bouju** - [@BoujuMaxime](https://github.com/BoujuMaxime)
-
-## 📞 Contact
-
-Pour toute question ou suggestion, n'hésitez pas à ouvrir une issue sur GitHub.
-
----
-
-**Note** : Ce projet est en cours de développement actif. Les fonctionnalités et l'architecture peuvent évoluer.
+Projet sans licence définie — contactez l’auteur pour plus de détails.
