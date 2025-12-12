@@ -160,13 +160,12 @@ class GameBoardView(private val controller: GameController) : BorderPane() {
         // === Disposition finale ===
         top = topPlayerPane
         left = leftPlayerPane
-        center = centerPane
         right = rightPlayerPane
         bottom = bottomPane
         
-        // Ajouter le menu par-dessus tout dans un StackPane
+        // Ajouter le menu par-dessus tout dans un StackPane au centre
         val rootStack = StackPane()
-        rootStack.children.addAll(this.center, menuContainer)
+        rootStack.children.addAll(centerPane, menuContainer)
         center = rootStack
 
         setupBindings()
