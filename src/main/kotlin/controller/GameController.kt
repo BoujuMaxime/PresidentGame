@@ -285,6 +285,7 @@ class GameController {
     fun updatePlayersInfo() {
         val players = game?.players ?: return
         val currentPlayer = humanPlayer
+        val handSnapshot = currentPlayer?.hand?.toList() ?: emptyList()
 
         val infos = players.map { player ->
             PlayerInfo(
@@ -295,7 +296,10 @@ class GameController {
             )
         }
 
-        Platform.runLater { playersInfoProperty.set(infos) }
+        Platform.runLater {
+            playersInfoProperty.set(infos)
+            humanPlayerHandProperty.set(handSnapshot)
+        }
     }
 
     /**
