@@ -40,9 +40,9 @@ class GameBoardView(private val controller: GameController) : BorderPane() {
     private val selectedCards = mutableSetOf<Card>()
     private val cardButtons = mutableMapOf<Card, Button>()
 
-    // Dialog de fin de manche
+    // Dialog de fin de manche - container réutilisable pour éviter les fuites mémoire
     private var roundFinishedDialog: RoundFinishedDialog? = null
-    private var dialogOverlay: StackPane? = null
+    private val dialogOverlayContainer: StackPane = StackPane()
 
     // Tailles réduites
     private val cardWidth = 90.0 * 0.75
@@ -175,17 +175,16 @@ class GameBoardView(private val controller: GameController) : BorderPane() {
         menuBox.children.addAll(menuButton, inGameMenu)
 
         // === Disposition finale ===
-        top = topPlayerPane
+        // Créer un conteneur pour le panneau du haut avec le menu superposé
+        val topContainer = StackPane()
+        topContainer.children.addAll(topPlayerPane, menuBox)
+        StackPane.setAlignment(menuBox, Pos.TOP_RIGHT)
+        
+        top = topContainer
         left = leftPlayerPane
         right = rightPlayerPane
         bottom = bottomPane
         center = centerPane
-        
-        // Ajouter le menu dans le coin supérieur droit par dessus le topPlayerPane
-        val topContainer = StackPane()
-        topContainer.children.addAll(topPlayerPane, menuBox)
-        StackPane.setAlignment(menuBox, Pos.TOP_RIGHT)
-        top = topContainer
 
         setupBindings()
         updateCurrentPile(emptyList())
@@ -639,10 +638,6 @@ class GameBoardView(private val controller: GameController) : BorderPane() {
      * Affiche le dialog de fin de manche avec les options pour continuer ou quitter.
      */
     private fun showRoundFinishedDialog() {
-        // Créer l'overlay semi-transparent qui couvre toute la zone
-        dialogOverlay = StackPane()
-        dialogOverlay?.style = "-fx-background-color: rgba(0, 0, 0, 0.7);"
-        
         // Créer le dialog
         roundFinishedDialog = RoundFinishedDialog(
             onNewRound = {
@@ -655,12 +650,14 @@ class GameBoardView(private val controller: GameController) : BorderPane() {
             }
         )
         
-        dialogOverlay?.children?.add(roundFinishedDialog)
+        // Configurer le container réutilisable
+        dialogOverlayContainer.style = "-fx-background-color: rgba(0, 0, 0, 0.7);"
+        dialogOverlayContainer.children.setAll(roundFinishedDialog)
         
-        // Créer un nouveau StackPane pour l'overlay au dessus du centerPane
-        val overlayContainer = StackPane()
-        overlayContainer.children.addAll(centerPane, dialogOverlay)
-        center = overlayContainer
+        // Créer un StackPane pour l'overlay au dessus du centerPane
+        val overlayStack = StackPane()
+        overlayStack.children.addAll(centerPane, dialogOverlayContainer)
+        center = overlayStack
     }
     
     /**
@@ -669,7 +666,8 @@ class GameBoardView(private val controller: GameController) : BorderPane() {
     private fun hideRoundFinishedDialog() {
         // Restaurer le centerPane original
         center = centerPane
-        dialogOverlay = null
+        // Nettoyer le container
+        dialogOverlayContainer.children.clear()
         roundFinishedDialog = null
     }
 }
