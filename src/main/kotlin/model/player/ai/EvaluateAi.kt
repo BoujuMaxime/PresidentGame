@@ -3,6 +3,7 @@ package model.player.ai
 import model.Card
 import model.PlayerMove
 import model.player.PlayerUtils
+import kotlin.random.Random
 
 class EvaluateAi(
     id: String,
@@ -25,8 +26,20 @@ class EvaluateAi(
         straightRank: Card.Rank?
     ): PlayerMove? {
         val possible = PlayerUtils.possiblePlays(hand, lastPlayerMove, straightRank)
-        return AiUtils.chooseLowestPlay(possible)
+
+        if (possible.isEmpty()) {
+            return fallback.playTurn(pile, discardPile, lastPlayerMove, straightRank)
+        }
+
+        val evaluated = AiUtils.evaluatePossibleMoves(possible)
+        if (evaluated.isEmpty()) {
+            return fallback.playTurn(pile, discardPile, lastPlayerMove, straightRank)
+        }
+
+        // Sinon on prend le meilleur coup évalué
+        return evaluated.first()
     }
+
 
     /**
      * Permet de choisir des cartes à échanger avec un autre joueur.
