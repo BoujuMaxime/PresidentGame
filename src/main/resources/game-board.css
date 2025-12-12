@@ -117,32 +117,35 @@
 }
 
 .new-game-button {
-    -fx-background-color: #0984e3;
+    -fx-background-color: linear-gradient(to bottom, #74b9ff 0%, #0984e3 100%);
 }
 
 .new-game-button:hover {
-    -fx-background-color: #0770c9;
+    -fx-background-color: linear-gradient(to bottom, #a8d5ff 0%, #74b9ff 100%);
+    -fx-effect: dropshadow(gaussian, rgba(9, 132, 227, 0.6), 12, 0.0, 0, 3);
 }
 
 .menu-button {
-    -fx-background-color: #636e72;
+    -fx-background-color: linear-gradient(to bottom, #636e72 0%, #4a5155 100%);
     -fx-font-size: 18px;
     -fx-padding: 10 15 10 15;
     -fx-min-width: 50px;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.4), 6, 0.0, 0, 2);
 }
 
 .menu-button:hover {
-    -fx-background-color: #4a5155;
+    -fx-background-color: linear-gradient(to bottom, #4a5155 0%, #2d3436 100%);
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.5), 8, 0.0, 0, 3);
 }
 
 /* === Menu in-game === */
 .ig-menu-panel {
-    -fx-background-color: #2d3436;
-    -fx-background-radius: 10;
-    -fx-border-color: #636e72;
-    -fx-border-width: 1;
-    -fx-border-radius: 10;
-    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.5), 15, 0.0, 0, 5);
+    -fx-background-color: linear-gradient(to bottom, rgba(45, 52, 54, 0.98) 0%, rgba(30, 39, 46, 0.98) 100%);
+    -fx-background-radius: 12;
+    -fx-border-color: rgba(162, 155, 254, 0.5);
+    -fx-border-width: 2;
+    -fx-border-radius: 12;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.6), 20, 0.0, 0, 5);
 }
 
 .ig-menu-title {

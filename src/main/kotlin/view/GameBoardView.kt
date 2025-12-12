@@ -487,7 +487,11 @@ class GameBoardView(private val controller: GameController) : BorderPane() {
         val nameLabel = Label(playerInfo.name)
         nameLabel.styleClass.add("player-name-label")
 
-        val infoLabel = Label("${playerInfo.role.displayName}\n${playerInfo.cardCount} cartes")
+        // Créer le label de rôle avec une icône
+        val roleIcon = getRoleIcon(playerInfo.role)
+        val roleText = "$roleIcon ${playerInfo.role.displayName}"
+        
+        val infoLabel = Label("$roleText\n${playerInfo.cardCount} cartes")
         infoLabel.styleClass.add("player-info-label")
         infoLabel.alignment = Pos.CENTER
         infoLabel.textAlignment = javafx.scene.text.TextAlignment.CENTER
@@ -549,6 +553,20 @@ class GameBoardView(private val controller: GameController) : BorderPane() {
 
         return container
     }
+
+    /**
+     * Retourne une icône pour le rôle du joueur
+     */
+    private fun getRoleIcon(role: model.player.Player.Role): String {
+        return when (role) {
+            model.player.Player.Role.PRESIDENT -> "👑"
+            model.player.Player.Role.VICE_PRESIDENT -> "🥈"
+            model.player.Player.Role.NEUTRAL -> "👤"
+            model.player.Player.Role.VICE_ASSHOLE -> "🥉"
+            model.player.Player.Role.ASSHOLE -> "💩"
+        }
+    }
+
     private fun handlePlayCards() {
         if (selectedCards.isEmpty()) return
 
