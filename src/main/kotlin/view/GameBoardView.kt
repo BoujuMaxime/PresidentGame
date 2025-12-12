@@ -429,6 +429,20 @@ class GameBoardView(private val controller: GameController) : BorderPane() {
 
         try {
             val move = PlayerMove(sortedSelected, playType)
+            
+            // Vérifier si le coup est dans les coups possibles
+            val possibleMoves = controller.getPossibleMoves()
+            val isValidMove = possibleMoves.any { possibleMove ->
+                // Comparer par type de jeu et par le fait que le coup peut être joué
+                possibleMove.playType == move.playType && 
+                possibleMove.getRank() == move.getRank()
+            }
+            
+            if (!isValidMove) {
+                messageLabel.text = "Coup illégal: vous ne pouvez pas jouer ces cartes maintenant"
+                return
+            }
+            
             submitMove(move)
         } catch (e: Exception) {
             messageLabel.text = "Coup invalide: ${e.message}"
