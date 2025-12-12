@@ -176,8 +176,11 @@ class GameController {
     /**
      * Démarre une nouvelle manche avec les mêmes joueurs et paramètres.
      *
-     * Continue la partie actuelle en démarrant un nouveau round, conservant
-     * les joueurs et leurs rôles du tour précédent pour les échanges de cartes.
+     * Continue la partie actuelle en démarrant un nouveau round. Le classement
+     * (et donc les rôles) du tour précédent est conservé dans l'instance Game
+     * pour permettre les échanges de cartes réglementaires entre les rôles
+     * (Président ↔ Trou du Cul, Vice-Président ↔ Vice-Trou du Cul).
+     * De nouveaux rôles seront attribués à la fin de cette manche.
      */
     fun startNewRound() {
         if (game == null || isGameRunning) return
