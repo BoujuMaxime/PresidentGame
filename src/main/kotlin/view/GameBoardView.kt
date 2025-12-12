@@ -377,7 +377,6 @@ class GameBoardView(private val controller: GameController) : BorderPane() {
         rightPlayerPane.children.clear()
 
         // Séparer le joueur humain des autres joueurs
-        val humanPlayer = players.find { it.isCurrentPlayer }
         val otherPlayers = players.filter { !it.isCurrentPlayer }
 
         // Distribuer les autres joueurs autour du plateau
@@ -387,7 +386,7 @@ class GameBoardView(private val controller: GameController) : BorderPane() {
                 addPlayerToPane(topPlayerPane, otherPlayers[0])
             }
             2 -> {
-                // 2 adversaires: en haut à gauche et en haut à droite
+                // 2 adversaires: à gauche et à droite
                 addPlayerToPane(leftPlayerPane, otherPlayers[0])
                 addPlayerToPane(rightPlayerPane, otherPlayers[1])
             }
@@ -406,17 +405,13 @@ class GameBoardView(private val controller: GameController) : BorderPane() {
                 // Top players
                 val topCount = third + if (remainder > 0) 1 else 0
                 for (i in 0 until topCount) {
-                    if (index < otherPlayers.size) {
-                        addPlayerToPane(topPlayerPane, otherPlayers[index++])
-                    }
+                    addPlayerToPane(topPlayerPane, otherPlayers[index++])
                 }
                 
                 // Left players
                 val leftCount = third + if (remainder > 1) 1 else 0
                 for (i in 0 until leftCount) {
-                    if (index < otherPlayers.size) {
-                        addPlayerToPane(leftPlayerPane, otherPlayers[index++])
-                    }
+                    addPlayerToPane(leftPlayerPane, otherPlayers[index++])
                 }
                 
                 // Right players (remaining)
