@@ -24,6 +24,7 @@ class GameBoardView(private val controller: GameController) : BorderPane() {
     private val pileStack: StackPane
     private val playButton: Button
     private val passButton: Button
+    private val sortButton: Button
     private val newGameButton: Button
     
     // Panneaux pour les autres joueurs (autour du plateau)
@@ -119,7 +120,11 @@ class GameBoardView(private val controller: GameController) : BorderPane() {
         passButton.isDisable = true
         passButton.setOnAction { handlePass() }
 
-        actionButtonPane.children.addAll(playButton, passButton)
+        sortButton = Button("↕ Trier la main")
+        sortButton.styleClass.addAll("action-button", "sort-button")
+        sortButton.setOnAction { handleSortHand() }
+
+        actionButtonPane.children.addAll(playButton, passButton, sortButton)
 
         // Bouton nouvelle partie (séparé)
         newGameButton = Button("⟲ Nouvelle partie")
@@ -451,6 +456,10 @@ class GameBoardView(private val controller: GameController) : BorderPane() {
 
     private fun handlePass() {
         submitMove(null)
+    }
+
+    private fun handleSortHand() {
+        controller.sortHumanPlayerHand()
     }
 
     private fun submitMove(move: PlayerMove?) {
