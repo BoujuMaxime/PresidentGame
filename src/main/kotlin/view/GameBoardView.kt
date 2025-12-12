@@ -225,10 +225,32 @@ class GameBoardView(private val controller: GameController) : BorderPane() {
         
         if (selectedCards.contains(card)) {
             selectedCards.remove(card)
-            button.style = button.style.replace("-fx-background-color: #74b9ff;", "-fx-background-color: white;")
+            // Réappliquer le style par défaut
+            val cardColor = getCardColor(card.suit)
+            button.style = """
+                -fx-background-color: white;
+                -fx-text-fill: $cardColor;
+                -fx-padding: 15 20 15 20;
+                -fx-background-radius: 8;
+                -fx-border-color: #636e72;
+                -fx-border-width: 2;
+                -fx-border-radius: 8;
+                -fx-cursor: hand;
+            """.trimIndent()
         } else {
             selectedCards.add(card)
-            button.style = button.style.replace("-fx-background-color: white;", "-fx-background-color: #74b9ff;")
+            // Appliquer le style de sélection
+            val cardColor = getCardColor(card.suit)
+            button.style = """
+                -fx-background-color: #74b9ff;
+                -fx-text-fill: $cardColor;
+                -fx-padding: 15 20 15 20;
+                -fx-background-radius: 8;
+                -fx-border-color: #0984e3;
+                -fx-border-width: 3;
+                -fx-border-radius: 8;
+                -fx-cursor: hand;
+            """.trimIndent()
         }
         
         playButton.isDisable = selectedCards.isEmpty() || !controller.canPlayProperty.get()

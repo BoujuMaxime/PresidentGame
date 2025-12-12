@@ -122,6 +122,8 @@ class GameController {
     
     /**
      * Arrête la partie en cours.
+     * Note: L'interruption du thread est acceptable ici car le thread de jeu
+     * est conçu pour gérer les interruptions et se terminer proprement.
      */
     fun stopGame() {
         isGameRunning = false
