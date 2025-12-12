@@ -243,23 +243,28 @@ class GameBoardView(private val controller: GameController) : BorderPane() {
     }
 
     private fun createPileCard(card: Card): StackPane {
-        val container = StackPane()
-        container.styleClass.add("card-container")
-        container.prefWidth = pileCardWidth
-        container.prefHeight = pileCardHeight
+        val container = StackPane().apply {
+            styleClass.add("card-container")
+            prefWidth = pileCardWidth
+            prefHeight = pileCardHeight
+            minWidth = pileCardWidth
+            minHeight = pileCardHeight
+            maxWidth = pileCardWidth
+            maxHeight = pileCardHeight
+        }
 
-        val rankLabel = Label(card.rank.displayName)
-        rankLabel.styleClass.addAll("pile-card-rank-label", getCardColorClass(card.suit))
-        StackPane.setAlignment(rankLabel, Pos.TOP_LEFT)
-        StackPane.setMargin(rankLabel, Insets(6.0, 0.0, 0.0, 7.0))
+        val rankLabel = Label(card.rank.displayName).apply {
+            styleClass.addAll("pile-card-rank-label", getCardColorClass(card.suit))
+            StackPane.setAlignment(this, Pos.TOP_LEFT)
+            StackPane.setMargin(this, Insets(6.0, 0.0, 0.0, 7.0))
+        }
 
-        val suitLabel = Label(card.suit.icon)
-        suitLabel.styleClass.addAll("pile-card-suit-label", getCardColorClass(card.suit))
-        StackPane.setAlignment(suitLabel, Pos.CENTER)
+        val suitLabel = Label(card.suit.icon).apply {
+            styleClass.addAll("pile-card-suit-label", getCardColorClass(card.suit))
+            StackPane.setAlignment(this, Pos.CENTER)
+        }
 
-        val shadow = DropShadow(8.0, Color.web("#000000", 0.28))
-        container.effect = shadow
-
+        container.effect = DropShadow(8.0, Color.web("#000000", 0.28))
         container.children.addAll(suitLabel, rankLabel)
         return container
     }
