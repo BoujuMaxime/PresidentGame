@@ -37,6 +37,7 @@ class GameBoardView(private val controller: GameController) : BorderPane() {
     private val cardHeight = 120.0 * 0.75
     private val pileCardWidth = cardWidth * 0.9
     private val pileCardHeight = cardHeight * 0.9
+    private val pileAnimationDuration = Duration.millis(280.0)
     private var lastPileSnapshot: List<Card> = emptyList()
 
 
@@ -63,7 +64,7 @@ class GameBoardView(private val controller: GameController) : BorderPane() {
         lastPlayedLabel.style = "-fx-text-fill: #b2bec3;"
         lastPlayedLabel.isWrapText = true
 
-        val pileTitle = Label("Pile sur le pli")
+        val pileTitle = Label("Pile de cartes jouées")
         pileTitle.font = Font.font("Arial", FontWeight.BOLD, 14.0)
         pileTitle.style = "-fx-text-fill: #dfe6e9;"
 
@@ -330,7 +331,7 @@ class GameBoardView(private val controller: GameController) : BorderPane() {
         }
 
         val addedCount = (pile.size - previousSize).coerceAtLeast(0)
-        val animateFromIndex = if (addedCount > 0) pile.size - addedCount else pile.size
+        val animateFromIndex = if (addedCount > 0) pile.size - addedCount else null
 
         pile.forEachIndexed { index, card ->
             val cardNode = createPileCard(card)
@@ -338,13 +339,13 @@ class GameBoardView(private val controller: GameController) : BorderPane() {
             cardNode.translateY = -index * 2.0
             pileStack.children.add(cardNode)
 
-            if (index >= animateFromIndex) {
+            if (animateFromIndex != null && index >= animateFromIndex) {
                 cardNode.opacity = 0.0
-                val fade = FadeTransition(Duration.millis(280.0), cardNode)
+                val fade = FadeTransition(pileAnimationDuration, cardNode)
                 fade.fromValue = 0.0
                 fade.toValue = 1.0
 
-                val slide = TranslateTransition(Duration.millis(280.0), cardNode)
+                val slide = TranslateTransition(pileAnimationDuration, cardNode)
                 slide.fromY = cardNode.translateY - 18.0
                 slide.toY = cardNode.translateY
 
