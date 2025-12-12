@@ -1,3 +1,4 @@
+// Kotlin
 package model
 
 import model.player.Player
@@ -19,6 +20,11 @@ class GameTurns(
     private var firstPlayerToEmptyHand: Player? = null
 
     /**
+     * Ordre chronologique des joueurs ayant vidé leur main pendant le tour.
+     */
+    private val finishedOrder = mutableListOf<Player>()
+
+    /**
      * Lance un nouveau tour de jeu.
      *
      * @param firstPlayer Le joueur qui commence le tour. Si null, le premier joueur de la liste est utilisé.
@@ -28,6 +34,7 @@ class GameTurns(
         Utils.printGameLifecycle("Début des plis")
         val ranking = mutableListOf<Player>()
         firstPlayerToEmptyHand = null
+        finishedOrder.clear()
         val discardPile = mutableListOf<Card>()
         var currentStarter = firstPlayer ?: players.first()
 
@@ -51,9 +58,15 @@ class GameTurns(
     /**
      * Met à jour le classement des joueurs ayant vidé leur main.
      *
-     * @param ranking La liste de classement actuelle à mettre à jour.
+     * Utilise l'ordre chronologique `finishedOrder` pour conserver l'ordre réel des vidages.
      */
     private fun updateRanking(ranking: MutableList<Player>) {
+        // Ajouter d'abord ceux enregistrés chronologiquement
+        finishedOrder.filter { it !in ranking }.forEach {
+            ranking.add(it)
+            Utils.printGameLifecycle("${it.id} a terminé (position ${ranking.size})")
+        }
+        // En cas d'edge-case, ajouter aussi tout joueur vide non enregistré
         players.filter { it.hand.isEmpty() && it !in ranking }.forEach {
             ranking.add(it)
             Utils.printGameLifecycle("${it.id} a terminé (position ${ranking.size})")
@@ -131,7 +144,7 @@ class GameTurns(
         playsInARow: Int,
         previousRank: Card.Rank?
     ): PlayerMove? {
-        val forcePlayRank = computeForcePlayRank(lastPlayerMove, playsInARow, previousRank)  // Modifié : passe previousRank
+        val forcePlayRank = computeForcePlayRank(lastPlayerMove, playsInARow, previousRank)
         return try {
             current.playTurn(pile, discardPile, lastPlayerMove, forcePlayRank)
         } catch (e: Exception) {
@@ -215,7 +228,7 @@ class GameTurns(
 
             current.hand.isEmpty() && firstPlayerToEmptyHand == null -> {
                 firstPlayerToEmptyHand = current
-                endPile(discardPile, pile, current, "${current.id} a vidé sa main")
+                endPile(discardPile, pile, current, "${current.id} est le président, on ne joue pas sur le président")
                 true
             }
 
@@ -226,12 +239,15 @@ class GameTurns(
     /**
      * Applique le coup actuel au pli en retirant les cartes de la main du joueur.
      *
-     * @param playerMove Le coup joué par le joueur actuel.
-     * @param current Le joueur ayant effectué le coup.
-     * @param pile La pile de cartes en cours.
+     * Enregistre dans `finishedOrder` si le joueur vide sa main pour conserver l'ordre chronologique.
      */
     private fun applyPlayToPile(playerMove: PlayerMove, current: Player, pile: MutableList<Card>) {
         playerMove.forEach { if (current.hand.remove(it)) pile.add(it) }
         Utils.printPlay(current.id, playerMove)
+
+        // Enregistrer chronologiquement si le joueur vient de vider sa main
+        if (current.hand.isEmpty() && current !in finishedOrder) {
+            finishedOrder.add(current)
+        }
     }
 }
