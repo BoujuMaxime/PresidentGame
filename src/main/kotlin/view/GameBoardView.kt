@@ -90,19 +90,19 @@ class GameBoardView(private val controller: GameController) : BorderPane() {
         centerPane.alignment = Pos.CENTER
 
         // === Joueurs autour du plateau ===
-        topPlayerPane = HBox(8.0)
+        topPlayerPane = HBox(20.0)  // Augmenté de 8.0 à 20.0 pour plus d'espacement
         topPlayerPane.styleClass.add("opponent-pane")
         topPlayerPane.alignment = Pos.CENTER
         topPlayerPane.padding = Insets(10.0)
         topPlayerPane.minHeight = 80.0
 
-        leftPlayerPane = VBox(8.0)
+        leftPlayerPane = VBox(20.0)  // Augmenté de 8.0 à 20.0 pour plus d'espacement
         leftPlayerPane.styleClass.add("opponent-pane")
         leftPlayerPane.alignment = Pos.CENTER
         leftPlayerPane.padding = Insets(10.0)
         leftPlayerPane.minWidth = 150.0
 
-        rightPlayerPane = VBox(8.0)
+        rightPlayerPane = VBox(20.0)  // Augmenté de 8.0 à 20.0 pour plus d'espacement
         rightPlayerPane.styleClass.add("opponent-pane")
         rightPlayerPane.alignment = Pos.CENTER
         rightPlayerPane.padding = Insets(10.0)
@@ -149,9 +149,9 @@ class GameBoardView(private val controller: GameController) : BorderPane() {
 
         actionButtonPane.children.addAll(playButton, passButton, sortButton)
         
-        val bottomPane = VBox(15.0)
+        val bottomPane = VBox(10.0)  // Réduit de 15.0 à 10.0 pour moins d'espace vide
         bottomPane.alignment = Pos.CENTER
-        bottomPane.padding = Insets(10.0)
+        bottomPane.padding = Insets(5.0, 10.0, 10.0, 10.0)  // Moins d'espace en haut
         bottomPane.children.addAll(notificationContainer, playerHandPane, actionButtonPane)
 
         // === Menu in-game ===
@@ -168,27 +168,24 @@ class GameBoardView(private val controller: GameController) : BorderPane() {
         menuButton.styleClass.addAll("action-button", "menu-button")
         menuButton.setOnAction { inGameMenu.toggle() }
         
-        // Conteneur pour le bouton de menu et le menu lui-même (coin supérieur droit)
-        val menuContainer = StackPane()
-        menuContainer.alignment = Pos.TOP_RIGHT
-        menuContainer.padding = Insets(10.0)
-        
+        // Conteneur pour le bouton de menu et le menu lui-même dans le coin supérieur droit du BorderPane
         val menuBox = VBox(10.0)
         menuBox.alignment = Pos.TOP_RIGHT
+        menuBox.padding = Insets(10.0)
         menuBox.children.addAll(menuButton, inGameMenu)
-        
-        menuContainer.children.add(menuBox)
 
         // === Disposition finale ===
         top = topPlayerPane
         left = leftPlayerPane
         right = rightPlayerPane
         bottom = bottomPane
+        center = centerPane
         
-        // Ajouter le menu par-dessus tout dans un StackPane au centre
-        val rootStack = StackPane()
-        rootStack.children.addAll(centerPane, menuContainer)
-        center = rootStack
+        // Ajouter le menu dans le coin supérieur droit par dessus le topPlayerPane
+        val topContainer = StackPane()
+        topContainer.children.addAll(topPlayerPane, menuBox)
+        StackPane.setAlignment(menuBox, Pos.TOP_RIGHT)
+        top = topContainer
 
         setupBindings()
         updateCurrentPile(emptyList())
@@ -536,7 +533,7 @@ class GameBoardView(private val controller: GameController) : BorderPane() {
      * Crée une représentation visuelle des cartes d'un adversaire
      */
     private fun createOpponentCardsVisual(cardCount: Int): HBox {
-        val container = HBox(3.0)
+        val container = HBox(-8.0)  // Espacement négatif pour superposition
         container.styleClass.add("opponent-cards-container")
         container.alignment = Pos.CENTER
         container.padding = Insets(5.0, 0.0, 0.0, 0.0)
@@ -547,10 +544,6 @@ class GameBoardView(private val controller: GameController) : BorderPane() {
         for (i in 0 until displayCount) {
             val cardBack = Region()
             cardBack.styleClass.add("opponent-card-back")
-            // Légère superposition pour un effet d'éventail
-            if (i > 0) {
-                cardBack.translateX = -2.0 * i
-            }
             container.children.add(cardBack)
         }
 
@@ -646,7 +639,7 @@ class GameBoardView(private val controller: GameController) : BorderPane() {
      * Affiche le dialog de fin de manche avec les options pour continuer ou quitter.
      */
     private fun showRoundFinishedDialog() {
-        // Créer l'overlay semi-transparent
+        // Créer l'overlay semi-transparent qui couvre toute la zone
         dialogOverlay = StackPane()
         dialogOverlay?.style = "-fx-background-color: rgba(0, 0, 0, 0.7);"
         
@@ -664,19 +657,18 @@ class GameBoardView(private val controller: GameController) : BorderPane() {
         
         dialogOverlay?.children?.add(roundFinishedDialog)
         
-        // Ajouter l'overlay au root stack (qui contient le centre et le menu)
-        val rootStack = center as? StackPane
-        rootStack?.children?.add(dialogOverlay)
+        // Créer un nouveau StackPane pour l'overlay au dessus du centerPane
+        val overlayContainer = StackPane()
+        overlayContainer.children.addAll(centerPane, dialogOverlay)
+        center = overlayContainer
     }
     
     /**
      * Cache et nettoie le dialog de fin de manche.
      */
     private fun hideRoundFinishedDialog() {
-        val rootStack = center as? StackPane
-        dialogOverlay?.let { overlay ->
-            rootStack?.children?.remove(overlay)
-        }
+        // Restaurer le centerPane original
+        center = centerPane
         dialogOverlay = null
         roundFinishedDialog = null
     }
