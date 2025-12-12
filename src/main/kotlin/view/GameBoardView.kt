@@ -29,7 +29,7 @@ class GameBoardView(private val controller: GameController) : BorderPane() {
     private val inGameMenu: InGameMenuView
     
     // Panneaux pour les autres joueurs (autour du plateau)
-    private val topPlayerPane: VBox
+    private val topPlayerPane: HBox
     private val leftPlayerPane: VBox
     private val rightPlayerPane: VBox
 
@@ -83,7 +83,7 @@ class GameBoardView(private val controller: GameController) : BorderPane() {
         centerPane.alignment = Pos.CENTER
 
         // === Joueurs autour du plateau ===
-        topPlayerPane = VBox(8.0)
+        topPlayerPane = HBox(8.0)
         topPlayerPane.styleClass.add("opponent-pane")
         topPlayerPane.alignment = Pos.CENTER
         topPlayerPane.padding = Insets(10.0)
@@ -422,25 +422,44 @@ class GameBoardView(private val controller: GameController) : BorderPane() {
             }
         }
     }
-    
-    private fun addPlayerToPane(pane: VBox, playerInfo: GameController.PlayerInfo) {
+    private fun addPlayerToPane(pane: Pane, playerInfo: GameController.PlayerInfo) {
         val nameLabel = Label(playerInfo.name)
         nameLabel.styleClass.add("player-name-label")
-        
+
         val infoLabel = Label("${playerInfo.role.displayName}\n${playerInfo.cardCount} cartes")
         infoLabel.styleClass.add("player-info-label")
         infoLabel.alignment = Pos.CENTER
         infoLabel.textAlignment = javafx.scene.text.TextAlignment.CENTER
-        
-        val playerBox = VBox(5.0)
-        playerBox.styleClass.add("player-box")
-        playerBox.alignment = Pos.CENTER
-        playerBox.padding = Insets(8.0)
-        playerBox.children.addAll(nameLabel, infoLabel)
-        
-        pane.children.add(playerBox)
-    }
 
+        val playerBox = VBox(8.0).apply {
+            styleClass.add("player-box")
+            alignment = Pos.CENTER
+            padding = Insets(10.0)
+            // tailles préférentielles pour occuper plus d'espace
+            prefWidth = 160.0
+            minWidth = 120.0
+            maxWidth = Double.MAX_VALUE
+            prefHeight = 100.0
+            minHeight = 70.0
+            // permettre à la box de croître dans son conteneur
+        }
+
+        playerBox.children.addAll(nameLabel, infoLabel)
+        pane.children.add(playerBox)
+
+        // Autoriser l'expansion selon le type de pane
+        when (pane) {
+            is HBox -> {
+                HBox.setHgrow(playerBox, Priority.ALWAYS)
+            }
+            is VBox -> {
+                VBox.setVgrow(playerBox, Priority.ALWAYS)
+            }
+            else -> {
+                // pas d'action
+            }
+        }
+    }
     private fun handlePlayCards() {
         if (selectedCards.isEmpty()) return
 
