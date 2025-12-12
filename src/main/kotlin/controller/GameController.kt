@@ -368,4 +368,13 @@ class GameController {
     fun submitPlayerMove(move: PlayerMove?) {
         humanPlayer?.submitMove(move)
     }
+
+    /**
+     * Retourne la liste des coups possibles pour le joueur humain.
+     *
+     * @return Liste des coups possibles, ou liste vide si aucun joueur humain n'est actif
+     */
+    fun getPossibleMoves(): List<PlayerMove> {
+        return humanPlayer?.getPossibleMoves() ?: emptyList()
+    }
 }
