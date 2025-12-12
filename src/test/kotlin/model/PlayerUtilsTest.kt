@@ -38,7 +38,7 @@ class PlayerUtilsTest {
             card(Card.Rank.SIX, Card.Suit.CLUBS)
         )
 
-        val plays = PlayerUtils.possiblePlays(hand, null, emptyList(), null)
+        val plays = PlayerUtils.possiblePlays(hand, null, null)
 
         assertTrue(plays.any { it.playType == PlayerMove.PlayType.PAIR })
         assertTrue(plays.any { it.playType == PlayerMove.PlayType.SINGLE })
@@ -53,7 +53,7 @@ class PlayerUtilsTest {
         )
         val lastPlayerMove = PlayerMove(listOf(card(Card.Rank.SIX, Card.Suit.CLUBS)), PlayerMove.PlayType.SINGLE)
 
-        val plays = PlayerUtils.possiblePlays(hand, lastPlayerMove, emptyList(), null)
+        val plays = PlayerUtils.possiblePlays(hand, lastPlayerMove, null)
 
         assertFalse(plays.isEmpty())
         assertTrue(plays.all { it.playType == PlayerMove.PlayType.SINGLE })
@@ -67,7 +67,7 @@ class PlayerUtilsTest {
             card(Card.Rank.FIVE, Card.Suit.HEARTS)
         )
 
-        val plays = PlayerUtils.possiblePlays(hand, null, emptyList(), Card.Rank.TWO)
+        val plays = PlayerUtils.possiblePlays(hand, null, Card.Rank.TWO)
 
         assertEquals(1, plays.size)
         assertEquals(Card.Rank.TWO, plays.first().getRank())

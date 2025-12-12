@@ -14,7 +14,7 @@ class RandomAi(
         lastPlayerMove: PlayerMove?,
         straightRank: Card.Rank?
     ): PlayerMove? {
-        val possible = PlayerUtils.possiblePlays(hand, lastPlayerMove, pile, straightRank)
+        val possible = PlayerUtils.possiblePlays(hand, lastPlayerMove, straightRank)
         return AiUtils.chooseRandomPlay(possible)
     }
 

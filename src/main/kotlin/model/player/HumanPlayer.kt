@@ -46,7 +46,7 @@ class HumanPlayer(
         lastPlayerMove: PlayerMove?,
         straightRank: Card.Rank?
     ): PlayerMove? {
-        val possibleMoves = PlayerUtils.possiblePlays(hand, lastPlayerMove, pile, straightRank)
+        val possibleMoves = PlayerUtils.possiblePlays(hand, lastPlayerMove, straightRank)
         displayHand(possibleMoves) // Affiche la main et les coups possibles.
         println("Sélectionnez l'indice du coup à jouer ou appuyez sur Entrée pour passer :")
         while (true) {
