@@ -111,15 +111,12 @@ PresidentGame/
 
 Pour plus de détails sur l'interface utilisateur, consultez [INTERFACE_UI.md](INTERFACE_UI.md).
 
-
 ## Roadmap
 
-1. ✅ Interface graphique JavaFX complète avec architecture MVC
-2. ✅ Menu de configuration et plateau de jeu interactif
-3. 🚧 Améliorer l'UI/UX avec animations et effets visuels
-4. 🚧 Finaliser `EvaluateAi` et ajouter des tests de stratégie supplémentaires
-5. 🚧 Implémenter l'IA `MiniMax` réelle et documenter les scénarios de parties
-6. 🚧 Ajouter le mode multijoueur en réseau avec `RemoteHumanPlayer`
+1. Implémenter la prise d’input humain (CLI/GUI) et l’intégration des `TODO` restants.
+2. Finaliser `EvaluateAi` et ajouter des tests de stratégie supplémentaires.
+3. Lancer l’IA `MiniMax` réelle et documenter les scénarios de parties.
+
 ## Contribution
 
 1. Forkez le dépôt et créez une branche dédiée (`feature/…`).
