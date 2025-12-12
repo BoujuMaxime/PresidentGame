@@ -25,7 +25,8 @@ class GameBoardView(private val controller: GameController) : BorderPane() {
     private val playButton: Button
     private val passButton: Button
     private val sortButton: Button
-    private val newGameButton: Button
+    private val menuButton: Button
+    private val inGameMenu: InGameMenuView
     
     // Panneaux pour les autres joueurs (autour du plateau)
     private val topPlayerPane: VBox
@@ -125,29 +126,47 @@ class GameBoardView(private val controller: GameController) : BorderPane() {
         sortButton.setOnAction { handleSortHand() }
 
         actionButtonPane.children.addAll(playButton, passButton, sortButton)
-
-        // Bouton nouvelle partie (séparé)
-        newGameButton = Button("⟲ Nouvelle partie")
-        newGameButton.styleClass.addAll("action-button", "new-game-button")
-        newGameButton.setOnAction { handleNewGame() }
-        
-        val secondaryButtonPane = HBox()
-        secondaryButtonPane.styleClass.add("secondary-button-pane")
-        secondaryButtonPane.alignment = Pos.CENTER
-        secondaryButtonPane.padding = Insets(8.0)
-        secondaryButtonPane.children.add(newGameButton)
         
         val bottomPane = VBox(15.0)
         bottomPane.alignment = Pos.CENTER
         bottomPane.padding = Insets(10.0)
-        bottomPane.children.addAll(playerHandPane, actionButtonPane, secondaryButtonPane)
+        bottomPane.children.addAll(playerHandPane, actionButtonPane)
+
+        // === Menu in-game ===
+        inGameMenu = InGameMenuView()
+        
+        // Ajouter le bouton "Nouvelle partie" dans le menu
+        inGameMenu.addMenuItem("⟲ Nouvelle partie", listOf("new-game-button")) {
+            handleNewGame()
+            inGameMenu.close()
+        }
+        
+        // Bouton pour ouvrir le menu
+        menuButton = Button("☰")
+        menuButton.styleClass.addAll("action-button", "menu-button")
+        menuButton.setOnAction { inGameMenu.toggle() }
+        
+        // Conteneur pour le bouton de menu et le menu lui-même (coin supérieur droit)
+        val menuContainer = StackPane()
+        menuContainer.alignment = Pos.TOP_RIGHT
+        menuContainer.padding = Insets(10.0)
+        
+        val menuBox = VBox(10.0)
+        menuBox.alignment = Pos.TOP_RIGHT
+        menuBox.children.addAll(menuButton, inGameMenu)
+        
+        menuContainer.children.add(menuBox)
 
         // === Disposition finale ===
         top = topPlayerPane
         left = leftPlayerPane
-        center = centerPane
         right = rightPlayerPane
         bottom = bottomPane
+        
+        // Ajouter le menu par-dessus tout dans un StackPane au centre
+        val rootStack = StackPane()
+        rootStack.children.addAll(centerPane, menuContainer)
+        center = rootStack
 
         setupBindings()
         updateCurrentPile(emptyList())

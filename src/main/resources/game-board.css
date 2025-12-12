@@ -103,6 +103,50 @@
     -fx-background-color: #0770c9;
 }
 
+.menu-button {
+    -fx-background-color: #636e72;
+    -fx-font-size: 18px;
+    -fx-padding: 10 15 10 15;
+    -fx-min-width: 50px;
+}
+
+.menu-button:hover {
+    -fx-background-color: #4a5155;
+}
+
+/* === Menu in-game === */
+.ig-menu-panel {
+    -fx-background-color: #2d3436;
+    -fx-background-radius: 10;
+    -fx-border-color: #636e72;
+    -fx-border-width: 1;
+    -fx-border-radius: 10;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.5), 15, 0.0, 0, 5);
+}
+
+.ig-menu-title {
+    -fx-text-fill: #dfe6e9;
+    -fx-font-family: "Arial";
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+    -fx-padding: 0 0 10 0;
+}
+
+.ig-menu-button {
+    -fx-text-fill: white;
+    -fx-font-family: "Arial";
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-padding: 12 20 12 20;
+    -fx-background-radius: 5;
+    -fx-cursor: hand;
+    -fx-background-color: #636e72;
+}
+
+.ig-menu-button:hover {
+    -fx-background-color: #4a5155;
+}
+
 /* === Panneaux de boutons === */
 .button-pane {
     -fx-background-color: transparent;
