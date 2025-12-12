@@ -91,6 +91,11 @@ class GameController {
     private var isGameRunning = false
 
     /**
+     * Callback appelé lorsqu'une manche est terminée et qu'il faut demander au joueur s'il veut continuer.
+     */
+    var onRoundFinished: (() -> Unit)? = null
+
+    /**
      * Représentation synthétique des informations nécessaires pour la vue par joueur.
      *
      * @property name Identifiant du joueur
@@ -176,6 +181,42 @@ class GameController {
                     updateGameState("Partie terminée")
                     updateGameMessage("La partie est terminée! Les rôles ont été attribués.")
                     updatePlayersInfo()
+                    onRoundFinished?.invoke()
+                }
+            } catch (e: Exception) {
+                Platform.runLater {
+                    updateGameState("Erreur")
+                    updateGameMessage("Erreur: ${e.message}")
+                }
+                e.printStackTrace()
+            } finally {
+                isGameRunning = false
+            }
+        }
+        gameThread?.start()
+    }
+
+    /**
+     * Démarre une nouvelle manche avec les mêmes joueurs et paramètres.
+     *
+     * Continue la partie actuelle en démarrant un nouveau round, conservant
+     * les joueurs et leurs rôles du tour précédent pour les échanges de cartes.
+     */
+    fun startNewRound() {
+        if (game == null || isGameRunning) return
+
+        isGameRunning = true
+        updateGameState("Nouvelle manche en cours")
+        updateGameMessage("Une nouvelle manche commence...")
+
+        gameThread = Thread {
+            try {
+                game?.startGame()
+                Platform.runLater {
+                    updateGameState("Partie terminée")
+                    updateGameMessage("La partie est terminée! Les rôles ont été attribués.")
+                    updatePlayersInfo()
+                    onRoundFinished?.invoke()
                 }
             } catch (e: Exception) {
                 Platform.runLater {
