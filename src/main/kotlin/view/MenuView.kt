@@ -28,28 +28,40 @@ class MenuView(private val controller: GameController, private val onStartGame: 
         spacing = 20.0
         padding = Insets(30.0)
         alignment = Pos.CENTER
-        style = "-fx-background-color: #2d3436;"
+        style = "-fx-background-color: linear-gradient(to bottom, #1a1d23 0%, #2d3436 100%);"
         
-        // Titre
+        // Icône et Titre
+        val iconLabel = Label("🎴")
+        iconLabel.font = Font.font("Arial", FontWeight.BOLD, 56.0)
+        
         val title = Label("Jeu du Président")
-        title.font = Font.font("Arial", FontWeight.BOLD, 36.0)
-        title.style = "-fx-text-fill: #dfe6e9;"
+        title.font = Font.font("Arial", FontWeight.BOLD, 42.0)
+        title.style = "-fx-text-fill: #ffffff; -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.6), 5, 0.0, 0, 3);"
         
         val subtitle = Label("Configuration de la partie")
         subtitle.font = Font.font("Arial", FontWeight.NORMAL, 18.0)
-        subtitle.style = "-fx-text-fill: #b2bec3;"
+        subtitle.style = "-fx-text-fill: #e8f5e9;"
         
         // Grille de configuration
         val configGrid = GridPane()
         configGrid.hgap = 15.0
         configGrid.vgap = 15.0
         configGrid.alignment = Pos.CENTER
-        configGrid.padding = Insets(20.0)
-        configGrid.style = "-fx-background-color: #636e72; -fx-background-radius: 10;"
+        configGrid.padding = Insets(25.0)
+        configGrid.style = """
+            -fx-background-color: linear-gradient(to bottom, 
+                rgba(99, 110, 114, 0.4) 0%, 
+                rgba(45, 52, 54, 0.6) 100%);
+            -fx-background-radius: 15;
+            -fx-border-color: rgba(162, 155, 254, 0.3);
+            -fx-border-width: 2;
+            -fx-border-radius: 15;
+            -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.5), 15, 0.0, 0, 5);
+        """.trimIndent()
         
         // Nombre de joueurs
-        val nbPlayersLabel = Label("Nombre de joueurs:")
-        nbPlayersLabel.style = "-fx-text-fill: #dfe6e9; -fx-font-size: 14px;"
+        val nbPlayersLabel = Label("👥 Nombre de joueurs:")
+        nbPlayersLabel.style = "-fx-text-fill: #ffffff; -fx-font-size: 15px; -fx-font-weight: bold;"
         nbPlayersComboBox = ComboBox()
         nbPlayersComboBox.items.addAll(3, 4, 5, 6)
         nbPlayersComboBox.value = 4
@@ -58,8 +70,8 @@ class MenuView(private val controller: GameController, private val onStartGame: 
         configGrid.add(nbPlayersComboBox, 1, 0)
         
         // Difficulté des IA
-        val difficultyLabel = Label("Difficulté des IA:")
-        difficultyLabel.style = "-fx-text-fill: #dfe6e9; -fx-font-size: 14px;"
+        val difficultyLabel = Label("🤖 Difficulté des IA:")
+        difficultyLabel.style = "-fx-text-fill: #ffffff; -fx-font-size: 15px; -fx-font-weight: bold;"
         difficultyComboBox = ComboBox()
         difficultyComboBox.items.addAll(
             Game.GameParameters.DifficultyLevel.EASY,
@@ -72,47 +84,50 @@ class MenuView(private val controller: GameController, private val onStartGame: 
         configGrid.add(difficultyComboBox, 1, 1)
         
         // Règles spéciales
-        val rulesLabel = Label("Règles spéciales:")
-        rulesLabel.style = "-fx-text-fill: #dfe6e9; -fx-font-size: 14px; -fx-font-weight: bold;"
+        val rulesLabel = Label("⚙️ Règles spéciales:")
+        rulesLabel.style = "-fx-text-fill: #ffffff; -fx-font-size: 15px; -fx-font-weight: bold;"
         configGrid.add(rulesLabel, 0, 2)
         
-        carreMagiqueCheckBox = CheckBox("Carré Magique")
+        carreMagiqueCheckBox = CheckBox("✨ Carré Magique")
         carreMagiqueCheckBox.isSelected = true
-        carreMagiqueCheckBox.style = "-fx-text-fill: #dfe6e9; -fx-font-size: 13px;"
+        carreMagiqueCheckBox.style = "-fx-text-fill: #e8f5e9; -fx-font-size: 14px;"
         configGrid.add(carreMagiqueCheckBox, 1, 2)
         
-        taGueuleCheckBox = CheckBox("Ta Gueule (Force Play)")
+        taGueuleCheckBox = CheckBox("🔇 Ta Gueule (Force Play)")
         taGueuleCheckBox.isSelected = true
-        taGueuleCheckBox.style = "-fx-text-fill: #dfe6e9; -fx-font-size: 13px;"
+        taGueuleCheckBox.style = "-fx-text-fill: #e8f5e9; -fx-font-size: 14px;"
         configGrid.add(taGueuleCheckBox, 1, 3)
         
         // Bouton démarrer
-        startButton = Button("Démarrer la partie")
-        startButton.font = Font.font("Arial", FontWeight.BOLD, 16.0)
+        startButton = Button("🎮 Démarrer la partie")
+        startButton.font = Font.font("Arial", FontWeight.BOLD, 18.0)
         startButton.style = """
-            -fx-background-color: #00b894;
+            -fx-background-color: linear-gradient(to bottom, #00d9a8 0%, #00b894 100%);
             -fx-text-fill: white;
-            -fx-padding: 15 40 15 40;
-            -fx-background-radius: 5;
+            -fx-padding: 18 50 18 50;
+            -fx-background-radius: 10;
             -fx-cursor: hand;
+            -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.5), 10, 0.0, 0, 4);
         """.trimIndent()
         
         startButton.setOnMouseEntered { 
             startButton.style = """
-                -fx-background-color: #00d9a8;
+                -fx-background-color: linear-gradient(to bottom, #00f5c4 0%, #00d9a8 100%);
                 -fx-text-fill: white;
-                -fx-padding: 15 40 15 40;
-                -fx-background-radius: 5;
+                -fx-padding: 18 50 18 50;
+                -fx-background-radius: 10;
                 -fx-cursor: hand;
+                -fx-effect: dropshadow(gaussian, rgba(0, 185, 148, 0.7), 15, 0.0, 0, 5);
             """.trimIndent()
         }
         startButton.setOnMouseExited { 
             startButton.style = """
-                -fx-background-color: #00b894;
+                -fx-background-color: linear-gradient(to bottom, #00d9a8 0%, #00b894 100%);
                 -fx-text-fill: white;
-                -fx-padding: 15 40 15 40;
-                -fx-background-radius: 5;
+                -fx-padding: 18 50 18 50;
+                -fx-background-radius: 10;
                 -fx-cursor: hand;
+                -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.5), 10, 0.0, 0, 4);
             """.trimIndent()
         }
         
@@ -121,7 +136,7 @@ class MenuView(private val controller: GameController, private val onStartGame: 
         }
         
         // Ajouter tous les éléments
-        children.addAll(title, subtitle, configGrid, startButton)
+        children.addAll(iconLabel, title, subtitle, configGrid, startButton)
     }
     
     /**
