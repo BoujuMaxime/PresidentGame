@@ -1,6 +1,9 @@
 package view
 
 import controller.GameController
+import javafx.animation.FadeTransition
+import javafx.animation.ParallelTransition
+import javafx.animation.TranslateTransition
 import javafx.geometry.Insets
 import javafx.geometry.Pos
 import javafx.scene.control.Button
@@ -10,6 +13,7 @@ import javafx.scene.layout.*
 import javafx.scene.paint.Color
 import javafx.scene.text.Font
 import javafx.scene.text.FontWeight
+import javafx.util.Duration
 import model.Card
 import model.PlayerMove
 
@@ -20,6 +24,7 @@ class GameBoardView(private val controller: GameController) : BorderPane() {
     private val playersInfoPane: VBox
     private val messageLabel: Label
     private val lastPlayedLabel: Label
+    private val pileStack: StackPane
     private val playButton: Button
     private val passButton: Button
     private val newGameButton: Button
@@ -30,6 +35,9 @@ class GameBoardView(private val controller: GameController) : BorderPane() {
     // Tailles réduites
     private val cardWidth = 90.0 * 0.75
     private val cardHeight = 120.0 * 0.75
+    private val pileCardWidth = cardWidth * 0.9
+    private val pileCardHeight = cardHeight * 0.9
+    private var lastPileSnapshot: List<Card> = emptyList()
 
 
     init {
@@ -55,7 +63,20 @@ class GameBoardView(private val controller: GameController) : BorderPane() {
         lastPlayedLabel.style = "-fx-text-fill: #b2bec3;"
         lastPlayedLabel.isWrapText = true
 
-        centerInfoPane.children.addAll(messageLabel, lastPlayedLabel)
+        val pileTitle = Label("Pile sur le pli")
+        pileTitle.font = Font.font("Arial", FontWeight.BOLD, 14.0)
+        pileTitle.style = "-fx-text-fill: #dfe6e9;"
+
+        pileStack = StackPane()
+        pileStack.prefWidth = pileCardWidth * 2.5
+        pileStack.prefHeight = pileCardHeight * 1.6
+        pileStack.padding = Insets(12.0)
+        pileStack.style = "-fx-background-color: rgba(0,0,0,0.25); -fx-background-radius: 10;"
+
+        val pileBox = VBox(8.0, pileTitle, pileStack)
+        pileBox.alignment = Pos.CENTER
+
+        centerInfoPane.children.addAll(messageLabel, lastPlayedLabel, pileBox)
 
         val bottomPane = VBox(15.0)
         bottomPane.alignment = Pos.CENTER
@@ -115,6 +136,7 @@ class GameBoardView(private val controller: GameController) : BorderPane() {
         bottom = bottomPane
 
         setupBindings()
+        updateCurrentPile(emptyList())
     }
 
     private fun setupBindings() {
@@ -124,6 +146,10 @@ class GameBoardView(private val controller: GameController) : BorderPane() {
 
         controller.lastPlayedMoveProperty.addListener { _, _, newMove ->
             updateLastPlayedMove(newMove)
+        }
+
+        controller.currentPileProperty.addListener { _, _, newPile ->
+            updateCurrentPile(newPile)
         }
 
         controller.gameMessageProperty.addListener { _, _, newMessage ->
@@ -209,6 +235,30 @@ class GameBoardView(private val controller: GameController) : BorderPane() {
         return button
     }
 
+    private fun createPileCard(card: Card): StackPane {
+        val container = StackPane()
+        container.prefWidth = pileCardWidth
+        container.prefHeight = pileCardHeight
+        container.style = baseCardStyle(getCardColor(card.suit))
+
+        val rankLabel = Label(card.rank.displayName)
+        rankLabel.font = Font.font("Arial", FontWeight.BOLD, 11.0)
+        rankLabel.style = "-fx-text-fill: ${getCardColor(card.suit)};"
+        StackPane.setAlignment(rankLabel, Pos.TOP_LEFT)
+        StackPane.setMargin(rankLabel, Insets(6.0, 0.0, 0.0, 7.0))
+
+        val suitLabel = Label(card.suit.icon)
+        suitLabel.font = Font.font("Monospace", FontWeight.BOLD, 22.0)
+        suitLabel.style = "-fx-text-fill: ${getCardColor(card.suit)};"
+        StackPane.setAlignment(suitLabel, Pos.CENTER)
+
+        val shadow = DropShadow(8.0, Color.web("#000000", 0.28))
+        container.effect = shadow
+
+        container.children.addAll(suitLabel, rankLabel)
+        return container
+    }
+
     private fun baseCardStyle(cardColor: String): String {
         return """
                      -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #ffffff, #f4f6fa);
@@ -263,6 +313,43 @@ class GameBoardView(private val controller: GameController) : BorderPane() {
             "Dernier coup: $move"
         } else {
             "Aucun coup joué - Vous commencez"
+        }
+    }
+
+    private fun updateCurrentPile(pile: List<Card>) {
+        val previousSize = lastPileSnapshot.size
+        lastPileSnapshot = pile.toList()
+
+        pileStack.children.clear()
+
+        if (pile.isEmpty()) {
+            val emptyLabel = Label("Pile vide")
+            emptyLabel.style = "-fx-text-fill: #b2bec3;"
+            pileStack.children.add(emptyLabel)
+            return
+        }
+
+        val addedCount = (pile.size - previousSize).coerceAtLeast(0)
+        val animateFromIndex = if (addedCount > 0) pile.size - addedCount else pile.size
+
+        pile.forEachIndexed { index, card ->
+            val cardNode = createPileCard(card)
+            cardNode.translateX = index * 14.0
+            cardNode.translateY = -index * 2.0
+            pileStack.children.add(cardNode)
+
+            if (index >= animateFromIndex) {
+                cardNode.opacity = 0.0
+                val fade = FadeTransition(Duration.millis(280.0), cardNode)
+                fade.fromValue = 0.0
+                fade.toValue = 1.0
+
+                val slide = TranslateTransition(Duration.millis(280.0), cardNode)
+                slide.fromY = cardNode.translateY - 18.0
+                slide.toY = cardNode.translateY
+
+                ParallelTransition(fade, slide).play()
+            }
         }
     }
 
