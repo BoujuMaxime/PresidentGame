@@ -170,30 +170,7 @@ class GameController {
      */
     fun runGame() {
         if (game == null || isGameRunning) return
-
-        isGameRunning = true
-        updateGameState("Partie en cours")
-
-        gameThread = Thread {
-            try {
-                game?.startGame()
-                Platform.runLater {
-                    updateGameState("Partie terminée")
-                    updateGameMessage("La partie est terminée! Les rôles ont été attribués.")
-                    updatePlayersInfo()
-                    onRoundFinished?.invoke()
-                }
-            } catch (e: Exception) {
-                Platform.runLater {
-                    updateGameState("Erreur")
-                    updateGameMessage("Erreur: ${e.message}")
-                }
-                e.printStackTrace()
-            } finally {
-                isGameRunning = false
-            }
-        }
-        gameThread?.start()
+        startGameExecution("Partie en cours")
     }
 
     /**
@@ -204,10 +181,18 @@ class GameController {
      */
     fun startNewRound() {
         if (game == null || isGameRunning) return
-
-        isGameRunning = true
-        updateGameState("Nouvelle manche en cours")
         updateGameMessage("Une nouvelle manche commence...")
+        startGameExecution("Nouvelle manche en cours")
+    }
+
+    /**
+     * Exécute une manche de jeu dans un thread séparé.
+     *
+     * @param initialStateMessage Le message d'état à afficher au démarrage
+     */
+    private fun startGameExecution(initialStateMessage: String) {
+        isGameRunning = true
+        updateGameState(initialStateMessage)
 
         gameThread = Thread {
             try {

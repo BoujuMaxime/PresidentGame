@@ -52,71 +52,63 @@ class RoundFinishedDialog(
         val buttonBox = HBox(15.0)
         buttonBox.alignment = Pos.CENTER
         
-        val newRoundButton = Button("Nouvelle Manche")
-        newRoundButton.font = Font.font("Arial", FontWeight.BOLD, 14.0)
-        newRoundButton.style = """
-            -fx-background-color: #00b894;
-            -fx-text-fill: white;
-            -fx-padding: 12 30 12 30;
-            -fx-background-radius: 5;
-            -fx-cursor: hand;
-        """.trimIndent()
+        val newRoundButton = createStyledButton(
+            "Nouvelle Manche",
+            "#00b894",
+            "#00d9a8"
+        ) { onNewRound() }
         
-        newRoundButton.setOnMouseEntered { 
-            newRoundButton.style = """
-                -fx-background-color: #00d9a8;
-                -fx-text-fill: white;
-                -fx-padding: 12 30 12 30;
-                -fx-background-radius: 5;
-                -fx-cursor: hand;
-            """.trimIndent()
-        }
-        newRoundButton.setOnMouseExited { 
-            newRoundButton.style = """
-                -fx-background-color: #00b894;
-                -fx-text-fill: white;
-                -fx-padding: 12 30 12 30;
-                -fx-background-radius: 5;
-                -fx-cursor: hand;
-            """.trimIndent()
-        }
-        
-        newRoundButton.setOnAction { onNewRound() }
-        
-        val quitButton = Button("Quitter")
-        quitButton.font = Font.font("Arial", FontWeight.BOLD, 14.0)
-        quitButton.style = """
-            -fx-background-color: #d63031;
-            -fx-text-fill: white;
-            -fx-padding: 12 30 12 30;
-            -fx-background-radius: 5;
-            -fx-cursor: hand;
-        """.trimIndent()
-        
-        quitButton.setOnMouseEntered { 
-            quitButton.style = """
-                -fx-background-color: #ff7675;
-                -fx-text-fill: white;
-                -fx-padding: 12 30 12 30;
-                -fx-background-radius: 5;
-                -fx-cursor: hand;
-            """.trimIndent()
-        }
-        quitButton.setOnMouseExited { 
-            quitButton.style = """
-                -fx-background-color: #d63031;
-                -fx-text-fill: white;
-                -fx-padding: 12 30 12 30;
-                -fx-background-radius: 5;
-                -fx-cursor: hand;
-            """.trimIndent()
-        }
-        
-        quitButton.setOnAction { onQuit() }
+        val quitButton = createStyledButton(
+            "Quitter",
+            "#d63031",
+            "#ff7675"
+        ) { onQuit() }
         
         buttonBox.children.addAll(newRoundButton, quitButton)
         
         // Ajouter tous les éléments
         children.addAll(title, message, question, buttonBox)
+    }
+    
+    /**
+     * Crée un bouton stylisé avec les couleurs fournies et les effets hover.
+     *
+     * @param text Le texte du bouton
+     * @param normalColor La couleur normale du bouton
+     * @param hoverColor La couleur du bouton au survol
+     * @param action L'action à exécuter lors du clic
+     * @return Le bouton stylisé
+     */
+    private fun createStyledButton(
+        text: String,
+        normalColor: String,
+        hoverColor: String,
+        action: () -> Unit
+    ): Button {
+        val button = Button(text)
+        button.font = Font.font("Arial", FontWeight.BOLD, 14.0)
+        
+        val normalStyle = """
+            -fx-background-color: $normalColor;
+            -fx-text-fill: white;
+            -fx-padding: 12 30 12 30;
+            -fx-background-radius: 5;
+            -fx-cursor: hand;
+        """.trimIndent()
+        
+        val hoverStyle = """
+            -fx-background-color: $hoverColor;
+            -fx-text-fill: white;
+            -fx-padding: 12 30 12 30;
+            -fx-background-radius: 5;
+            -fx-cursor: hand;
+        """.trimIndent()
+        
+        button.style = normalStyle
+        button.setOnMouseEntered { button.style = hoverStyle }
+        button.setOnMouseExited { button.style = normalStyle }
+        button.setOnAction { action() }
+        
+        return button
     }
 }
