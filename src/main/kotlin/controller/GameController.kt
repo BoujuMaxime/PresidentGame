@@ -91,6 +91,11 @@ class GameController {
     private var isGameRunning = false
 
     /**
+     * Callback appelé lorsqu'une manche est terminée et qu'il faut demander au joueur s'il veut continuer.
+     */
+    var onRoundFinished: (() -> Unit)? = null
+
+    /**
      * Représentation synthétique des informations nécessaires pour la vue par joueur.
      *
      * @property name Identifiant du joueur
@@ -165,9 +170,32 @@ class GameController {
      */
     fun runGame() {
         if (game == null || isGameRunning) return
+        startGameExecution("Partie en cours")
+    }
 
+    /**
+     * Démarre une nouvelle manche avec les mêmes joueurs et paramètres.
+     *
+     * Continue la partie actuelle en démarrant un nouveau round. Le classement
+     * (et donc les rôles) du tour précédent est conservé dans l'instance Game
+     * pour permettre les échanges de cartes réglementaires entre les rôles
+     * (Président ↔ Trou du Cul, Vice-Président ↔ Vice-Trou du Cul).
+     * De nouveaux rôles seront attribués à la fin de cette manche.
+     */
+    fun startNewRound() {
+        if (game == null || isGameRunning) return
+        updateGameMessage("Une nouvelle manche commence...")
+        startGameExecution("Nouvelle manche en cours")
+    }
+
+    /**
+     * Exécute une manche de jeu dans un thread séparé.
+     *
+     * @param initialStateMessage Le message d'état à afficher au démarrage
+     */
+    private fun startGameExecution(initialStateMessage: String) {
         isGameRunning = true
-        updateGameState("Partie en cours")
+        updateGameState(initialStateMessage)
 
         gameThread = Thread {
             try {
@@ -176,6 +204,7 @@ class GameController {
                     updateGameState("Partie terminée")
                     updateGameMessage("La partie est terminée! Les rôles ont été attribués.")
                     updatePlayersInfo()
+                    onRoundFinished?.invoke()
                 }
             } catch (e: Exception) {
                 Platform.runLater {

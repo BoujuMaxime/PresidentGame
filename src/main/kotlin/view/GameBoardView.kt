@@ -36,6 +36,10 @@ class GameBoardView(private val controller: GameController) : BorderPane() {
     private val selectedCards = mutableSetOf<Card>()
     private val cardButtons = mutableMapOf<Card, Button>()
 
+    // Dialog de fin de manche
+    private var roundFinishedDialog: RoundFinishedDialog? = null
+    private var dialogOverlay: StackPane? = null
+
     // Tailles réduites
     private val cardWidth = 90.0 * 0.75
     private val cardHeight = 120.0 * 0.75
@@ -170,6 +174,11 @@ class GameBoardView(private val controller: GameController) : BorderPane() {
 
         setupBindings()
         updateCurrentPile(emptyList())
+        
+        // Configurer le callback de fin de manche
+        controller.onRoundFinished = {
+            showRoundFinishedDialog()
+        }
     }
 
     private fun setupBindings() {
@@ -502,5 +511,44 @@ class GameBoardView(private val controller: GameController) : BorderPane() {
             }
             stage.scene.root = menuView
         }
+    }
+    
+    /**
+     * Affiche le dialog de fin de manche avec les options pour continuer ou quitter.
+     */
+    private fun showRoundFinishedDialog() {
+        // Créer l'overlay semi-transparent
+        dialogOverlay = StackPane()
+        dialogOverlay?.style = "-fx-background-color: rgba(0, 0, 0, 0.7);"
+        
+        // Créer le dialog
+        roundFinishedDialog = RoundFinishedDialog(
+            onNewRound = {
+                hideRoundFinishedDialog()
+                controller.startNewRound()
+            },
+            onQuit = {
+                hideRoundFinishedDialog()
+                handleNewGame()
+            }
+        )
+        
+        dialogOverlay?.children?.add(roundFinishedDialog)
+        
+        // Ajouter l'overlay au root stack (qui contient le centre et le menu)
+        val rootStack = center as? StackPane
+        rootStack?.children?.add(dialogOverlay)
+    }
+    
+    /**
+     * Cache et nettoie le dialog de fin de manche.
+     */
+    private fun hideRoundFinishedDialog() {
+        val rootStack = center as? StackPane
+        dialogOverlay?.let { overlay ->
+            rootStack?.children?.remove(overlay)
+        }
+        dialogOverlay = null
+        roundFinishedDialog = null
     }
 }
