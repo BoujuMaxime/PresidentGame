@@ -30,3 +30,17 @@ tasks.test {
 kotlin {
     jvmToolchain(21)
 }
+
+tasks.withType<JavaExec> {
+    jvmArgs = (jvmArgs ?: emptyList()) + listOf(
+        "--enable-native-access=ALL-UNNAMED",
+        "--add-opens=java.base/java.lang=ALL-UNNAMED",        // optionnel
+        "--add-opens=java.base/sun.misc=ALL-UNNAMED"         // optionnel
+    )
+}
+
+application {
+    applicationDefaultJvmArgs = listOf(
+        "--enable-native-access=ALL-UNNAMED"
+    )
+}

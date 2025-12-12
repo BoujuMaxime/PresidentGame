@@ -109,9 +109,6 @@ PresidentGame/
     └── PlayTest.kt
 ```
 
-Pour plus de détails sur l'interface utilisateur, consultez [INTERFACE_UI.md](INTERFACE_UI.md).
-
-
 ## Roadmap
 
 1. ✅ Interface graphique JavaFX complète avec architecture MVC
