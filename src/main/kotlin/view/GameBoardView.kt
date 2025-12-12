@@ -11,8 +11,6 @@ import javafx.scene.control.Label
 import javafx.scene.effect.DropShadow
 import javafx.scene.layout.*
 import javafx.scene.paint.Color
-import javafx.scene.text.Font
-import javafx.scene.text.FontWeight
 import javafx.util.Duration
 import model.Card
 import model.PlayerMove
@@ -46,24 +44,28 @@ class GameBoardView(private val controller: GameController) : BorderPane() {
 
 
     init {
-        style = "-fx-background-color: #1e272e;"
+        // Charger le fichier CSS
+        val cssResource = javaClass.getResource("/game-board.css")
+        if (cssResource != null) {
+            stylesheets.add(cssResource.toExternalForm())
+        }
+        
+        styleClass.add("game-board")
         padding = Insets(15.0)
 
         // === Zone centrale (pile de cartes) ===
         pileStack = StackPane()
+        pileStack.styleClass.add("pile-stack")
         pileStack.prefWidth = pileCardWidth * 3.5
         pileStack.prefHeight = pileCardHeight * 2.2
         pileStack.padding = Insets(15.0)
-        pileStack.style = "-fx-background-color: rgba(0,0,0,0.3); -fx-background-radius: 15;"
 
         messageLabel = Label("En attente...")
-        messageLabel.font = Font.font("Arial", FontWeight.BOLD, 16.0)
-        messageLabel.style = "-fx-text-fill: #dfe6e9;"
+        messageLabel.styleClass.add("message-label")
         messageLabel.isWrapText = true
 
         lastPlayedLabel = Label("Aucun coup joué")
-        lastPlayedLabel.font = Font.font("Arial", FontWeight.NORMAL, 13.0)
-        lastPlayedLabel.style = "-fx-text-fill: #b2bec3;"
+        lastPlayedLabel.styleClass.add("last-played-label")
         lastPlayedLabel.isWrapText = true
 
         val centerInfo = VBox(10.0)
@@ -71,80 +73,69 @@ class GameBoardView(private val controller: GameController) : BorderPane() {
         centerInfo.children.addAll(messageLabel, lastPlayedLabel, pileStack)
         
         centerPane = StackPane(centerInfo)
+        centerPane.styleClass.add("center-pane")
         centerPane.alignment = Pos.CENTER
 
         // === Joueurs autour du plateau ===
         topPlayerPane = VBox(8.0)
+        topPlayerPane.styleClass.add("opponent-pane")
         topPlayerPane.alignment = Pos.CENTER
         topPlayerPane.padding = Insets(10.0)
-        topPlayerPane.style = "-fx-background-color: #2d3436; -fx-background-radius: 10;"
         topPlayerPane.minHeight = 80.0
 
         leftPlayerPane = VBox(8.0)
+        leftPlayerPane.styleClass.add("opponent-pane")
         leftPlayerPane.alignment = Pos.CENTER
         leftPlayerPane.padding = Insets(10.0)
-        leftPlayerPane.style = "-fx-background-color: #2d3436; -fx-background-radius: 10;"
         leftPlayerPane.minWidth = 150.0
 
         rightPlayerPane = VBox(8.0)
+        rightPlayerPane.styleClass.add("opponent-pane")
         rightPlayerPane.alignment = Pos.CENTER
         rightPlayerPane.padding = Insets(10.0)
-        rightPlayerPane.style = "-fx-background-color: #2d3436; -fx-background-radius: 10;"
         rightPlayerPane.minWidth = 150.0
 
         // === Main du joueur (en bas) ===
         playerHandPane = FlowPane()
+        playerHandPane.styleClass.add("player-pane")
         playerHandPane.hgap = 12.0
         playerHandPane.vgap = 12.0
         playerHandPane.alignment = Pos.CENTER
         playerHandPane.padding = Insets(15.0)
-        playerHandPane.style = "-fx-background-color: #2d3436; -fx-background-radius: 10;"
 
-        val buttonPane = HBox(15.0)
-        buttonPane.alignment = Pos.CENTER
-        buttonPane.padding = Insets(10.0)
+        // Boutons d'action principaux (jouer/passer)
+        val actionButtonPane = HBox(15.0)
+        actionButtonPane.styleClass.add("button-pane")
+        actionButtonPane.alignment = Pos.CENTER
+        actionButtonPane.padding = Insets(10.0)
 
         playButton = Button("Jouer les cartes sélectionnées")
-        playButton.font = Font.font("Arial", FontWeight.BOLD, 14.0)
-        playButton.style = """
-                     -fx-background-color: #00b894;
-                     -fx-text-fill: white;
-                     -fx-padding: 12 25 12 25;
-                     -fx-background-radius: 5;
-                     -fx-cursor: hand;
-                 """.trimIndent()
+        playButton.styleClass.addAll("action-button", "play-button")
         playButton.isDisable = true
         playButton.setOnAction { handlePlayCards() }
 
         passButton = Button("Passer mon tour")
-        passButton.font = Font.font("Arial", FontWeight.BOLD, 14.0)
-        passButton.style = """
-                     -fx-background-color: #d63031;
-                     -fx-text-fill: white;
-                     -fx-padding: 12 25 12 25;
-                     -fx-background-radius: 5;
-                     -fx-cursor: hand;
-                 """.trimIndent()
+        passButton.styleClass.addAll("action-button", "pass-button")
         passButton.isDisable = true
         passButton.setOnAction { handlePass() }
 
-        newGameButton = Button("Nouvelle partie")
-        newGameButton.font = Font.font("Arial", FontWeight.BOLD, 14.0)
-        newGameButton.style = """
-                     -fx-background-color: #0984e3;
-                     -fx-text-fill: white;
-                     -fx-padding: 12 25 12 25;
-                     -fx-background-radius: 5;
-                     -fx-cursor: hand;
-                 """.trimIndent()
-        newGameButton.setOnAction { handleNewGame() }
+        actionButtonPane.children.addAll(playButton, passButton)
 
-        buttonPane.children.addAll(playButton, passButton, newGameButton)
+        // Bouton nouvelle partie (séparé)
+        newGameButton = Button("⟲ Nouvelle partie")
+        newGameButton.styleClass.addAll("action-button", "new-game-button")
+        newGameButton.setOnAction { handleNewGame() }
+        
+        val secondaryButtonPane = HBox()
+        secondaryButtonPane.styleClass.add("secondary-button-pane")
+        secondaryButtonPane.alignment = Pos.CENTER
+        secondaryButtonPane.padding = Insets(8.0)
+        secondaryButtonPane.children.add(newGameButton)
         
         val bottomPane = VBox(15.0)
         bottomPane.alignment = Pos.CENTER
         bottomPane.padding = Insets(10.0)
-        bottomPane.children.addAll(playerHandPane, buttonPane)
+        bottomPane.children.addAll(playerHandPane, actionButtonPane, secondaryButtonPane)
 
         // === Disposition finale ===
         top = topPlayerPane
@@ -191,7 +182,7 @@ class GameBoardView(private val controller: GameController) : BorderPane() {
 
         if (hand.isEmpty()) {
             val emptyLabel = Label("Aucune carte")
-            emptyLabel.style = "-fx-text-fill: #b2bec3; -fx-font-size: 14px;"
+            emptyLabel.styleClass.add("empty-label")
             playerHandPane.children.add(emptyLabel)
             return
         }
@@ -205,7 +196,7 @@ class GameBoardView(private val controller: GameController) : BorderPane() {
 
     private fun createCardButton(card: Card): Button {
         val button = Button()
-        button.style = "-fx-background-color: transparent; -fx-padding: 0; -fx-cursor: hand;"
+        button.styleClass.add("card-button")
         button.prefWidth = cardWidth
         button.prefHeight = cardHeight
         button.minWidth = cardWidth
@@ -213,27 +204,25 @@ class GameBoardView(private val controller: GameController) : BorderPane() {
 
         // Conteneur visuel de la carte
         val container = StackPane()
+        container.styleClass.add("card-container")
         container.prefWidth = cardWidth
         container.prefHeight = cardHeight
-        container.style = baseCardStyle(getCardColor(card.suit))
 
-        // Rang en haut-gauche (police réduite)
+        // Rang en haut-gauche
         val rankLabel = Label(card.rank.displayName)
-        rankLabel.font = Font.font("Arial", FontWeight.BOLD, 12.0)
-        rankLabel.style = "-fx-text-fill: ${getCardColor(card.suit)};"
+        rankLabel.styleClass.addAll("card-rank-label", getCardColorClass(card.suit))
         StackPane.setAlignment(rankLabel, Pos.TOP_LEFT)
         StackPane.setMargin(rankLabel, Insets(6.0, 0.0, 0.0, 8.0))
 
-        // Symbole centré, taille réduite
+        // Symbole centré
         val suitLabel = Label(card.suit.icon)
-        suitLabel.font = Font.font("Monospace", FontWeight.BOLD, 28.0)
-        suitLabel.style = "-fx-text-fill: ${getCardColor(card.suit)};"
+        suitLabel.styleClass.addAll("card-suit-label", getCardColorClass(card.suit))
         StackPane.setAlignment(suitLabel, Pos.CENTER)
 
         container.children.addAll(suitLabel, rankLabel)
         button.graphic = container
 
-        // Ombre et effet hover (atténué)
+        // Ombre et effet hover
         val hoverShadow = DropShadow(10.0, Color.web("#000000", 0.22))
         button.setOnMouseEntered {
             container.scaleX = 1.03
@@ -255,19 +244,17 @@ class GameBoardView(private val controller: GameController) : BorderPane() {
 
     private fun createPileCard(card: Card): StackPane {
         val container = StackPane()
+        container.styleClass.add("card-container")
         container.prefWidth = pileCardWidth
         container.prefHeight = pileCardHeight
-        container.style = baseCardStyle(getCardColor(card.suit))
 
         val rankLabel = Label(card.rank.displayName)
-        rankLabel.font = Font.font("Arial", FontWeight.BOLD, 11.0)
-        rankLabel.style = "-fx-text-fill: ${getCardColor(card.suit)};"
+        rankLabel.styleClass.addAll("pile-card-rank-label", getCardColorClass(card.suit))
         StackPane.setAlignment(rankLabel, Pos.TOP_LEFT)
         StackPane.setMargin(rankLabel, Insets(6.0, 0.0, 0.0, 7.0))
 
         val suitLabel = Label(card.suit.icon)
-        suitLabel.font = Font.font("Monospace", FontWeight.BOLD, 22.0)
-        suitLabel.style = "-fx-text-fill: ${getCardColor(card.suit)};"
+        suitLabel.styleClass.addAll("pile-card-suit-label", getCardColorClass(card.suit))
         StackPane.setAlignment(suitLabel, Pos.CENTER)
 
         val shadow = DropShadow(8.0, Color.web("#000000", 0.28))
@@ -277,36 +264,10 @@ class GameBoardView(private val controller: GameController) : BorderPane() {
         return container
     }
 
-    private fun baseCardStyle(cardColor: String): String {
-        return """
-                     -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #ffffff, #f4f6fa);
-                     -fx-background-radius: 8;
-                     -fx-border-radius: 8;
-                     -fx-border-color: #c8d0d8;
-                     -fx-border-width: 1.2;
-                     -fx-padding: 6;
-                 """.trimIndent()
-    }
-
-    private fun selectedCardStyle(): String {
-        return """
-                     -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #d7f1ff, #74b9ff);
-                     -fx-background-radius: 8;
-                     -fx-border-radius: 8;
-                     -fx-border-color: #0984e3;
-                     -fx-border-width: 2.5;
-                     -fx-padding: 6;
-                 """.trimIndent()
-    }
-
-    private fun formatCard(card: Card): String {
-        return "${card.rank.displayName}\n${card.suit.icon}"
-    }
-
-    private fun getCardColor(suit: Card.Suit): String {
+    private fun getCardColorClass(suit: Card.Suit): String {
         return when (suit) {
-            Card.Suit.HEARTS, Card.Suit.DIAMONDS -> "#d63031"
-            Card.Suit.CLUBS, Card.Suit.SPADES -> "#2d3436"
+            Card.Suit.HEARTS, Card.Suit.DIAMONDS -> "card-red"
+            Card.Suit.CLUBS, Card.Suit.SPADES -> "card-black"
         }
     }
 
@@ -317,10 +278,12 @@ class GameBoardView(private val controller: GameController) : BorderPane() {
 
         if (selectedCards.contains(card)) {
             selectedCards.remove(card)
-            container.style = baseCardStyle(getCardColor(card.suit))
+            container.styleClass.remove("card-container-selected")
+            container.styleClass.add("card-container")
         } else {
             selectedCards.add(card)
-            container.style = selectedCardStyle()
+            container.styleClass.remove("card-container")
+            container.styleClass.add("card-container-selected")
         }
 
         playButton.isDisable = selectedCards.isEmpty() || !controller.canPlayProperty.get()
@@ -342,7 +305,7 @@ class GameBoardView(private val controller: GameController) : BorderPane() {
 
         if (pile.isEmpty()) {
             val emptyLabel = Label("Pile vide")
-            emptyLabel.style = "-fx-text-fill: #b2bec3;"
+            emptyLabel.styleClass.add("empty-label")
             pileStack.children.add(emptyLabel)
             return
         }
@@ -424,19 +387,17 @@ class GameBoardView(private val controller: GameController) : BorderPane() {
     
     private fun addPlayerToPane(pane: VBox, playerInfo: GameController.PlayerInfo) {
         val nameLabel = Label(playerInfo.name)
-        nameLabel.font = Font.font("Arial", FontWeight.BOLD, 14.0)
-        nameLabel.style = "-fx-text-fill: #dfe6e9;"
+        nameLabel.styleClass.add("player-name-label")
         
         val infoLabel = Label("${playerInfo.role.displayName}\n${playerInfo.cardCount} cartes")
-        infoLabel.font = Font.font("Arial", FontWeight.NORMAL, 12.0)
-        infoLabel.style = "-fx-text-fill: #b2bec3;"
+        infoLabel.styleClass.add("player-info-label")
         infoLabel.alignment = Pos.CENTER
         infoLabel.textAlignment = javafx.scene.text.TextAlignment.CENTER
         
         val playerBox = VBox(5.0)
+        playerBox.styleClass.add("player-box")
         playerBox.alignment = Pos.CENTER
         playerBox.padding = Insets(8.0)
-        playerBox.style = "-fx-background-color: rgba(0,0,0,0.2); -fx-background-radius: 8;"
         playerBox.children.addAll(nameLabel, infoLabel)
         
         pane.children.add(playerBox)

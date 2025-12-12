@@ -1,0 +1,184 @@
+/* Jeu du Président - Styles du plateau */
+
+/* === Couleurs principales === */
+:root {
+    -fx-background-dark: #1e272e;
+    -fx-background-panel: #2d3436;
+    -fx-text-primary: #dfe6e9;
+    -fx-text-secondary: #b2bec3;
+    -fx-color-success: #00b894;
+    -fx-color-danger: #d63031;
+    -fx-color-info: #0984e3;
+}
+
+/* === Conteneurs principaux === */
+.game-board {
+    -fx-background-color: #1e272e;
+}
+
+.player-pane,
+.opponent-pane {
+    -fx-background-color: #2d3436;
+    -fx-background-radius: 10;
+}
+
+.center-pane {
+    -fx-background-color: transparent;
+}
+
+.pile-stack {
+    -fx-background-color: rgba(0, 0, 0, 0.3);
+    -fx-background-radius: 15;
+}
+
+/* === Labels === */
+.message-label {
+    -fx-text-fill: #dfe6e9;
+    -fx-font-family: "Arial";
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+}
+
+.last-played-label {
+    -fx-text-fill: #b2bec3;
+    -fx-font-family: "Arial";
+    -fx-font-size: 13px;
+}
+
+.empty-label {
+    -fx-text-fill: #b2bec3;
+    -fx-font-size: 14px;
+}
+
+/* === Boutons d'action === */
+.action-button {
+    -fx-text-fill: white;
+    -fx-font-family: "Arial";
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-padding: 12 25 12 25;
+    -fx-background-radius: 5;
+    -fx-cursor: hand;
+}
+
+.play-button {
+    -fx-background-color: #00b894;
+}
+
+.play-button:hover {
+    -fx-background-color: #00a383;
+}
+
+.play-button:disabled {
+    -fx-background-color: #636e72;
+    -fx-opacity: 0.6;
+}
+
+.pass-button {
+    -fx-background-color: #d63031;
+}
+
+.pass-button:hover {
+    -fx-background-color: #c52020;
+}
+
+.pass-button:disabled {
+    -fx-background-color: #636e72;
+    -fx-opacity: 0.6;
+}
+
+.new-game-button {
+    -fx-background-color: #0984e3;
+}
+
+.new-game-button:hover {
+    -fx-background-color: #0770c9;
+}
+
+/* === Panneaux de boutons === */
+.button-pane {
+    -fx-background-color: transparent;
+}
+
+.secondary-button-pane {
+    -fx-background-color: rgba(45, 52, 54, 0.5);
+    -fx-background-radius: 8;
+    -fx-padding: 10;
+}
+
+/* === Cartes === */
+.card-button {
+    -fx-background-color: transparent;
+    -fx-padding: 0;
+    -fx-cursor: hand;
+}
+
+.card-container {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #ffffff, #f4f6fa);
+    -fx-background-radius: 8;
+    -fx-border-radius: 8;
+    -fx-border-color: #c8d0d8;
+    -fx-border-width: 1.2;
+    -fx-padding: 6;
+}
+
+.card-container-selected {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #d7f1ff, #74b9ff);
+    -fx-background-radius: 8;
+    -fx-border-radius: 8;
+    -fx-border-color: #0984e3;
+    -fx-border-width: 2.5;
+    -fx-padding: 6;
+}
+
+.card-rank-label {
+    -fx-font-family: "Arial";
+    -fx-font-size: 12px;
+    -fx-font-weight: bold;
+}
+
+.card-suit-label {
+    -fx-font-family: "Monospace";
+    -fx-font-size: 28px;
+    -fx-font-weight: bold;
+}
+
+.pile-card-rank-label {
+    -fx-font-family: "Arial";
+    -fx-font-size: 11px;
+    -fx-font-weight: bold;
+}
+
+.pile-card-suit-label {
+    -fx-font-family: "Monospace";
+    -fx-font-size: 22px;
+    -fx-font-weight: bold;
+}
+
+/* === Couleurs des cartes === */
+.card-red {
+    -fx-text-fill: #d63031;
+}
+
+.card-black {
+    -fx-text-fill: #2d3436;
+}
+
+/* === Informations des joueurs === */
+.player-name-label {
+    -fx-text-fill: #dfe6e9;
+    -fx-font-family: "Arial";
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+}
+
+.player-info-label {
+    -fx-text-fill: #b2bec3;
+    -fx-font-family: "Arial";
+    -fx-font-size: 12px;
+}
+
+.player-box {
+    -fx-background-color: rgba(0, 0, 0, 0.2);
+    -fx-background-radius: 8;
+}
