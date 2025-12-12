@@ -59,12 +59,50 @@ class HumanPlayer(
     }
 
     /**
-     * Ajoute des cartes à la main du joueur et les trie par rang.
+     * Permet de choisir des cartes à échanger avec un autre joueur.
      *
-     * @param cards Les cartes à ajouter à la main du joueur.
+     * @param count Le nombre de cartes à échanger.
+     * @param highest Si `true`, sélectionne les cartes les plus fortes, sinon il choisit.
+     * @return La liste des cartes sélectionnées pour l'échange.
      */
-    override fun giveCardsToPlayer(cards: List<Card>) {
-        hand.addAll(cards) // Ajoute les cartes à la main.
-        PlayerUtils.sortHandByRank(hand) // Trie la main par rang.
+    override fun exchangeCard(count: Int, highest: Boolean): List<Card> {
+        if (count <= 0 || hand.isEmpty()) return emptyList()
+
+        if (highest) {
+            val picked = PlayerUtils.selectableCardsForExchange(hand, count, true).take(count)
+            return picked
+        }
+
+        println("Sélectionnez $count carte(s) à échanger (indices séparés par des espaces).")
+        PlayerUtils.printHand(hand)
+        println("Appuyez sur Entrée pour sélectionner automatiquement les $count premières cartes.")
+
+        while (true) {
+            val input = readlnOrNull()?.trim()
+            if (input.isNullOrEmpty()) {
+                val defaultPick = hand.take(count)
+                return defaultPick
+            }
+
+            val indices = input.split(Regex("\\s+"))
+                .mapNotNull { it.toIntOrNull() }
+            if (indices.size != count) {
+                println("Veuillez fournir exactement $count indice(s). Recommencez.")
+                continue
+            }
+            // Vérifier validité des indices et unicité
+            if (indices.any { it !in hand.indices }) {
+                println("Un ou plusieurs indices sont hors de portée. Recommencez.")
+                continue
+            }
+            if (indices.distinct().size != indices.size) {
+                println("Indices dupliqués détectés. Recommencez.")
+                continue
+            }
+
+            val selected = indices.map { hand[it] }
+
+            return selected
+        }
     }
 }

@@ -16,7 +16,15 @@ class RemoteHumanPlayer(
         TODO("Not yet implemented")
     }
 
-    override fun giveCardsToPlayer(cards: List<Card>) {
+    /**
+     * Permet de choisir des cartes à échanger avec un autre joueur.
+     *
+     * @param count Le nombre de cartes à échanger.
+     * @param highest Si `true`, sélectionne les cartes les plus fortes, sinon il choisit.
+     * @return La liste des cartes sélectionnées pour l'échange.
+     */
+    override fun exchangeCard(count: Int, highest: Boolean): List<Card> {
         TODO("Not yet implemented")
     }
+
 }

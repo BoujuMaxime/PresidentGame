@@ -26,9 +26,14 @@ interface PlayerInterface {
     ): PlayerMove?
 
     /**
-     * Donne des cartes au joueur.
+     * Permet de choisir des cartes à échanger avec un autre joueur.
      *
-     * @param cards La liste des cartes à donner au joueur.
+     * @param count Le nombre de cartes à échanger.
+     * @param highest Si `true`, sélectionne les cartes les plus fortes, sinon il choisit.
+     * @return La liste des cartes sélectionnées pour l'échange.
      */
-    fun giveCardsToPlayer(cards: List<Card>)
+    fun exchangeCard(
+        count: Int,
+        highest: Boolean
+    ): List<Card>
 }

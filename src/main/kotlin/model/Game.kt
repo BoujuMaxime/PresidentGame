@@ -208,7 +208,7 @@ class Game(
     }
 
     /**
-     * Sélectionne des cartes dans la main d'un joueur.
+     * Demande à un joueur de sélectionner des cartes à échanger.
      *
      * @param player Joueur dont on sélectionne les cartes
      * @param count Nombre de cartes à sélectionner
@@ -217,8 +217,7 @@ class Game(
      */
     private fun selectCards(player: Player, count: Int, highest: Boolean): List<Card> {
         if (player.hand.isEmpty()) return emptyList()
-        val sorted = player.hand.sortedBy { it.rank.ordinal }
-        return if (highest) sorted.takeLast(count) else sorted.take(count)
+        return player.exchangeCard(count, highest)
     }
 
     /**

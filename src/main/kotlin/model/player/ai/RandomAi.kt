@@ -18,8 +18,19 @@ class RandomAi(
         return AiUtils.chooseRandomPlay(possible)
     }
 
-    override fun giveCardsToPlayer(cards: List<Card>) {
-        hand.addAll(cards)
-        PlayerUtils.sortHandByRank(hand)
+    /**
+     * Permet de choisir des cartes à échanger avec un autre joueur.
+     *
+     * Ai random donne soit ses plus fortes cartes, soit ses plus faibles cartes.
+     *
+     * @param count Le nombre de cartes à échanger.
+     * @param highest Si `true`, sélectionne les cartes les plus fortes, sinon il choisit.
+     * @return La liste des cartes sélectionnées pour l'échange.
+     */
+    override fun exchangeCard(count: Int, highest: Boolean): List<Card> {
+        val selectableCards = PlayerUtils.selectableCardsForExchange(hand, count, highest).toMutableList()
+        selectableCards.sortBy { it.rank.ordinal }
+
+        return if (highest) selectableCards.takeLast(count) else selectableCards.take(count)
     }
 }

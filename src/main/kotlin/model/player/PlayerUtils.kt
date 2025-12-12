@@ -93,6 +93,26 @@ object PlayerUtils {
     }
 
     /**
+     * Retourne les cartes sélectionnables pour un échange.
+     *
+     * @param hand La main du joueur, une liste de cartes.
+     * @param count Le nombre de cartes à échanger.
+     * @param highest Si `true`, sélectionne les cartes les plus fortes, sinon il choisit.
+     * @return Une liste des cartes sélectionnables pour l'échange.
+     */
+    fun selectableCardsForExchange(
+        hand: List<Card>,
+        count: Int,
+        highest: Boolean
+    ): List<Card> {
+        if (hand.isEmpty()) return emptyList()
+        if (highest) {
+            return hand.sortedByDescending { it.rank }.take(count)
+        }
+        return hand
+    }
+
+    /**
      * Affiche la main d'un joueur avec un index pour chaque carte.
      *
      * @param hand La main du joueur, une liste de cartes.
