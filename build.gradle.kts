@@ -1,5 +1,7 @@
 plugins {
     kotlin("jvm") version "2.2.20"
+    id("org.openjfx.javafxplugin") version "0.1.0"
+    application
 }
 
 group = "org.example"
@@ -9,8 +11,17 @@ repositories {
     mavenCentral()
 }
 
+javafx {
+    version = "21"
+    modules = listOf("javafx.controls", "javafx.fxml")
+}
+
 dependencies {
     testImplementation(kotlin("test"))
+}
+
+application {
+    mainClass.set("MainKt")
 }
 
 tasks.test {

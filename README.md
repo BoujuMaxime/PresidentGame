@@ -73,25 +73,34 @@ Lancez les commandes depuis la racine. Sous PowerShell, les deux variantes (Unix
 ```
 PresidentGame/
 ├── src/main/kotlin/
-│   ├── Main.kt
-│   └── model/
+│   ├── Main.kt                      # Lance l'application JavaFX
+│   ├── controller/                  # Contrôleurs MVC
+│   │   ├── GameController.kt        # Contrôleur principal
+│   │   ├── GuiHumanPlayer.kt        # Joueur humain GUI
+│   │   └── ObservableAi.kt          # Wrapper IA observable
+│   ├── view/                        # Vues JavaFX
+│   │   ├── PresidentGameApp.kt      # Application principale
+│   │   ├── MenuView.kt              # Menu de configuration
+│   │   └── GameBoardView.kt         # Plateau de jeu
+│   └── model/                       # Modèle de données
 │       ├── Card.kt
 │       ├── PlayerMove.kt
 │       ├── Utils.kt
 │       ├── Game.kt
-│       └── GameTurns.kt
+│       ├── GameTurns.kt
 │       └── player/
 │           ├── Player.kt
 │           ├── PlayerInterface.kt
+│           ├── PlayerUtils.kt
 │           ├── HumanPlayer.kt
 │           ├── RemoteHumanPlayer.kt
 │           └── ai/
 │               ├── Ai.kt
 │               ├── AiInterface.kt
+│               ├── AiUtils.kt
 │               ├── RandomAi.kt
 │               ├── EvaluateAi.kt
-│               ├── MiniMaxAi.kt
-│               └── AiUtils.kt
+│               └── MiniMaxAi.kt
 └── src/test/kotlin/model/
     ├── AiTest.kt
     ├── CardTest.kt
@@ -100,12 +109,17 @@ PresidentGame/
     └── PlayTest.kt
 ```
 
+Pour plus de détails sur l'interface utilisateur, consultez [INTERFACE_UI.md](INTERFACE_UI.md).
+
+
 ## Roadmap
 
-1. Implémenter la prise d’input humain (CLI/GUI) et l’intégration des `TODO` restants.
-2. Finaliser `EvaluateAi` et ajouter des tests de stratégie supplémentaires.
-3. Lancer l’IA `MiniMax` réelle et documenter les scénarios de parties.
-
+1. ✅ Interface graphique JavaFX complète avec architecture MVC
+2. ✅ Menu de configuration et plateau de jeu interactif
+3. 🚧 Améliorer l'UI/UX avec animations et effets visuels
+4. 🚧 Finaliser `EvaluateAi` et ajouter des tests de stratégie supplémentaires
+5. 🚧 Implémenter l'IA `MiniMax` réelle et documenter les scénarios de parties
+6. 🚧 Ajouter le mode multijoueur en réseau avec `RemoteHumanPlayer`
 ## Contribution
 
 1. Forkez le dépôt et créez une branche dédiée (`feature/…`).

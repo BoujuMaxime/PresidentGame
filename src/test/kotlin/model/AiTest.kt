@@ -1,5 +1,6 @@
 package model
 
+import model.player.PlayerUtils
 import model.player.ai.EvaluateAi
 import model.player.ai.RandomAi
 import org.junit.jupiter.api.Assertions.*
@@ -15,9 +16,10 @@ class AiTest {
             hand = mutableListOf(card(Card.Rank.KING, Card.Suit.SPADES))
         )
 
-        ai.giveCardsToPlayer(
+        ai.hand.addAll(
             listOf(card(Card.Rank.FOUR, Card.Suit.HEARTS), card(Card.Rank.NINE, Card.Suit.CLUBS))
         )
+        PlayerUtils.sortHandByRank(ai.hand)
 
         assertEquals(
             listOf(
