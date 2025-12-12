@@ -87,6 +87,14 @@
     -fx-opacity: 0.6;
 }
 
+.sort-button {
+    -fx-background-color: #6c5ce7;
+}
+
+.sort-button:hover {
+    -fx-background-color: #5f4dd1;
+}
+
 .new-game-button {
     -fx-background-color: #0984e3;
 }
