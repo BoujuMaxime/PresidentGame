@@ -23,14 +23,12 @@ object PlayerUtils {
      *
      * @param hand La main du joueur, une liste de cartes.
      * @param lastPlayerMove Le dernier coup joué par un autre joueur, ou null si aucun.
-     * @param pile La pile principale de cartes.
      * @param straightRank Le rang de la séquence en cours, ou null si aucune séquence.
      * @return Une liste des coups possibles que le joueur peut effectuer.
      */
     fun possiblePlays(
         hand: List<Card>,
         lastPlayerMove: PlayerMove?,
-        pile: List<Card>,
         straightRank: Card.Rank?
     ): List<PlayerMove> {
         /**
@@ -69,7 +67,7 @@ object PlayerUtils {
         groups.forEach { (_, cards) ->
             (2..minOf(4, cards.size)).forEach { size ->
                 combinations(cards, size).forEach { combo ->
-                    val type = PlayerMove.PlayType.values()[size - 1]
+                    val type = PlayerMove.PlayType.entries[size - 1]
                     playerMoves.add(PlayerMove(combo, type))
                 }
             }
