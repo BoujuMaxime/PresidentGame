@@ -40,8 +40,8 @@ class PlayerUtilsTest {
 
         val plays = PlayerUtils.possiblePlays(hand, null, emptyList(), null)
 
-        assertTrue(plays.any { it.playType == Play.PlayType.PAIR })
-        assertTrue(plays.any { it.playType == Play.PlayType.SINGLE })
+        assertTrue(plays.any { it.playType == PlayerMove.PlayType.PAIR })
+        assertTrue(plays.any { it.playType == PlayerMove.PlayType.SINGLE })
         assertTrue(plays.any { it.getRank() == Card.Rank.FOUR })
     }
 
@@ -51,12 +51,12 @@ class PlayerUtilsTest {
             card(Card.Rank.SEVEN, Card.Suit.HEARTS),
             card(Card.Rank.NINE, Card.Suit.SPADES)
         )
-        val lastPlay = Play(listOf(card(Card.Rank.SIX, Card.Suit.CLUBS)), Play.PlayType.SINGLE)
+        val lastPlayerMove = PlayerMove(listOf(card(Card.Rank.SIX, Card.Suit.CLUBS)), PlayerMove.PlayType.SINGLE)
 
-        val plays = PlayerUtils.possiblePlays(hand, lastPlay, emptyList(), null)
+        val plays = PlayerUtils.possiblePlays(hand, lastPlayerMove, emptyList(), null)
 
         assertFalse(plays.isEmpty())
-        assertTrue(plays.all { it.playType == Play.PlayType.SINGLE })
+        assertTrue(plays.all { it.playType == PlayerMove.PlayType.SINGLE })
         assertTrue(plays.all { it.getRank().ordinal >= Card.Rank.SIX.ordinal })
     }
 

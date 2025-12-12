@@ -105,11 +105,11 @@ object Utils {
     /**
      * Affiche un coup joué par un joueur dans la console si l'affichage est activé.
      * @param playerId L'identifiant du joueur.
-     * @param play Le coup joué (ou `null` si le joueur passe).
+     * @param playerMove Le coup joué (ou `null` si le joueur passe).
      */
-    fun printPlay(playerId: String, play: Play?) {
+    fun printPlay(playerId: String, playerMove: PlayerMove?) {
         if (consoleOutputEnabled) {
-            val content = play?.toString() ?: "passe"
+            val content = playerMove?.toString() ?: "passe"
             println("[PLAY] $playerId => $content")
         }
     }

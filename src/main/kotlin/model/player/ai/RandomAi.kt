@@ -1,7 +1,7 @@
 package model.player.ai
 
 import model.Card
-import model.Play
+import model.PlayerMove
 import model.player.PlayerUtils
 
 class RandomAi(
@@ -11,10 +11,10 @@ class RandomAi(
     override fun playTurn(
         pile: MutableList<Card>,
         discardPile: MutableList<Card>,
-        lastPlay: Play?,
+        lastPlayerMove: PlayerMove?,
         straightRank: Card.Rank?
-    ): Play? {
-        val possible = PlayerUtils.possiblePlays(hand, lastPlay, pile, straightRank)
+    ): PlayerMove? {
+        val possible = PlayerUtils.possiblePlays(hand, lastPlayerMove, pile, straightRank)
         return AiUtils.chooseRandomPlay(possible)
     }
 

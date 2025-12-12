@@ -7,8 +7,9 @@ import java.util.function.IntFunction
  *
  * @property cards La liste des cartes posées par le joueur.
  * @property playType Le type de jeu (SINGLE, PAIR, THREE_OF_A_KIND, FOUR_OF_A_KIND).
+ * @author BOUJU Maxime
  */
-class Play(
+class PlayerMove(
     private val cards: List<Card>,
     val playType: PlayType = PlayType.SINGLE
 ) : List<Card> by cards {
@@ -44,7 +45,7 @@ class Play(
      * @param top Le jeu actuellement au sommet de la pile, ou `null` s'il n'y a pas de jeu précédent.
      * @return `true` si ce jeu peut être joué, sinon `false`.
      */
-    fun canBePlayedOn(top: Play?): Boolean {
+    fun canBePlayedOn(top: PlayerMove?): Boolean {
         if (top == null) return true
         if (this.playType != top.playType) return false
         return this.cards[0].rank.ordinal >= top.cards[0].rank.ordinal

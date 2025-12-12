@@ -8,35 +8,35 @@ class PlayTest {
 
     @Test
     fun `valid single play is allowed`() {
-        val play = Play(listOf(card(Card.Rank.THREE, Card.Suit.CLUBS)), Play.PlayType.SINGLE)
-        assertEquals(Play.PlayType.SINGLE, play.playType)
-        assertEquals(Card.Rank.THREE, play.getRank())
+        val playerMove = PlayerMove(listOf(card(Card.Rank.THREE, Card.Suit.CLUBS)), PlayerMove.PlayType.SINGLE)
+        assertEquals(PlayerMove.PlayType.SINGLE, playerMove.playType)
+        assertEquals(Card.Rank.THREE, playerMove.getRank())
     }
 
     @Test
     fun `pair constructor rejects mixed ranks`() {
         val ex = assertThrows(IllegalArgumentException::class.java) {
-            Play(
+            PlayerMove(
                 listOf(card(Card.Rank.FOUR, Card.Suit.HEARTS), card(Card.Rank.FIVE, Card.Suit.HEARTS)),
-                Play.PlayType.PAIR
+                PlayerMove.PlayType.PAIR
             )
         }
-        assertEquals("Combinaison de cartes invalide pour le type ${Play.PlayType.PAIR}", ex.message)
+        assertEquals("Combinaison de cartes invalide pour le type ${PlayerMove.PlayType.PAIR}", ex.message)
     }
 
     @Test
     fun `canBePlayedOn requires same type and higherOrEqual rank`() {
-        val top = Play(
+        val top = PlayerMove(
             listOf(card(Card.Rank.QUEEN, Card.Suit.HEARTS)),
-            Play.PlayType.SINGLE
+            PlayerMove.PlayType.SINGLE
         )
-        val stronger = Play(
+        val stronger = PlayerMove(
             listOf(card(Card.Rank.KING, Card.Suit.SPADES)),
-            Play.PlayType.SINGLE
+            PlayerMove.PlayType.SINGLE
         )
-        val weakerPair = Play(
+        val weakerPair = PlayerMove(
             listOf(card(Card.Rank.TEN, Card.Suit.CLUBS), card(Card.Rank.TEN, Card.Suit.DIAMONDS)),
-            Play.PlayType.PAIR
+            PlayerMove.PlayType.PAIR
         )
         assertTrue(stronger.canBePlayedOn(top))
         assertFalse(weakerPair.canBePlayedOn(top))
@@ -49,10 +49,10 @@ class PlayTest {
             card(Card.Rank.JACK, Card.Suit.DIAMONDS),
             card(Card.Rank.JACK, Card.Suit.CLUBS)
         )
-        val play = Play(cards, Play.PlayType.THREE_OF_A_KIND)
+        val playerMove = PlayerMove(cards, PlayerMove.PlayType.THREE_OF_A_KIND)
         assertEquals(
             "Un brelant de Valet: Valet de Coeur ♥, Valet de Carreau ♦, Valet de Trèfle ♣",
-            play.toString()
+            playerMove.toString()
         )
     }
 }

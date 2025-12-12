@@ -14,17 +14,17 @@ Une base en Kotlin pour expérimenter le jeu de cartes « Président » : distri
 
 ### Domaine des cartes
 - `model/Card.kt` : représentation `Rank` (de 3 à 2) et `Suit` (Trèfle, Carreau, Cœur, Pique), comparables et affichables.
-- `model/Play.kt` : encapsule une combinaison jouée (SINGLE, PAIR, THREE_OF_A_KIND, FOUR_OF_A_KIND) avec validation et logique `canBePlayedOn`.
+- `model/PlayerMove.kt` : encapsule une combinaison jouée (SINGLE, PAIR, THREE_OF_A_KIND, FOUR_OF_A_KIND) avec validation et logique `canBePlayedOn`.
 - `model/Utils.kt` : création/mélange/vérification du deck, suivi des états de jeu via les helpers `printPlay`, `printAction`, `printRolesSummary`, etc.
 
 ### Mécanique de partie
 - `model/Game.kt` orchestre le cycle complet (validation du nombre de joueurs, distribution, échanges de cartes selon les rôles précédents, appel à `RoundManager`, attribution finale des rôles).
-- `model/RoundManager.kt` gère les piles, les tours des joueurs, la détection des passes, les règles spéciales (`Carré Magique`, `Force Play`), la mise à jour du classement et la terminaison d’un pli.
+- `model/GameTurns.kt` gère les piles, les tours des joueurs, la détection des passes, les règles spéciales (`Carré Magique`, `Force Play`), la mise à jour du classement et la terminaison d’un pli.
 
 ### Joueurs et IA
 - `model/player/Player.kt` : base abstraite avec `id`, main mutable et énumération des rôles.
 - `PlayerInterface` définit `playTurn()` et `giveCardsToPlayer()`.
-- `PlayerUtils` trie les mains et génère les coups possibles en appliquant `lastPlay` et la contrainte de suite (`straightRank`).
+- `PlayerUtils` trie les mains et génère les coups possibles en appliquant `lastPlayerMove` et la contrainte de suite (`straightRank`).
 - `HumanPlayer` & `RemoteHumanPlayer` sont des `TODO` prêts à recevoir de l’input externe.
 - `model/player/ai/` contient :
   - `Ai` + `AiInterface` héritant du système joueur.
@@ -76,10 +76,10 @@ PresidentGame/
 │   ├── Main.kt
 │   └── model/
 │       ├── Card.kt
-│       ├── Play.kt
+│       ├── PlayerMove.kt
 │       ├── Utils.kt
 │       ├── Game.kt
-│       └── RoundManager.kt
+│       └── GameTurns.kt
 │       └── player/
 │           ├── Player.kt
 │           ├── PlayerInterface.kt
