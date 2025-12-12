@@ -52,6 +52,9 @@ class GameBoardView(private val controller: GameController) : BorderPane() {
     private val pileAnimationDuration = Duration.millis(280.0)
     private var lastPileSnapshot: List<Card> = emptyList()
 
+    // Constante pour le nombre maximum de cartes affichées dans les panneaux adversaires
+    private val maxDisplayedCards = 10
+
 
     init {
         // Charger le fichier CSS
@@ -369,7 +372,7 @@ class GameBoardView(private val controller: GameController) : BorderPane() {
                 // Message général
                 messageLabel.text = message
                 // Masquer la notification après un court délai
-                javafx.animation.PauseTransition(Duration.seconds(3.0)).apply {
+                PauseTransition(Duration.seconds(3.0)).apply {
                     setOnFinished { playerNotificationLabel.isVisible = false }
                     play()
                 }
@@ -538,8 +541,8 @@ class GameBoardView(private val controller: GameController) : BorderPane() {
         container.alignment = Pos.CENTER
         container.padding = Insets(5.0, 0.0, 0.0, 0.0)
 
-        // Limiter l'affichage à 10 cartes maximum pour éviter de déborder
-        val displayCount = minOf(cardCount, 10)
+        // Limiter l'affichage à maxDisplayedCards cartes maximum pour éviter de déborder
+        val displayCount = minOf(cardCount, maxDisplayedCards)
         
         for (i in 0 until displayCount) {
             val cardBack = Region()
