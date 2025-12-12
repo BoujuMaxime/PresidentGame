@@ -115,17 +115,17 @@ class GameBoardView(private val controller: GameController) : BorderPane() {
         actionButtonPane.alignment = Pos.CENTER
         actionButtonPane.padding = Insets(10.0)
 
-        playButton = Button("Jouer les cartes sélectionnées")
+        playButton = Button("Jouer")
         playButton.styleClass.addAll("action-button", "play-button")
         playButton.isDisable = true
         playButton.setOnAction { handlePlayCards() }
 
-        passButton = Button("Passer mon tour")
+        passButton = Button("Passer")
         passButton.styleClass.addAll("action-button", "pass-button")
         passButton.isDisable = true
         passButton.setOnAction { handlePass() }
 
-        sortButton = Button("↕ Trier la main")
+        sortButton = Button("Trier")
         sortButton.styleClass.addAll("action-button", "sort-button")
         sortButton.setOnAction { handleSortHand() }
 
