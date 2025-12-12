@@ -137,7 +137,7 @@ class GameController {
             gameModeParameters = gameModeParams
         )
 
-        game = Game(gameParams)
+        game = Game(gameParams, onPileUpdated = { updateCurrentPile(it) })
 
         humanPlayer = GuiHumanPlayer("Vous", mutableListOf(), this)
         game!!.players.add(humanPlayer!!)

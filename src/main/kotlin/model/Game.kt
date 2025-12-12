@@ -14,6 +14,7 @@ class Game(
     val parameters: GameParameters,
     val players: MutableList<Player> = mutableListOf(),
     val deck: MutableList<Card> = Utils.createDeck(),
+    private val onPileUpdated: ((List<Card>) -> Unit)? = null,
 ) {
 
     /**
@@ -263,7 +264,7 @@ class Game(
      * Lance une manche complète et met à jour le classement.
      */
     private fun playTurn() {
-        val gameTurns = GameTurns(parameters, players)
+        val gameTurns = GameTurns(parameters, players, onPileUpdated)
         val startingPlayer = lastGameRanking.lastOrNull() ?: players.first()
         lastGameRanking = gameTurns.startTurn(startingPlayer)
     }

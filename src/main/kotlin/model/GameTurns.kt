@@ -12,7 +12,8 @@ import model.player.Player
  */
 class GameTurns(
     private val parameters: Game.GameParameters,
-    private val players: MutableList<Player>
+    private val players: MutableList<Player>,
+    private val onPileUpdated: ((List<Card>) -> Unit)? = null
 ) {
     /**
      * Le premier joueur à avoir vidé sa main lors du tour en cours.
@@ -83,6 +84,7 @@ class GameTurns(
         if (activePlayers().size <= 1) return null
 
         val pile = mutableListOf<Card>()
+        onPileUpdated?.invoke(pile.toList())
         val starterIndex = players.indexOf(firstPlayerLocal).takeIf { it >= 0 } ?: 0
         val passes = mutableSetOf<Player>()
         var lastPlayerMove: PlayerMove? = null
@@ -116,6 +118,7 @@ class GameTurns(
             }
 
             applyPlayToPile(playMove, current, pile)
+            onPileUpdated?.invoke(pile.toList())
             previousRank = lastPlayerMove?.getRank()
             lastPlayerMove = playMove
             lastPlayer = current
@@ -194,6 +197,7 @@ class GameTurns(
     private fun endPile(discardPile: MutableList<Card>, pile: MutableList<Card>, lastPlayer: Player?, reason: String) {
         discardPile.addAll(pile)
         pile.clear()
+        onPileUpdated?.invoke(pile.toList())
         Utils.printGameLifecycle("Pli remporté par ${lastPlayer?.id}: $reason")
     }
 
