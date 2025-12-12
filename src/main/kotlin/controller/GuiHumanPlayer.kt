@@ -125,6 +125,14 @@ class GuiHumanPlayer(
     }
 
     /**
+     * Trie la main du joueur par rang des cartes et met à jour l'interface utilisateur.
+     */
+    fun sortHand() {
+        PlayerUtils.sortHandByRank(hand)
+        controller.updateHumanPlayerHand()
+    }
+
+    /**
      * Permet de choisir des cartes à échanger lors de la phase d'échange.
      *
      * Comportement :

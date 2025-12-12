@@ -241,6 +241,13 @@ class GameController {
     }
 
     /**
+     * Met à jour la vue avec la main actuelle du joueur humain (utilise la main actuelle du joueur).
+     */
+    fun updateHumanPlayerHand() {
+        updateHumanPlayerHand(humanPlayer?.hand ?: emptyList())
+    }
+
+    /**
      * Met à jour le dernier coup joué, utilisé pour la logique de suivi et l'affichage.
      *
      * @param move Le dernier coup joué ou null si aucune action précédente
@@ -380,5 +387,12 @@ class GameController {
      */
     fun getPossibleMoves(): List<PlayerMove> {
         return humanPlayer?.getPossibleMoves() ?: emptyList()
+    }
+
+    /**
+     * Trie la main du joueur humain par rang et met à jour l'interface utilisateur.
+     */
+    fun sortHumanPlayerHand() {
+        humanPlayer?.sortHand()
     }
 }
