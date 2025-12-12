@@ -81,7 +81,9 @@ class GameController {
                 Game.GameParameters.DifficultyLevel.MEDIUM -> EvaluateAi("Bot $i", mutableListOf())
                 Game.GameParameters.DifficultyLevel.HARD -> EvaluateAi("Bot $i", mutableListOf())
             }
-            game!!.players.add(aiPlayer)
+            // Wrapper l'IA pour observer ses actions
+            val observableAi = ObservableAi(aiPlayer, this)
+            game!!.players.add(observableAi)
         }
         
         updateGameState("Partie prête")
