@@ -3,6 +3,7 @@ package view
 import javafx.animation.ScaleTransition
 import javafx.geometry.Insets
 import javafx.geometry.Pos
+import javafx.scene.Cursor
 import javafx.scene.control.Button
 import javafx.scene.control.Label
 import javafx.scene.effect.DropShadow
@@ -164,36 +165,39 @@ class CardExchangeDialog(
             -fx-border-radius: 8;
         """.trimIndent()
         
-        // Rang en haut-gauche
+        // Rang en haut-gauche et symbole centré (mouse transparent pour permettre les clics sur le conteneur)
         val rankLabel = Label(card.rank.displayName)
         rankLabel.font = Font.font("Arial", FontWeight.BOLD, 16.0)
         rankLabel.style = "-fx-text-fill: ${getCardColor(card.suit)};"
+        rankLabel.isMouseTransparent = true
         StackPane.setAlignment(rankLabel, Pos.TOP_LEFT)
         StackPane.setMargin(rankLabel, Insets(4.0, 0.0, 0.0, 6.0))
         
-        // Symbole centré
         val suitLabel = Label(card.suit.icon)
         suitLabel.font = Font.font("Arial", FontWeight.BOLD, 32.0)
         suitLabel.style = "-fx-text-fill: ${getCardColor(card.suit)};"
+        suitLabel.isMouseTransparent = true
         StackPane.setAlignment(suitLabel, Pos.CENTER)
         
         container.children.addAll(suitLabel, rankLabel)
         button.graphic = container
         button.style = "-fx-background-color: transparent; -fx-padding: 0;"
+        button.cursor = Cursor.HAND  // Ajouter un curseur main pour indiquer la cliquabilité
         
         // Ombre et effet hover
         val normalShadow = DropShadow(8.0, Color.web("#000000", 0.3))
         val hoverShadow = DropShadow(12.0, Color.web("#000000", 0.5))
         container.effect = normalShadow
         
-        button.setOnMouseEntered {
+        // Gestion des événements de souris sur le conteneur (plus naturel que sur le bouton)
+        container.setOnMouseEntered {
             if (!selectedCards.contains(card)) {
                 container.scaleX = 1.08
                 container.scaleY = 1.08
                 container.effect = hoverShadow
             }
         }
-        button.setOnMouseExited {
+        container.setOnMouseExited {
             if (!selectedCards.contains(card)) {
                 container.scaleX = 1.0
                 container.scaleY = 1.0
@@ -201,7 +205,8 @@ class CardExchangeDialog(
             }
         }
         
-        button.setOnAction {
+        // Gérer le clic sur le conteneur directement
+        container.setOnMouseClicked {
             toggleCardSelection(card, container, normalShadow, hoverShadow)
         }
         
