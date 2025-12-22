@@ -30,6 +30,11 @@ class GuiHumanPlayer(
     private var moveFuture: CompletableFuture<PlayerMove?>? = null
 
     /**
+     * Future utilisé pour compléter la sélection de cartes d'échange par l'utilisateur.
+     */
+    private var exchangeFuture: CompletableFuture<List<Card>>? = null
+
+    /**
      * Référence à la pile courante sur la table lors du tour.
      */
     private var currentPile: MutableList<Card>? = null
@@ -137,11 +142,9 @@ class GuiHumanPlayer(
      *
      * Comportement :
      * - Si [count] <= 0 ou la main est vide, retourne une liste vide.
-     * - Si [highest] est true, sélectionne automatiquement les [count] meilleures cartes.
-     * - Sinon, sélectionne automatiquement les [count] pires cartes.
-     *
-     * Remarque : la sélection via l'interface n'est pas implémentée ici.
-     * Si nécessaire, migrer cette logique pour permettre une sélection utilisateur.
+     * - Demande à l'utilisateur de sélectionner [count] cartes via l'interface graphique.
+     * - Si [highest] est true, le joueur doit donner ses meilleures cartes.
+     * - Sinon, le joueur peut donner les cartes de son choix (généralement les plus faibles).
      *
      * @param count Nombre de cartes à échanger.
      * @param highest True pour donner les meilleures cartes, false pour donner les pires.
@@ -150,14 +153,30 @@ class GuiHumanPlayer(
     override fun exchangeCard(count: Int, highest: Boolean): List<Card> {
         if (count <= 0 || hand.isEmpty()) return emptyList()
 
-        if (highest) {
-            val picked = PlayerUtils.selectableCardsForExchange(hand, count, true).take(count)
-            controller.updateGameMessage("Échange automatique: vous donnez vos $count meilleures cartes")
-            return picked
-        }
+        val future = controller.notifyCardExchange(count, highest)
+        return future.get()
+    }
 
-        val picked = hand.sortedBy { it.rank }.take(count)
-        controller.updateGameMessage("Échange: vous donnez $count cartes")
-        return picked
+    /**
+     * Configure le [CompletableFuture] qui sera complété lorsque l'utilisateur
+     * sélectionnera les cartes à échanger via l'interface.
+     *
+     * @param future Future qui sera complété avec la liste des cartes sélectionnées.
+     */
+    fun setExchangeFuture(future: CompletableFuture<List<Card>>) {
+        this.exchangeFuture = future
+    }
+
+    /**
+     * Complète le future avec les cartes sélectionnées par l'utilisateur pour l'échange.
+     *
+     * Cette méthode est appelée par la couche UI lorsque l'utilisateur confirme
+     * sa sélection de cartes à échanger.
+     *
+     * @param cards Liste des cartes sélectionnées pour l'échange.
+     */
+    fun submitExchangeCards(cards: List<Card>) {
+        exchangeFuture?.complete(cards)
+        exchangeFuture = null
     }
 }

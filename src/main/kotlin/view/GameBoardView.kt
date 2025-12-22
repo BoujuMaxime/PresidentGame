@@ -217,6 +217,11 @@ class GameBoardView(private val controller: GameController) : BorderPane() {
         controller.onRoundFinished = {
             showRoundFinishedDialog()
         }
+        
+        // Configurer le callback d'échange de cartes
+        controller.onCardExchangeRequired = { count, highest ->
+            showCardExchangeDialog(count, highest)
+        }
     }
 
     private fun setupBindings() {
@@ -758,5 +763,46 @@ class GameBoardView(private val controller: GameController) : BorderPane() {
         // Nettoyer le container
         dialogOverlayContainer.children.clear()
         roundFinishedDialog = null
+    }
+    
+    /**
+     * Affiche le dialog de sélection de cartes à échanger.
+     *
+     * @param count Nombre de cartes à sélectionner
+     * @param highest True si le joueur doit donner ses meilleures cartes
+     */
+    private fun showCardExchangeDialog(count: Int, highest: Boolean) {
+        val currentHand = controller.humanPlayerHandProperty.get() ?: emptyList()
+        if (currentHand.isEmpty()) return
+        
+        // Créer le dialog d'échange
+        val exchangeDialog = CardExchangeDialog(
+            cards = currentHand,
+            count = count,
+            highest = highest,
+            onConfirm = { selectedCards ->
+                hideCardExchangeDialog()
+                controller.submitExchangeCards(selectedCards)
+            }
+        )
+        
+        // Configurer le container réutilisable
+        dialogOverlayContainer.style = "-fx-background-color: rgba(0, 0, 0, 0.7);"
+        dialogOverlayContainer.children.setAll(exchangeDialog)
+        
+        // Créer un StackPane pour l'overlay au dessus du centerPane
+        val overlayStack = StackPane()
+        overlayStack.children.addAll(centerPane, dialogOverlayContainer)
+        center = overlayStack
+    }
+    
+    /**
+     * Cache et nettoie le dialog d'échange de cartes.
+     */
+    private fun hideCardExchangeDialog() {
+        // Restaurer le centerPane original
+        center = centerPane
+        // Nettoyer le container
+        dialogOverlayContainer.children.clear()
     }
 }

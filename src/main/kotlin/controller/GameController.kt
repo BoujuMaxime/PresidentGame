@@ -96,6 +96,11 @@ class GameController {
     var onRoundFinished: (() -> Unit)? = null
 
     /**
+     * Callback appelé lorsque l'échange de cartes est nécessaire.
+     */
+    var onCardExchangeRequired: ((count: Int, highest: Boolean) -> Unit)? = null
+
+    /**
      * Représentation synthétique des informations nécessaires pour la vue par joueur.
      *
      * @property name Identifiant du joueur
@@ -423,5 +428,45 @@ class GameController {
      */
     fun sortHumanPlayerHand() {
         humanPlayer?.sortHand()
+    }
+
+    /**
+     * Notifie le contrôleur qu'un échange de cartes est nécessaire et prépare l'UI.
+     *
+     * Met à disposition un [CompletableFuture] qui sera complété lorsque le joueur
+     * humain soumettra sa sélection de cartes via l'interface.
+     *
+     * @param count Nombre de cartes à échanger
+     * @param highest True si le joueur doit donner ses meilleures cartes, false sinon
+     * @return Un [CompletableFuture] complété avec la liste des cartes sélectionnées
+     */
+    fun notifyCardExchange(count: Int, highest: Boolean): CompletableFuture<List<Card>> {
+        val future = CompletableFuture<List<Card>>()
+
+        Platform.runLater {
+            updateHumanPlayerHand()
+            updatePlayerRole(humanPlayer?.role ?: Player.Role.NEUTRAL)
+            
+            val message = if (highest) {
+                "Vous devez échanger vos $count meilleures cartes"
+            } else {
+                "Vous devez échanger $count cartes"
+            }
+            updateGameMessage(message)
+            
+            humanPlayer?.setExchangeFuture(future)
+            onCardExchangeRequired?.invoke(count, highest)
+        }
+
+        return future
+    }
+
+    /**
+     * Soumet les cartes sélectionnées par le joueur humain pour l'échange.
+     *
+     * @param cards Liste des cartes sélectionnées
+     */
+    fun submitExchangeCards(cards: List<Card>) {
+        humanPlayer?.submitExchangeCards(cards)
     }
 }
