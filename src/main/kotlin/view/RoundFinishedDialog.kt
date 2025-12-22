@@ -86,7 +86,7 @@ class RoundFinishedDialog(
      * @param text Le texte du bouton
      * @param normalColor La couleur normale du bouton
      * @param hoverColor La couleur du bouton au survol
-     * @param borderColor La couleur de la bordure
+     * @param borderColor La couleur de la bordure du bouton
      * @param action L'action à exécuter lors du clic
      * @return Le bouton stylisé
      */

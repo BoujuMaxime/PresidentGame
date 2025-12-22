@@ -1,5 +1,5 @@
 /* Jeu du Président - Styles du plateau */
-/* Refonte graphique moderne pour jeu de cartes */
+/* Refonte graphique style casino moderne */
 
 /* === Couleurs principales === */
 :root {
@@ -74,7 +74,7 @@
 
 .last-played-label {
     -fx-text-fill: #c8e6c9;
-    -fx-font-family: "Georgia", serif;
+    -fx-font-family: "Georgia", "Times New Roman", serif;
     -fx-font-size: 14px;
     -fx-font-style: italic;
     -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.7), 3, 0.0, 0, 1);
@@ -90,7 +90,7 @@
 /* === Boutons d'action === */
 .action-button {
     -fx-text-fill: white;
-    -fx-font-family: "Georgia", serif;
+    -fx-font-family: "Georgia", "Times New Roman", serif;
     -fx-font-size: 14px;
     -fx-font-weight: bold;
     -fx-padding: 14 28 14 28;
@@ -188,7 +188,7 @@
 
 .ig-menu-title {
     -fx-text-fill: #ffd700;
-    -fx-font-family: "Georgia", serif;
+    -fx-font-family: "Georgia", "Times New Roman", serif;
     -fx-font-size: 18px;
     -fx-font-weight: bold;
     -fx-padding: 0 0 10 0;
@@ -197,7 +197,7 @@
 
 .ig-menu-button {
     -fx-text-fill: white;
-    -fx-font-family: "Georgia", serif;
+    -fx-font-family: "Georgia", "Times New Roman", serif;
     -fx-font-size: 14px;
     -fx-font-weight: bold;
     -fx-padding: 12 20 12 20;
@@ -280,7 +280,7 @@
 }
 
 .pile-card-rank-label {
-    -fx-font-family: "Georgia", serif;
+    -fx-font-family: "Georgia", "Times New Roman", serif;
     -fx-font-size: 13px;
     -fx-font-weight: bold;
 }
@@ -304,7 +304,7 @@
 /* === Informations des joueurs === */
 .player-name-label {
     -fx-text-fill: #ffd700;
-    -fx-font-family: "Georgia", serif;
+    -fx-font-family: "Georgia", "Times New Roman", serif;
     -fx-font-size: 16px;
     -fx-font-weight: bold;
     -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.7), 3, 0.0, 0, 1);
@@ -312,7 +312,7 @@
 
 .player-info-label {
     -fx-text-fill: #c8e6c9;
-    -fx-font-family: "Georgia", serif;
+    -fx-font-family: "Georgia", "Times New Roman", serif;
     -fx-font-size: 12px;
 }
 
@@ -401,14 +401,14 @@
 
 .speech-bubble-text {
     -fx-text-fill: #2d3436;
-    -fx-font-family: "Georgia", serif;
+    -fx-font-family: "Georgia", "Times New Roman", serif;
     -fx-font-size: 12px;
     -fx-font-weight: bold;
 }
 
 .speech-bubble-action {
     -fx-text-fill: #1e4a35;
-    -fx-font-family: "Georgia", serif;
+    -fx-font-family: "Georgia", "Times New Roman", serif;
     -fx-font-size: 11px;
     -fx-font-style: italic;
 }
@@ -429,7 +429,7 @@
 
 .player-notification-text {
     -fx-text-fill: white;
-    -fx-font-family: "Georgia", serif;
+    -fx-font-family: "Georgia", "Times New Roman", serif;
     -fx-font-size: 14px;
     -fx-font-weight: bold;
     -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.5), 2, 0.0, 0, 1);
@@ -449,7 +449,7 @@
 
 .message-section-title {
     -fx-text-fill: #ffd700;
-    -fx-font-family: "Georgia", serif;
+    -fx-font-family: "Georgia", "Times New Roman", serif;
     -fx-font-size: 14px;
     -fx-font-weight: bold;
     -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.6), 2, 0.0, 0, 1);
@@ -457,7 +457,7 @@
 
 .message-section-content {
     -fx-text-fill: #c8e6c9;
-    -fx-font-family: "Georgia", serif;
+    -fx-font-family: "Georgia", "Times New Roman", serif;
     -fx-font-size: 12px;
 }
 

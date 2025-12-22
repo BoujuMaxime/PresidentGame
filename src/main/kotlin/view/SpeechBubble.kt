@@ -21,16 +21,21 @@ class SpeechBubble : StackPane() {
     private val messageLabel: Label
     private var currentAnimation: SequentialTransition? = null
     
+    companion object {
+        private const val MAX_BUBBLE_WIDTH = 160.0
+        private const val MAX_LABEL_WIDTH = 140.0
+    }
+    
     init {
         styleClass.add("speech-bubble")
         alignment = Pos.CENTER
         padding = Insets(8.0, 12.0, 8.0, 12.0)
-        maxWidth = 160.0
+        maxWidth = MAX_BUBBLE_WIDTH
         
         messageLabel = Label()
         messageLabel.styleClass.add("speech-bubble-text")
         messageLabel.isWrapText = true
-        messageLabel.maxWidth = 140.0
+        messageLabel.maxWidth = MAX_LABEL_WIDTH
         messageLabel.alignment = Pos.CENTER
         
         children.add(messageLabel)

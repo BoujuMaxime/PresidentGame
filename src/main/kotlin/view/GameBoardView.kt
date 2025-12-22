@@ -49,7 +49,7 @@ class GameBoardView(private val controller: GameController) : BorderPane() {
     private var roundFinishedDialog: RoundFinishedDialog? = null
     private val dialogOverlayContainer: StackPane = StackPane()
 
-    // Tailles réduites
+    // Tailles de carte
     private val cardWidth = 90.0 * 0.75
     private val cardHeight = 120.0 * 0.75
     private val pileCardWidth = cardWidth * 1.2
@@ -62,6 +62,12 @@ class GameBoardView(private val controller: GameController) : BorderPane() {
     
     // Durée d'affichage des bulles de discussion
     private val speechBubbleDuration = Duration.seconds(4.0)
+    
+    // Animation constants for pile cards
+    companion object {
+        private const val MAX_CARD_ROTATION_DEGREES = 3.0
+        private const val ROTATION_VARIANCE = 3
+    }
 
 
     init {
@@ -455,7 +461,8 @@ class GameBoardView(private val controller: GameController) : BorderPane() {
             val cardNode = createPileCard(card)
             cardNode.translateX = index * 14.0
             cardNode.translateY = -index * 2.0
-            cardNode.rotate = (index % 3 - 1) * 3.0  // Légère rotation pour effet naturel
+            // Slight rotation for natural pile effect: varies between -MAX_CARD_ROTATION_DEGREES and +MAX_CARD_ROTATION_DEGREES
+            cardNode.rotate = (index % ROTATION_VARIANCE - 1) * MAX_CARD_ROTATION_DEGREES
             pileStack.children.add(cardNode)
 
             if (animateFromIndex != null && index >= animateFromIndex) {
