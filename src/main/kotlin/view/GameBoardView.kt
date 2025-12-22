@@ -4,6 +4,7 @@ import controller.GameController
 import javafx.animation.FadeTransition
 import javafx.animation.ParallelTransition
 import javafx.animation.PauseTransition
+import javafx.animation.ScaleTransition
 import javafx.animation.TranslateTransition
 import javafx.geometry.Insets
 import javafx.geometry.Pos
@@ -36,6 +37,10 @@ class GameBoardView(private val controller: GameController) : BorderPane() {
 
     // Notifications et bulles de discussion
     private val playerNotificationLabel: Label
+    
+    // Stockage des speech bubbles par joueur pour les mettre à jour
+    private val playerSpeechBubbles = mutableMapOf<String, SpeechBubble>()
+    private val playerBoxes = mutableMapOf<String, VBox>()
 
     private val selectedCards = mutableSetOf<Card>()
     private val cardButtons = mutableMapOf<Card, Button>()
@@ -44,16 +49,25 @@ class GameBoardView(private val controller: GameController) : BorderPane() {
     private var roundFinishedDialog: RoundFinishedDialog? = null
     private val dialogOverlayContainer: StackPane = StackPane()
 
-    // Tailles réduites
+    // Tailles de carte
     private val cardWidth = 90.0 * 0.75
     private val cardHeight = 120.0 * 0.75
     private val pileCardWidth = cardWidth * 1.2
     private val pileCardHeight = cardHeight * 1.2
-    private val pileAnimationDuration = Duration.millis(280.0)
+    private val pileAnimationDuration = Duration.millis(350.0)
     private var lastPileSnapshot: List<Card> = emptyList()
 
     // Constante pour le nombre maximum de cartes affichées dans les panneaux adversaires
     private val maxDisplayedCards = 10
+    
+    // Durée d'affichage des bulles de discussion
+    private val speechBubbleDuration = Duration.seconds(4.0)
+    
+    // Animation constants for pile cards
+    companion object {
+        private const val MAX_CARD_ROTATION_DEGREES = 3.0
+        private const val ROTATION_VARIANCE = 3
+    }
 
 
     init {
@@ -90,23 +104,23 @@ class GameBoardView(private val controller: GameController) : BorderPane() {
         centerPane.alignment = Pos.CENTER
 
         // === Joueurs autour du plateau ===
-        topPlayerPane = HBox(20.0)  // Augmenté de 8.0 à 20.0 pour plus d'espacement
+        topPlayerPane = HBox(25.0)
         topPlayerPane.styleClass.add("opponent-pane")
         topPlayerPane.alignment = Pos.CENTER
         topPlayerPane.padding = Insets(10.0)
-        topPlayerPane.minHeight = 80.0
+        topPlayerPane.minHeight = 140.0
 
-        leftPlayerPane = VBox(20.0)  // Augmenté de 8.0 à 20.0 pour plus d'espacement
+        leftPlayerPane = VBox(25.0)
         leftPlayerPane.styleClass.add("opponent-pane")
         leftPlayerPane.alignment = Pos.CENTER
         leftPlayerPane.padding = Insets(10.0)
-        leftPlayerPane.minWidth = 150.0
+        leftPlayerPane.minWidth = 180.0
 
-        rightPlayerPane = VBox(20.0)  // Augmenté de 8.0 à 20.0 pour plus d'espacement
+        rightPlayerPane = VBox(25.0)
         rightPlayerPane.styleClass.add("opponent-pane")
         rightPlayerPane.alignment = Pos.CENTER
         rightPlayerPane.padding = Insets(10.0)
-        rightPlayerPane.minWidth = 150.0
+        rightPlayerPane.minWidth = 180.0
 
         // === Main du joueur (en bas) ===
         playerHandPane = FlowPane()
@@ -149,9 +163,9 @@ class GameBoardView(private val controller: GameController) : BorderPane() {
 
         actionButtonPane.children.addAll(playButton, passButton, sortButton)
         
-        val bottomPane = VBox(10.0)  // Réduit de 15.0 à 10.0 pour moins d'espace vide
+        val bottomPane = VBox(12.0)
         bottomPane.alignment = Pos.CENTER
-        bottomPane.padding = Insets(5.0, 10.0, 10.0, 10.0)  // Moins d'espace en haut
+        bottomPane.padding = Insets(8.0, 10.0, 12.0, 10.0)
         bottomPane.children.addAll(notificationContainer, playerHandPane, actionButtonPane)
 
         // === Menu in-game ===
@@ -346,6 +360,18 @@ class GameBoardView(private val controller: GameController) : BorderPane() {
      * des notifications personnelles au joueur.
      */
     private fun updateGameMessage(message: String) {
+        // Extraire le nom du joueur et son action pour afficher une bulle
+        val playerActionMatch = Regex("^(.+) (joue|passe)").find(message)
+        if (playerActionMatch != null) {
+            val playerName = playerActionMatch.groupValues[1]
+            val action = playerActionMatch.groupValues[2]
+            
+            // Afficher la bulle de discussion pour ce joueur
+            if (playerName != "Vous") {
+                showSpeechBubble(playerName, message)
+            }
+        }
+        
         // Séparer les messages destinés au joueur des messages généraux
         when {
             message.contains("C'est votre tour", ignoreCase = true) ||
@@ -353,7 +379,7 @@ class GameBoardView(private val controller: GameController) : BorderPane() {
             message.contains("Vous pouvez", ignoreCase = true) ||
             message.contains("Veuillez", ignoreCase = true) -> {
                 // Message pour le joueur
-                playerNotificationLabel.text = message
+                playerNotificationLabel.text = "🎯 $message"
                 playerNotificationLabel.isVisible = true
                 animateNotification()
                 messageLabel.text = "À votre tour de jouer"
@@ -361,7 +387,7 @@ class GameBoardView(private val controller: GameController) : BorderPane() {
             message.contains("gagne", ignoreCase = true) ||
             message.contains("termine", ignoreCase = true) -> {
                 // Annonce générale importante
-                messageLabel.text = message
+                messageLabel.text = "🏆 $message"
                 playerNotificationLabel.isVisible = false
             }
             else -> {
@@ -374,6 +400,26 @@ class GameBoardView(private val controller: GameController) : BorderPane() {
                 }
             }
         }
+    }
+    
+    /**
+     * Affiche une bulle de discussion pour un joueur avec son action.
+     */
+    private fun showSpeechBubble(playerName: String, message: String) {
+        val bubble = playerSpeechBubbles[playerName] ?: return
+        
+        // Extraire l'action du message
+        val actionText = when {
+            message.contains("passe", ignoreCase = true) -> "Passe ✋"
+            message.contains("joue:", ignoreCase = true) -> {
+                val playedPart = message.substringAfter("joue:").trim()
+                "Joue $playedPart 🃏"
+            }
+            message.contains("joue", ignoreCase = true) -> "Joue 🃏"
+            else -> message
+        }
+        
+        bubble.showMessage(actionText, speechBubbleDuration)
     }
 
     /**
@@ -415,19 +461,30 @@ class GameBoardView(private val controller: GameController) : BorderPane() {
             val cardNode = createPileCard(card)
             cardNode.translateX = index * 14.0
             cardNode.translateY = -index * 2.0
+            // Slight rotation for natural pile effect: varies between -MAX_CARD_ROTATION_DEGREES and +MAX_CARD_ROTATION_DEGREES
+            cardNode.rotate = (index % ROTATION_VARIANCE - 1) * MAX_CARD_ROTATION_DEGREES
             pileStack.children.add(cardNode)
 
             if (animateFromIndex != null && index >= animateFromIndex) {
                 cardNode.opacity = 0.0
+                cardNode.scaleX = 0.7
+                cardNode.scaleY = 0.7
+                
                 val fade = FadeTransition(pileAnimationDuration, cardNode)
                 fade.fromValue = 0.0
                 fade.toValue = 1.0
 
                 val slide = TranslateTransition(pileAnimationDuration, cardNode)
-                slide.fromY = cardNode.translateY - 18.0
+                slide.fromY = cardNode.translateY - 40.0
                 slide.toY = cardNode.translateY
+                
+                val scale = ScaleTransition(pileAnimationDuration, cardNode)
+                scale.fromX = 0.7
+                scale.fromY = 0.7
+                scale.toX = 1.0
+                scale.toY = 1.0
 
-                ParallelTransition(fade, slide).play()
+                ParallelTransition(fade, slide, scale).play()
             }
         }
     }
@@ -436,6 +493,8 @@ class GameBoardView(private val controller: GameController) : BorderPane() {
         topPlayerPane.children.clear()
         leftPlayerPane.children.clear()
         rightPlayerPane.children.clear()
+        playerSpeechBubbles.clear()
+        playerBoxes.clear()
 
         // Séparer le joueur humain des autres joueurs
         val otherPlayers = players.filter { !it.isCurrentPlayer }
@@ -497,21 +556,26 @@ class GameBoardView(private val controller: GameController) : BorderPane() {
 
         // Créer une représentation visuelle des cartes
         val cardsContainer = createOpponentCardsVisual(playerInfo.cardCount)
+        
+        // Créer la bulle de discussion
+        val speechBubble = SpeechBubble()
+        speechBubble.isVisible = false
+        playerSpeechBubbles[playerInfo.name] = speechBubble
 
         val playerBox = VBox(8.0).apply {
             styleClass.add("player-box")
             alignment = Pos.CENTER
-            padding = Insets(10.0)
-            // tailles préférentielles pour occuper plus d'espace
-            prefWidth = 160.0
-            minWidth = 120.0
+            padding = Insets(12.0)
+            prefWidth = 170.0
+            minWidth = 130.0
             maxWidth = Double.MAX_VALUE
-            prefHeight = 120.0
-            minHeight = 90.0
-            // permettre à la box de croître dans son conteneur
+            prefHeight = 130.0
+            minHeight = 100.0
         }
+        
+        playerBoxes[playerInfo.name] = playerBox
 
-        playerBox.children.addAll(nameLabel, infoLabel, cardsContainer)
+        playerBox.children.addAll(speechBubble, nameLabel, infoLabel, cardsContainer)
         pane.children.add(playerBox)
 
         // Autoriser l'expansion selon le type de pane
