@@ -28,19 +28,28 @@ class MenuView(private val controller: GameController, private val onStartGame: 
         spacing = 20.0
         padding = Insets(30.0)
         alignment = Pos.CENTER
-        style = "-fx-background-color: linear-gradient(to bottom, #1a1d23 0%, #2d3436 100%);"
+        style = """
+            -fx-background-color: radial-gradient(center 50% 50%, radius 100%, 
+                #1e4a35 0%, 
+                #0d2818 60%,
+                #061208 100%);
+        """.trimIndent()
         
         // Icône et Titre
-        val iconLabel = Label("🎴")
-        iconLabel.font = Font.font("Arial", FontWeight.BOLD, 56.0)
+        val iconLabel = Label("🃏")
+        iconLabel.font = Font.font("Georgia", FontWeight.BOLD, 64.0)
+        iconLabel.style = "-fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.7), 10, 0.0, 0, 4);"
         
         val title = Label("Jeu du Président")
-        title.font = Font.font("Arial", FontWeight.BOLD, 42.0)
-        title.style = "-fx-text-fill: #ffffff; -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.6), 5, 0.0, 0, 3);"
+        title.font = Font.font("Georgia", FontWeight.BOLD, 46.0)
+        title.style = """
+            -fx-text-fill: #ffd700;
+            -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.8), 8, 0.0, 0, 4);
+        """.trimIndent()
         
         val subtitle = Label("Configuration de la partie")
-        subtitle.font = Font.font("Arial", FontWeight.NORMAL, 18.0)
-        subtitle.style = "-fx-text-fill: #e8f5e9;"
+        subtitle.font = Font.font("Georgia", FontWeight.NORMAL, 18.0)
+        subtitle.style = "-fx-text-fill: #c8e6c9;"
         
         // Grille de configuration
         val configGrid = GridPane()
@@ -50,18 +59,18 @@ class MenuView(private val controller: GameController, private val onStartGame: 
         configGrid.padding = Insets(25.0)
         configGrid.style = """
             -fx-background-color: linear-gradient(to bottom, 
-                rgba(99, 110, 114, 0.4) 0%, 
-                rgba(45, 52, 54, 0.6) 100%);
-            -fx-background-radius: 15;
-            -fx-border-color: rgba(162, 155, 254, 0.3);
-            -fx-border-width: 2;
-            -fx-border-radius: 15;
-            -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.5), 15, 0.0, 0, 5);
+                rgba(30, 74, 53, 0.95) 0%, 
+                rgba(20, 50, 35, 0.98) 100%);
+            -fx-background-radius: 18;
+            -fx-border-color: linear-gradient(to bottom, #6b4c35 0%, #4a3728 50%, #3d2a1c 100%);
+            -fx-border-width: 4;
+            -fx-border-radius: 18;
+            -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.6), 20, 0.0, 0, 6);
         """.trimIndent()
         
         // Nombre de joueurs
         val nbPlayersLabel = Label("👥 Nombre de joueurs:")
-        nbPlayersLabel.style = "-fx-text-fill: #ffffff; -fx-font-size: 15px; -fx-font-weight: bold;"
+        nbPlayersLabel.style = "-fx-text-fill: #ffd700; -fx-font-family: 'Georgia'; -fx-font-size: 15px; -fx-font-weight: bold;"
         nbPlayersComboBox = ComboBox()
         nbPlayersComboBox.items.addAll(3, 4, 5, 6)
         nbPlayersComboBox.value = 4
@@ -71,7 +80,7 @@ class MenuView(private val controller: GameController, private val onStartGame: 
         
         // Difficulté des IA
         val difficultyLabel = Label("🤖 Difficulté des IA:")
-        difficultyLabel.style = "-fx-text-fill: #ffffff; -fx-font-size: 15px; -fx-font-weight: bold;"
+        difficultyLabel.style = "-fx-text-fill: #ffd700; -fx-font-family: 'Georgia'; -fx-font-size: 15px; -fx-font-weight: bold;"
         difficultyComboBox = ComboBox()
         difficultyComboBox.items.addAll(
             Game.GameParameters.DifficultyLevel.EASY,
@@ -85,49 +94,58 @@ class MenuView(private val controller: GameController, private val onStartGame: 
         
         // Règles spéciales
         val rulesLabel = Label("⚙️ Règles spéciales:")
-        rulesLabel.style = "-fx-text-fill: #ffffff; -fx-font-size: 15px; -fx-font-weight: bold;"
+        rulesLabel.style = "-fx-text-fill: #ffd700; -fx-font-family: 'Georgia'; -fx-font-size: 15px; -fx-font-weight: bold;"
         configGrid.add(rulesLabel, 0, 2)
         
         carreMagiqueCheckBox = CheckBox("✨ Carré Magique")
         carreMagiqueCheckBox.isSelected = true
-        carreMagiqueCheckBox.style = "-fx-text-fill: #e8f5e9; -fx-font-size: 14px;"
+        carreMagiqueCheckBox.style = "-fx-text-fill: #c8e6c9; -fx-font-family: 'Georgia'; -fx-font-size: 14px;"
         configGrid.add(carreMagiqueCheckBox, 1, 2)
         
         taGueuleCheckBox = CheckBox("🔇 Ta Gueule (Force Play)")
         taGueuleCheckBox.isSelected = true
-        taGueuleCheckBox.style = "-fx-text-fill: #e8f5e9; -fx-font-size: 14px;"
+        taGueuleCheckBox.style = "-fx-text-fill: #c8e6c9; -fx-font-family: 'Georgia'; -fx-font-size: 14px;"
         configGrid.add(taGueuleCheckBox, 1, 3)
         
         // Bouton démarrer
         startButton = Button("🎮 Démarrer la partie")
-        startButton.font = Font.font("Arial", FontWeight.BOLD, 18.0)
+        startButton.font = Font.font("Georgia", FontWeight.BOLD, 18.0)
         startButton.style = """
-            -fx-background-color: linear-gradient(to bottom, #00d9a8 0%, #00b894 100%);
+            -fx-background-color: linear-gradient(to bottom, #2ecc71 0%, #27ae60 50%, #1e8449 100%);
             -fx-text-fill: white;
             -fx-padding: 18 50 18 50;
-            -fx-background-radius: 10;
+            -fx-background-radius: 12;
+            -fx-border-color: #1a5c36;
+            -fx-border-width: 3;
+            -fx-border-radius: 12;
             -fx-cursor: hand;
-            -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.5), 10, 0.0, 0, 4);
+            -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.6), 12, 0.0, 0, 5);
         """.trimIndent()
         
         startButton.setOnMouseEntered { 
             startButton.style = """
-                -fx-background-color: linear-gradient(to bottom, #00f5c4 0%, #00d9a8 100%);
+                -fx-background-color: linear-gradient(to bottom, #58d68d 0%, #2ecc71 50%, #27ae60 100%);
                 -fx-text-fill: white;
                 -fx-padding: 18 50 18 50;
-                -fx-background-radius: 10;
+                -fx-background-radius: 12;
+                -fx-border-color: #1a5c36;
+                -fx-border-width: 3;
+                -fx-border-radius: 12;
                 -fx-cursor: hand;
-                -fx-effect: dropshadow(gaussian, rgba(0, 185, 148, 0.7), 15, 0.0, 0, 5);
+                -fx-effect: dropshadow(gaussian, rgba(46, 204, 113, 0.8), 18, 0.0, 0, 6);
             """.trimIndent()
         }
         startButton.setOnMouseExited { 
             startButton.style = """
-                -fx-background-color: linear-gradient(to bottom, #00d9a8 0%, #00b894 100%);
+                -fx-background-color: linear-gradient(to bottom, #2ecc71 0%, #27ae60 50%, #1e8449 100%);
                 -fx-text-fill: white;
                 -fx-padding: 18 50 18 50;
-                -fx-background-radius: 10;
+                -fx-background-radius: 12;
+                -fx-border-color: #1a5c36;
+                -fx-border-width: 3;
+                -fx-border-radius: 12;
                 -fx-cursor: hand;
-                -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.5), 10, 0.0, 0, 4);
+                -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.6), 12, 0.0, 0, 5);
             """.trimIndent()
         }
         

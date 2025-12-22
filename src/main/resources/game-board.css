@@ -1,4 +1,5 @@
 /* Jeu du Président - Styles du plateau */
+/* Refonte graphique moderne pour jeu de cartes */
 
 /* === Couleurs principales === */
 :root {
@@ -11,57 +12,76 @@
     -fx-color-info: #0984e3;
     -fx-felt-green: #0d5c3a;
     -fx-wood-brown: #3d2817;
+    -fx-gold: #ffd700;
+    -fx-gold-dark: #b8860b;
 }
 
 /* === Conteneurs principaux === */
 .game-board {
-    -fx-background-color: linear-gradient(to bottom, #1a1d23 0%, #2d3436 100%);
+    -fx-background-color: radial-gradient(center 50% 50%, radius 100%, 
+        #1e4a35 0%, 
+        #0d2818 60%,
+        #061208 100%);
 }
 
-.player-pane,
+.player-pane {
+    -fx-background-color: linear-gradient(to bottom, 
+        rgba(30, 74, 53, 0.95) 0%, 
+        rgba(13, 40, 24, 0.98) 100%);
+    -fx-background-radius: 18;
+    -fx-border-color: linear-gradient(to right, #4a3728, #6b4c35, #4a3728);
+    -fx-border-width: 4;
+    -fx-border-radius: 18;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.6), 20, 0.0, 0, 5),
+                innershadow(gaussian, rgba(255, 255, 255, 0.05), 10, 0.0, 0, 2);
+}
+
 .opponent-pane {
-    -fx-background-color: linear-gradient(to bottom, rgba(45, 52, 54, 0.9) 0%, rgba(30, 39, 46, 0.95) 100%);
+    -fx-background-color: transparent;
     -fx-background-radius: 15;
-    -fx-border-color: rgba(255, 255, 255, 0.1);
-    -fx-border-width: 1;
+    -fx-border-color: transparent;
+    -fx-border-width: 0;
     -fx-border-radius: 15;
-    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.4), 15, 0.0, 0, 3);
 }
 
 .center-pane {
     -fx-background-color: transparent;
 }
 
-/* Plateau de jeu avec effet de feutre vert */
+/* Plateau de jeu avec effet de feutre vert casino */
 .pile-stack {
-    -fx-background-color: radial-gradient(center 50% 50%, radius 80%, 
-        rgba(16, 92, 58, 0.95), 
-        rgba(13, 74, 47, 0.98));
-    -fx-background-radius: 20;
-    -fx-border-color: linear-gradient(to bottom, rgba(61, 40, 23, 0.8), rgba(30, 20, 12, 0.9));
-    -fx-border-width: 8;
-    -fx-border-radius: 20;
-    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.6), 20, 0.0, 0, 5);
+    -fx-background-color: radial-gradient(center 50% 50%, radius 75%, 
+        #1a6b4a 0%,
+        #145a3d 40%,
+        #0f4a32 70%,
+        #0a3a25 100%);
+    -fx-background-radius: 25;
+    -fx-border-color: linear-gradient(to bottom, #6b4c35 0%, #4a3728 50%, #3d2a1c 100%);
+    -fx-border-width: 10;
+    -fx-border-radius: 25;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.7), 30, 0.0, 0, 8),
+                innershadow(gaussian, rgba(0, 0, 0, 0.4), 15, 0.0, 0, -3);
 }
 
 /* === Labels === */
 .message-label {
     -fx-text-fill: #ffffff;
-    -fx-font-family: "Arial";
-    -fx-font-size: 16px;
+    -fx-font-family: "Georgia", "Times New Roman", serif;
+    -fx-font-size: 17px;
     -fx-font-weight: bold;
-    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.8), 3, 0.0, 0, 1);
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.9), 4, 0.0, 0, 2);
 }
 
 .last-played-label {
-    -fx-text-fill: #e8f5e9;
-    -fx-font-family: "Arial";
-    -fx-font-size: 13px;
-    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.6), 2, 0.0, 0, 1);
+    -fx-text-fill: #c8e6c9;
+    -fx-font-family: "Georgia", serif;
+    -fx-font-size: 14px;
+    -fx-font-style: italic;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.7), 3, 0.0, 0, 1);
 }
 
 .empty-label {
-    -fx-text-fill: rgba(255, 255, 255, 0.6);
+    -fx-text-fill: rgba(255, 255, 255, 0.5);
     -fx-font-size: 14px;
     -fx-font-style: italic;
     -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.6), 2, 0.0, 0, 1);
@@ -70,105 +90,127 @@
 /* === Boutons d'action === */
 .action-button {
     -fx-text-fill: white;
-    -fx-font-family: "Arial";
+    -fx-font-family: "Georgia", serif;
     -fx-font-size: 14px;
     -fx-font-weight: bold;
-    -fx-padding: 12 25 12 25;
-    -fx-background-radius: 8;
+    -fx-padding: 14 28 14 28;
+    -fx-background-radius: 10;
     -fx-cursor: hand;
-    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.4), 8, 0.0, 0, 3);
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.5), 10, 0.0, 0, 4);
 }
 
 .play-button {
-    -fx-background-color: linear-gradient(to bottom, #00d9a8 0%, #00b894 100%);
+    -fx-background-color: linear-gradient(to bottom, #2ecc71 0%, #27ae60 50%, #1e8449 100%);
+    -fx-border-color: #1a5c36;
+    -fx-border-width: 2;
+    -fx-border-radius: 10;
 }
 
 .play-button:hover {
-    -fx-background-color: linear-gradient(to bottom, #00f5c4 0%, #00d9a8 100%);
-    -fx-effect: dropshadow(gaussian, rgba(0, 185, 148, 0.6), 12, 0.0, 0, 3);
+    -fx-background-color: linear-gradient(to bottom, #58d68d 0%, #2ecc71 50%, #27ae60 100%);
+    -fx-effect: dropshadow(gaussian, rgba(46, 204, 113, 0.7), 15, 0.0, 0, 4);
 }
 
 .play-button:disabled {
-    -fx-background-color: linear-gradient(to bottom, #636e72 0%, #4a5155 100%);
-    -fx-opacity: 0.5;
+    -fx-background-color: linear-gradient(to bottom, #5d6d7e 0%, #4a5568 100%);
+    -fx-border-color: #3d4852;
+    -fx-opacity: 0.6;
 }
 
 .pass-button {
-    -fx-background-color: linear-gradient(to bottom, #ff7675 0%, #d63031 100%);
+    -fx-background-color: linear-gradient(to bottom, #e74c3c 0%, #c0392b 50%, #922b21 100%);
+    -fx-border-color: #641e16;
+    -fx-border-width: 2;
+    -fx-border-radius: 10;
 }
 
 .pass-button:hover {
-    -fx-background-color: linear-gradient(to bottom, #ff9999 0%, #ff7675 100%);
-    -fx-effect: dropshadow(gaussian, rgba(214, 48, 49, 0.6), 12, 0.0, 0, 3);
+    -fx-background-color: linear-gradient(to bottom, #ec7063 0%, #e74c3c 50%, #c0392b 100%);
+    -fx-effect: dropshadow(gaussian, rgba(231, 76, 60, 0.7), 15, 0.0, 0, 4);
 }
 
 .pass-button:disabled {
-    -fx-background-color: linear-gradient(to bottom, #636e72 0%, #4a5155 100%);
-    -fx-opacity: 0.5;
+    -fx-background-color: linear-gradient(to bottom, #5d6d7e 0%, #4a5568 100%);
+    -fx-border-color: #3d4852;
+    -fx-opacity: 0.6;
 }
 
 .sort-button {
-    -fx-background-color: linear-gradient(to bottom, #a29bfe 0%, #6c5ce7 100%);
+    -fx-background-color: linear-gradient(to bottom, #9b59b6 0%, #8e44ad 50%, #6c3483 100%);
+    -fx-border-color: #512e5f;
+    -fx-border-width: 2;
+    -fx-border-radius: 10;
 }
 
 .sort-button:hover {
-    -fx-background-color: linear-gradient(to bottom, #c7c2ff 0%, #a29bfe 100%);
-    -fx-effect: dropshadow(gaussian, rgba(108, 92, 231, 0.6), 12, 0.0, 0, 3);
+    -fx-background-color: linear-gradient(to bottom, #af7ac5 0%, #9b59b6 50%, #8e44ad 100%);
+    -fx-effect: dropshadow(gaussian, rgba(155, 89, 182, 0.7), 15, 0.0, 0, 4);
 }
 
 .new-game-button {
-    -fx-background-color: linear-gradient(to bottom, #74b9ff 0%, #0984e3 100%);
+    -fx-background-color: linear-gradient(to bottom, #3498db 0%, #2980b9 50%, #1a5276 100%);
+    -fx-border-color: #154360;
+    -fx-border-width: 2;
+    -fx-border-radius: 10;
 }
 
 .new-game-button:hover {
-    -fx-background-color: linear-gradient(to bottom, #a8d5ff 0%, #74b9ff 100%);
-    -fx-effect: dropshadow(gaussian, rgba(9, 132, 227, 0.6), 12, 0.0, 0, 3);
+    -fx-background-color: linear-gradient(to bottom, #5dade2 0%, #3498db 50%, #2980b9 100%);
+    -fx-effect: dropshadow(gaussian, rgba(52, 152, 219, 0.7), 15, 0.0, 0, 4);
 }
 
 .menu-button {
-    -fx-background-color: linear-gradient(to bottom, #636e72 0%, #4a5155 100%);
+    -fx-background-color: linear-gradient(to bottom, #6b4c35 0%, #4a3728 50%, #3d2a1c 100%);
+    -fx-border-color: #2c1e12;
+    -fx-border-width: 2;
+    -fx-border-radius: 10;
     -fx-font-size: 18px;
     -fx-padding: 10 15 10 15;
     -fx-min-width: 50px;
-    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.4), 6, 0.0, 0, 2);
 }
 
 .menu-button:hover {
-    -fx-background-color: linear-gradient(to bottom, #4a5155 0%, #2d3436 100%);
-    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.5), 8, 0.0, 0, 3);
+    -fx-background-color: linear-gradient(to bottom, #8b6c55 0%, #6b4c35 50%, #4a3728 100%);
+    -fx-effect: dropshadow(gaussian, rgba(107, 76, 53, 0.7), 12, 0.0, 0, 4);
 }
 
 /* === Menu in-game === */
 .ig-menu-panel {
-    -fx-background-color: linear-gradient(to bottom, rgba(45, 52, 54, 0.98) 0%, rgba(30, 39, 46, 0.98) 100%);
-    -fx-background-radius: 12;
-    -fx-border-color: rgba(162, 155, 254, 0.5);
-    -fx-border-width: 2;
-    -fx-border-radius: 12;
-    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.6), 20, 0.0, 0, 5);
+    -fx-background-color: linear-gradient(to bottom, 
+        rgba(61, 42, 28, 0.98) 0%, 
+        rgba(45, 30, 20, 0.98) 100%);
+    -fx-background-radius: 15;
+    -fx-border-color: linear-gradient(to bottom, #8b6c55, #6b4c35);
+    -fx-border-width: 3;
+    -fx-border-radius: 15;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.7), 25, 0.0, 0, 6);
 }
 
 .ig-menu-title {
-    -fx-text-fill: #dfe6e9;
-    -fx-font-family: "Arial";
-    -fx-font-size: 16px;
+    -fx-text-fill: #ffd700;
+    -fx-font-family: "Georgia", serif;
+    -fx-font-size: 18px;
     -fx-font-weight: bold;
     -fx-padding: 0 0 10 0;
+    -fx-effect: dropshadow(gaussian, rgba(255, 215, 0, 0.4), 5, 0.0, 0, 0);
 }
 
 .ig-menu-button {
     -fx-text-fill: white;
-    -fx-font-family: "Arial";
+    -fx-font-family: "Georgia", serif;
     -fx-font-size: 14px;
     -fx-font-weight: bold;
     -fx-padding: 12 20 12 20;
-    -fx-background-radius: 5;
+    -fx-background-radius: 8;
     -fx-cursor: hand;
-    -fx-background-color: #636e72;
+    -fx-background-color: linear-gradient(to bottom, #6b4c35 0%, #4a3728 100%);
+    -fx-border-color: #3d2a1c;
+    -fx-border-width: 1;
+    -fx-border-radius: 8;
 }
 
 .ig-menu-button:hover {
-    -fx-background-color: #4a5155;
+    -fx-background-color: linear-gradient(to bottom, #8b6c55 0%, #6b4c35 100%);
 }
 
 /* === Panneaux de boutons === */
@@ -177,9 +219,12 @@
 }
 
 .secondary-button-pane {
-    -fx-background-color: rgba(45, 52, 54, 0.5);
-    -fx-background-radius: 8;
-    -fx-padding: 10;
+    -fx-background-color: rgba(30, 74, 53, 0.6);
+    -fx-background-radius: 10;
+    -fx-padding: 12;
+    -fx-border-color: rgba(107, 76, 53, 0.4);
+    -fx-border-width: 2;
+    -fx-border-radius: 10;
 }
 
 /* === Cartes === */
@@ -190,150 +235,237 @@
 }
 
 .card-button:hover {
-    -fx-scale-x: 1.05;
-    -fx-scale-y: 1.05;
+    -fx-scale-x: 1.08;
+    -fx-scale-y: 1.08;
 }
 
 .card-container {
     -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, 
-        #ffffff 0%, 
-        #f8f9fa 50%, 
-        #f0f2f5 100%);
-    -fx-background-radius: 10;
-    -fx-border-radius: 10;
-    -fx-border-color: linear-gradient(to bottom, #e0e4e8, #c8d0d8);
+        #fffef5 0%, 
+        #f8f6e8 30%,
+        #f0edd8 70%,
+        #e8e4cc 100%);
+    -fx-background-radius: 12;
+    -fx-border-radius: 12;
+    -fx-border-color: linear-gradient(to bottom, #c9c4a8, #a8a088, #888068);
     -fx-border-width: 2;
     -fx-padding: 6;
-    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.3), 8, 0.0, 0, 3);
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.4), 10, 0.0, 2, 4);
 }
 
 .card-container-selected {
     -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, 
-        #e3f2fd 0%, 
-        #bbdefb 50%, 
-        #90caf9 100%);
-    -fx-background-radius: 10;
-    -fx-border-radius: 10;
-    -fx-border-color: #0984e3;
+        #e8f5e9 0%, 
+        #c8e6c9 50%, 
+        #a5d6a7 100%);
+    -fx-background-radius: 12;
+    -fx-border-radius: 12;
+    -fx-border-color: #2e7d32;
     -fx-border-width: 3;
     -fx-padding: 6;
-    -fx-effect: dropshadow(gaussian, rgba(9, 132, 227, 0.6), 12, 0.0, 0, 4);
+    -fx-effect: dropshadow(gaussian, rgba(46, 125, 50, 0.7), 15, 0.0, 0, 5);
 }
 
 .card-rank-label {
-    -fx-font-family: "Arial";
-    -fx-font-size: 13px;
+    -fx-font-family: "Georgia", "Times New Roman", serif;
+    -fx-font-size: 14px;
     -fx-font-weight: bold;
 }
 
 .card-suit-label {
     -fx-font-family: "Segoe UI Symbol", "Arial Unicode MS", "Monospace";
-    -fx-font-size: 32px;
+    -fx-font-size: 36px;
     -fx-font-weight: bold;
-    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.2), 2, 0.0, 0, 1);
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.25), 3, 0.0, 1, 1);
 }
 
 .pile-card-rank-label {
-    -fx-font-family: "Arial";
-    -fx-font-size: 12px;
+    -fx-font-family: "Georgia", serif;
+    -fx-font-size: 13px;
     -fx-font-weight: bold;
 }
 
 .pile-card-suit-label {
     -fx-font-family: "Segoe UI Symbol", "Arial Unicode MS", "Monospace";
-    -fx-font-size: 26px;
+    -fx-font-size: 30px;
     -fx-font-weight: bold;
-    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.3), 3, 0.0, 0, 1);
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.35), 4, 0.0, 1, 1);
 }
 
 /* === Couleurs des cartes === */
 .card-red {
-    -fx-text-fill: #d63031;
+    -fx-text-fill: #b71c1c;
 }
 
 .card-black {
-    -fx-text-fill: #2d3436;
+    -fx-text-fill: #1a1a1a;
 }
 
 /* === Informations des joueurs === */
 .player-name-label {
-    -fx-text-fill: #ffffff;
-    -fx-font-family: "Arial";
-    -fx-font-size: 15px;
+    -fx-text-fill: #ffd700;
+    -fx-font-family: "Georgia", serif;
+    -fx-font-size: 16px;
     -fx-font-weight: bold;
-    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.5), 2, 0.0, 0, 1);
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.7), 3, 0.0, 0, 1);
 }
 
 .player-info-label {
-    -fx-text-fill: #e8f5e9;
-    -fx-font-family: "Arial";
+    -fx-text-fill: #c8e6c9;
+    -fx-font-family: "Georgia", serif;
     -fx-font-size: 12px;
 }
 
 .player-box {
     -fx-background-color: linear-gradient(to bottom, 
-        rgba(108, 92, 231, 0.15) 0%, 
-        rgba(162, 155, 254, 0.1) 100%);
-    -fx-background-radius: 12;
-    -fx-border-color: rgba(162, 155, 254, 0.4);
-    -fx-border-width: 2;
-    -fx-border-radius: 12;
-    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.3), 8, 0.0, 0, 2);
+        rgba(30, 74, 53, 0.95) 0%, 
+        rgba(20, 50, 35, 0.98) 100%);
+    -fx-background-radius: 15;
+    -fx-border-color: linear-gradient(to bottom, #6b4c35 0%, #4a3728 50%, #3d2a1c 100%);
+    -fx-border-width: 3;
+    -fx-border-radius: 15;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.5), 12, 0.0, 0, 4);
 }
 
 /* === Représentation des cartes dans les panneaux joueurs === */
 .opponent-cards-container {
-    -fx-spacing: 4;
+    -fx-spacing: 2;
     -fx-alignment: center;
 }
 
 .opponent-card-back {
     -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, 
-        #667eea 0%, 
-        #764ba2 100%);
-    -fx-background-radius: 6;
-    -fx-border-color: #4a5568;
+        #8b0000 0%,
+        #a52a2a 20%,
+        #cd5c5c 50%,
+        #a52a2a 80%,
+        #8b0000 100%);
+    -fx-background-radius: 5;
+    -fx-border-color: #4a0000;
     -fx-border-width: 1.5;
-    -fx-border-radius: 6;
-    -fx-min-width: 20;
-    -fx-min-height: 28;
-    -fx-max-width: 20;
-    -fx-max-height: 28;
-    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.4), 4, 0.0, 0, 2);
+    -fx-border-radius: 5;
+    -fx-min-width: 22;
+    -fx-min-height: 32;
+    -fx-max-width: 22;
+    -fx-max-height: 32;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.5), 5, 0.0, 1, 2);
+}
+
+/* Motif décoratif pour le dos des cartes */
+.opponent-card-back-fancy {
+    -fx-background-color: 
+        linear-gradient(from 0% 0% to 100% 100%, 
+            #8b0000 0%,
+            #a52a2a 20%,
+            #cd5c5c 50%,
+            #a52a2a 80%,
+            #8b0000 100%),
+        repeating-linear-gradient(45deg, 
+            transparent 0px, 
+            transparent 3px, 
+            rgba(255, 215, 0, 0.15) 3px, 
+            rgba(255, 215, 0, 0.15) 6px);
+    -fx-background-radius: 5;
+    -fx-border-color: linear-gradient(to bottom, #ffd700, #b8860b);
+    -fx-border-width: 1.5;
+    -fx-border-radius: 5;
 }
 
 /* === Bulles de discussion === */
 .speech-bubble {
-    -fx-background-color: rgba(255, 255, 255, 0.95);
-    -fx-background-radius: 15;
-    -fx-border-color: rgba(162, 155, 254, 0.6);
+    -fx-background-color: linear-gradient(to bottom, 
+        rgba(255, 255, 255, 0.98) 0%,
+        rgba(245, 245, 240, 0.98) 100%);
+    -fx-background-radius: 15 15 15 3;
+    -fx-border-color: rgba(107, 76, 53, 0.7);
     -fx-border-width: 2;
-    -fx-border-radius: 15;
+    -fx-border-radius: 15 15 15 3;
     -fx-padding: 10 15 10 15;
-    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.4), 10, 0.0, 0, 3);
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.5), 12, 0.0, 2, 4);
+}
+
+.speech-bubble-top {
+    -fx-background-radius: 3 15 15 15;
+    -fx-border-radius: 3 15 15 15;
+}
+
+.speech-bubble-left {
+    -fx-background-radius: 15 15 3 15;
+    -fx-border-radius: 15 15 3 15;
+}
+
+.speech-bubble-right {
+    -fx-background-radius: 15 15 15 3;
+    -fx-border-radius: 15 15 15 3;
 }
 
 .speech-bubble-text {
     -fx-text-fill: #2d3436;
-    -fx-font-family: "Arial";
+    -fx-font-family: "Georgia", serif;
     -fx-font-size: 12px;
     -fx-font-weight: bold;
+}
+
+.speech-bubble-action {
+    -fx-text-fill: #1e4a35;
+    -fx-font-family: "Georgia", serif;
+    -fx-font-size: 11px;
+    -fx-font-style: italic;
 }
 
 /* === Notifications du joueur === */
 .player-notification {
     -fx-background-color: linear-gradient(to right, 
-        rgba(0, 184, 148, 0.9) 0%, 
-        rgba(0, 217, 168, 0.85) 100%);
-    -fx-background-radius: 8;
-    -fx-padding: 8 15 8 15;
-    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.4), 8, 0.0, 0, 2);
+        rgba(46, 125, 50, 0.95) 0%, 
+        rgba(67, 160, 71, 0.9) 50%,
+        rgba(46, 125, 50, 0.95) 100%);
+    -fx-background-radius: 12;
+    -fx-border-color: #1b5e20;
+    -fx-border-width: 2;
+    -fx-border-radius: 12;
+    -fx-padding: 10 18 10 18;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.5), 12, 0.0, 0, 3);
 }
 
 .player-notification-text {
     -fx-text-fill: white;
-    -fx-font-family: "Arial";
-    -fx-font-size: 13px;
+    -fx-font-family: "Georgia", serif;
+    -fx-font-size: 14px;
     -fx-font-weight: bold;
-    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.4), 2, 0.0, 0, 1);
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.5), 2, 0.0, 0, 1);
+}
+
+/* === Section de messages === */
+.message-section {
+    -fx-background-color: linear-gradient(to bottom, 
+        rgba(30, 74, 53, 0.9) 0%, 
+        rgba(20, 50, 35, 0.95) 100%);
+    -fx-background-radius: 12;
+    -fx-border-color: rgba(107, 76, 53, 0.6);
+    -fx-border-width: 2;
+    -fx-border-radius: 12;
+    -fx-padding: 12;
+}
+
+.message-section-title {
+    -fx-text-fill: #ffd700;
+    -fx-font-family: "Georgia", serif;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.6), 2, 0.0, 0, 1);
+}
+
+.message-section-content {
+    -fx-text-fill: #c8e6c9;
+    -fx-font-family: "Georgia", serif;
+    -fx-font-size: 12px;
+}
+
+/* === Animation fade classes === */
+.fade-in {
+    -fx-opacity: 0;
+}
+
+.fade-out {
+    -fx-opacity: 1;
 }
