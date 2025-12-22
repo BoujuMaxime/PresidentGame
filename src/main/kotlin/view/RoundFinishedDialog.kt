@@ -24,25 +24,32 @@ class RoundFinishedDialog(
         padding = Insets(30.0)
         alignment = Pos.CENTER
         style = """
-            -fx-background-color: rgba(45, 52, 54, 0.95);
-            -fx-background-radius: 10;
-            -fx-border-color: #00b894;
-            -fx-border-width: 2;
-            -fx-border-radius: 10;
+            -fx-background-color: linear-gradient(to bottom, 
+                rgba(45, 52, 54, 0.98) 0%, 
+                rgba(30, 39, 46, 0.98) 100%);
+            -fx-background-radius: 15;
+            -fx-border-color: linear-gradient(to right, #00b894, #00d9a8);
+            -fx-border-width: 3;
+            -fx-border-radius: 15;
+            -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.8), 25, 0.0, 0, 5);
         """.trimIndent()
         
-        minWidth = 400.0
-        minHeight = 200.0
+        minWidth = 450.0
+        minHeight = 250.0
+        
+        // Icône de trophée
+        val trophyLabel = Label("🏆")
+        trophyLabel.font = Font.font("Arial", FontWeight.BOLD, 48.0)
         
         // Titre
         val title = Label("Manche terminée !")
-        title.font = Font.font("Arial", FontWeight.BOLD, 28.0)
-        title.style = "-fx-text-fill: #dfe6e9;"
+        title.font = Font.font("Arial", FontWeight.BOLD, 32.0)
+        title.style = "-fx-text-fill: #ffffff; -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.6), 3, 0.0, 0, 2);"
         
         // Message
         val message = Label("Les rôles ont été attribués.")
         message.font = Font.font("Arial", FontWeight.NORMAL, 16.0)
-        message.style = "-fx-text-fill: #b2bec3;"
+        message.style = "-fx-text-fill: #e8f5e9;"
         
         val question = Label("Souhaitez-vous lancer une nouvelle manche ?")
         question.font = Font.font("Arial", FontWeight.NORMAL, 14.0)
@@ -53,21 +60,21 @@ class RoundFinishedDialog(
         buttonBox.alignment = Pos.CENTER
         
         val newRoundButton = createStyledButton(
-            "Nouvelle Manche",
-            "#00b894",
-            "#00d9a8"
+            "🔄 Nouvelle Manche",
+            "linear-gradient(to bottom, #00d9a8 0%, #00b894 100%)",
+            "linear-gradient(to bottom, #00f5c4 0%, #00d9a8 100%)"
         ) { onNewRound() }
         
         val quitButton = createStyledButton(
-            "Quitter",
-            "#d63031",
-            "#ff7675"
+            "🚪 Quitter",
+            "linear-gradient(to bottom, #ff7675 0%, #d63031 100%)",
+            "linear-gradient(to bottom, #ff9999 0%, #ff7675 100%)"
         ) { onQuit() }
         
         buttonBox.children.addAll(newRoundButton, quitButton)
         
         // Ajouter tous les éléments
-        children.addAll(title, message, question, buttonBox)
+        children.addAll(trophyLabel, title, message, question, buttonBox)
     }
     
     /**
@@ -91,17 +98,19 @@ class RoundFinishedDialog(
         val normalStyle = """
             -fx-background-color: $normalColor;
             -fx-text-fill: white;
-            -fx-padding: 12 30 12 30;
-            -fx-background-radius: 5;
+            -fx-padding: 15 35 15 35;
+            -fx-background-radius: 8;
             -fx-cursor: hand;
+            -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.4), 8, 0.0, 0, 3);
         """.trimIndent()
         
         val hoverStyle = """
             -fx-background-color: $hoverColor;
             -fx-text-fill: white;
-            -fx-padding: 12 30 12 30;
-            -fx-background-radius: 5;
+            -fx-padding: 15 35 15 35;
+            -fx-background-radius: 8;
             -fx-cursor: hand;
+            -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.6), 12, 0.0, 0, 4);
         """.trimIndent()
         
         button.style = normalStyle
