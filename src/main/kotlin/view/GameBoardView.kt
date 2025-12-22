@@ -60,6 +60,16 @@ class GameBoardView(private val controller: GameController) : BorderPane() {
     // Constante pour le nombre maximum de cartes affichées dans les panneaux adversaires
     private val maxDisplayedCards = 10
     
+    // Dimensions des cartes adversaires (doit correspondre au CSS .opponent-card-back)
+    private val opponentCardWidth = 22.0
+    private val opponentCardMinSpacing = 3.0  // Espacement minimum entre cartes quand il y a peu de cartes
+    
+    // Dimensions du player box (doit correspondre aux valeurs dans addPlayerToPane)
+    private val playerBoxWidth = 170.0
+    private val playerBoxPadding = 12.0
+    private val playerBoxMarginAdjustment = 1.0  // Ajustement pour les marges internes
+    private val opponentCardsAvailableWidth = playerBoxWidth - (playerBoxPadding * 2) - playerBoxMarginAdjustment
+    
     // Durée d'affichage des bulles de discussion
     private val speechBubbleDuration = Duration.seconds(4.0)
     
@@ -593,16 +603,31 @@ class GameBoardView(private val controller: GameController) : BorderPane() {
     }
 
     /**
-     * Crée une représentation visuelle des cartes d'un adversaire
+     * Crée une représentation visuelle des cartes d'un adversaire avec un espacement
+     * dynamique qui s'adapte au nombre de cartes pour éviter le débordement.
      */
     private fun createOpponentCardsVisual(cardCount: Int): HBox {
-        val container = HBox(-8.0)  // Espacement négatif pour superposition
+        // Limiter l'affichage à maxDisplayedCards cartes maximum pour éviter de déborder
+        val displayCount = minOf(cardCount, maxDisplayedCards)
+        
+        // Calculer l'espacement nécessaire pour que toutes les cartes rentrent dans l'espace disponible
+        // Dans JavaFX HBox, le spacing est l'écart entre les éléments
+        // Formule: totalWidth = n * cardWidth + (n-1) * spacing
+        // => spacing = (availableWidth - n * cardWidth) / (n-1)
+        val spacing = if (displayCount > 1) {
+            val neededSpacing = (opponentCardsAvailableWidth - displayCount * opponentCardWidth) / (displayCount - 1)
+            // Cap l'espacement au minimum souhaité quand il y a peu de cartes (espacement positif large).
+            // Quand il y a beaucoup de cartes, neededSpacing devient négatif (superposition),
+            // et minOf retourne cette valeur négative pour permettre le chevauchement.
+            minOf(neededSpacing, opponentCardMinSpacing)
+        } else {
+            0.0
+        }
+        
+        val container = HBox(spacing)
         container.styleClass.add("opponent-cards-container")
         container.alignment = Pos.CENTER
         container.padding = Insets(5.0, 0.0, 0.0, 0.0)
-
-        // Limiter l'affichage à maxDisplayedCards cartes maximum pour éviter de déborder
-        val displayCount = minOf(cardCount, maxDisplayedCards)
         
         for (i in 0 until displayCount) {
             val cardBack = Region()
