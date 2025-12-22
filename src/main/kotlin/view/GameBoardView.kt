@@ -3,6 +3,7 @@ package view
 import controller.GameController
 import javafx.animation.FadeTransition
 import javafx.animation.ParallelTransition
+import javafx.animation.PauseTransition
 import javafx.animation.TranslateTransition
 import javafx.geometry.Insets
 import javafx.geometry.Pos
@@ -33,12 +34,15 @@ class GameBoardView(private val controller: GameController) : BorderPane() {
     private val leftPlayerPane: VBox
     private val rightPlayerPane: VBox
 
+    // Notifications et bulles de discussion
+    private val playerNotificationLabel: Label
+
     private val selectedCards = mutableSetOf<Card>()
     private val cardButtons = mutableMapOf<Card, Button>()
 
-    // Dialog de fin de manche
+    // Dialog de fin de manche - container réutilisable pour éviter les fuites mémoire
     private var roundFinishedDialog: RoundFinishedDialog? = null
-    private var dialogOverlay: StackPane? = null
+    private val dialogOverlayContainer: StackPane = StackPane()
 
     // Tailles réduites
     private val cardWidth = 90.0 * 0.75
@@ -47,6 +51,9 @@ class GameBoardView(private val controller: GameController) : BorderPane() {
     private val pileCardHeight = cardHeight * 1.2
     private val pileAnimationDuration = Duration.millis(280.0)
     private var lastPileSnapshot: List<Card> = emptyList()
+
+    // Constante pour le nombre maximum de cartes affichées dans les panneaux adversaires
+    private val maxDisplayedCards = 10
 
 
     init {
@@ -83,19 +90,19 @@ class GameBoardView(private val controller: GameController) : BorderPane() {
         centerPane.alignment = Pos.CENTER
 
         // === Joueurs autour du plateau ===
-        topPlayerPane = HBox(8.0)
+        topPlayerPane = HBox(20.0)  // Augmenté de 8.0 à 20.0 pour plus d'espacement
         topPlayerPane.styleClass.add("opponent-pane")
         topPlayerPane.alignment = Pos.CENTER
         topPlayerPane.padding = Insets(10.0)
         topPlayerPane.minHeight = 80.0
 
-        leftPlayerPane = VBox(8.0)
+        leftPlayerPane = VBox(20.0)  // Augmenté de 8.0 à 20.0 pour plus d'espacement
         leftPlayerPane.styleClass.add("opponent-pane")
         leftPlayerPane.alignment = Pos.CENTER
         leftPlayerPane.padding = Insets(10.0)
         leftPlayerPane.minWidth = 150.0
 
-        rightPlayerPane = VBox(8.0)
+        rightPlayerPane = VBox(20.0)  // Augmenté de 8.0 à 20.0 pour plus d'espacement
         rightPlayerPane.styleClass.add("opponent-pane")
         rightPlayerPane.alignment = Pos.CENTER
         rightPlayerPane.padding = Insets(10.0)
@@ -109,32 +116,43 @@ class GameBoardView(private val controller: GameController) : BorderPane() {
         playerHandPane.alignment = Pos.CENTER
         playerHandPane.padding = Insets(15.0)
 
+        // Notification du joueur (messages personnels)
+        playerNotificationLabel = Label("")
+        playerNotificationLabel.styleClass.add("player-notification")
+        playerNotificationLabel.isWrapText = true
+        playerNotificationLabel.maxWidth = 600.0
+        playerNotificationLabel.isVisible = false
+
+        val notificationContainer = StackPane(playerNotificationLabel)
+        notificationContainer.alignment = Pos.CENTER
+        notificationContainer.padding = Insets(5.0)
+
         // Boutons d'action principaux (jouer/passer)
         val actionButtonPane = HBox(15.0)
         actionButtonPane.styleClass.add("button-pane")
         actionButtonPane.alignment = Pos.CENTER
         actionButtonPane.padding = Insets(10.0)
 
-        playButton = Button("Jouer")
+        playButton = Button("Jouer les cartes sélectionnées")
         playButton.styleClass.addAll("action-button", "play-button")
         playButton.isDisable = true
         playButton.setOnAction { handlePlayCards() }
 
-        passButton = Button("Passer")
+        passButton = Button("Passer mon tour")
         passButton.styleClass.addAll("action-button", "pass-button")
         passButton.isDisable = true
         passButton.setOnAction { handlePass() }
 
-        sortButton = Button("Trier")
+        sortButton = Button("↕ Trier la main")
         sortButton.styleClass.addAll("action-button", "sort-button")
         sortButton.setOnAction { handleSortHand() }
 
         actionButtonPane.children.addAll(playButton, passButton, sortButton)
         
-        val bottomPane = VBox(15.0)
+        val bottomPane = VBox(10.0)  // Réduit de 15.0 à 10.0 pour moins d'espace vide
         bottomPane.alignment = Pos.CENTER
-        bottomPane.padding = Insets(10.0)
-        bottomPane.children.addAll(playerHandPane, actionButtonPane)
+        bottomPane.padding = Insets(5.0, 10.0, 10.0, 10.0)  // Moins d'espace en haut
+        bottomPane.children.addAll(notificationContainer, playerHandPane, actionButtonPane)
 
         // === Menu in-game ===
         inGameMenu = InGameMenuView()
@@ -150,27 +168,23 @@ class GameBoardView(private val controller: GameController) : BorderPane() {
         menuButton.styleClass.addAll("action-button", "menu-button")
         menuButton.setOnAction { inGameMenu.toggle() }
         
-        // Conteneur pour le bouton de menu et le menu lui-même (coin supérieur droit)
-        val menuContainer = StackPane()
-        menuContainer.alignment = Pos.TOP_RIGHT
-        menuContainer.padding = Insets(10.0)
-        
+        // Conteneur pour le bouton de menu et le menu lui-même dans le coin supérieur droit du BorderPane
         val menuBox = VBox(10.0)
         menuBox.alignment = Pos.TOP_RIGHT
+        menuBox.padding = Insets(10.0)
         menuBox.children.addAll(menuButton, inGameMenu)
-        
-        menuContainer.children.add(menuBox)
 
         // === Disposition finale ===
-        top = topPlayerPane
+        // Créer un conteneur pour le panneau du haut avec le menu superposé
+        val topContainer = StackPane()
+        topContainer.children.addAll(topPlayerPane, menuBox)
+        StackPane.setAlignment(menuBox, Pos.TOP_RIGHT)
+        
+        top = topContainer
         left = leftPlayerPane
         right = rightPlayerPane
         bottom = bottomPane
-        
-        // Ajouter le menu par-dessus tout dans un StackPane au centre
-        val rootStack = StackPane()
-        rootStack.children.addAll(centerPane, menuContainer)
-        center = rootStack
+        center = centerPane
 
         setupBindings()
         updateCurrentPile(emptyList())
@@ -195,7 +209,7 @@ class GameBoardView(private val controller: GameController) : BorderPane() {
         }
 
         controller.gameMessageProperty.addListener { _, _, newMessage ->
-            messageLabel.text = newMessage
+            updateGameMessage(newMessage)
         }
 
         controller.canPlayProperty.addListener { _, _, canPlay ->
@@ -327,6 +341,52 @@ class GameBoardView(private val controller: GameController) : BorderPane() {
         playButton.isDisable = selectedCards.isEmpty() || !controller.canPlayProperty.get()
     }
 
+    /**
+     * Met à jour l'affichage des messages du jeu en séparant les messages généraux
+     * des notifications personnelles au joueur.
+     */
+    private fun updateGameMessage(message: String) {
+        // Séparer les messages destinés au joueur des messages généraux
+        when {
+            message.contains("C'est votre tour", ignoreCase = true) ||
+            message.contains("Vous devez", ignoreCase = true) ||
+            message.contains("Vous pouvez", ignoreCase = true) ||
+            message.contains("Veuillez", ignoreCase = true) -> {
+                // Message pour le joueur
+                playerNotificationLabel.text = message
+                playerNotificationLabel.isVisible = true
+                animateNotification()
+                messageLabel.text = "À votre tour de jouer"
+            }
+            message.contains("gagne", ignoreCase = true) ||
+            message.contains("termine", ignoreCase = true) -> {
+                // Annonce générale importante
+                messageLabel.text = message
+                playerNotificationLabel.isVisible = false
+            }
+            else -> {
+                // Message général
+                messageLabel.text = message
+                // Masquer la notification après un court délai
+                PauseTransition(Duration.seconds(3.0)).apply {
+                    setOnFinished { playerNotificationLabel.isVisible = false }
+                    play()
+                }
+            }
+        }
+    }
+
+    /**
+     * Anime l'apparition de la notification du joueur.
+     */
+    private fun animateNotification() {
+        playerNotificationLabel.opacity = 0.0
+        val fadeIn = FadeTransition(Duration.millis(300.0), playerNotificationLabel)
+        fadeIn.fromValue = 0.0
+        fadeIn.toValue = 1.0
+        fadeIn.play()
+    }
+
     private fun updateLastPlayedMove(move: PlayerMove?) {
         lastPlayedLabel.text = if (move != null) {
             "Dernier coup: $move"
@@ -426,10 +486,17 @@ class GameBoardView(private val controller: GameController) : BorderPane() {
         val nameLabel = Label(playerInfo.name)
         nameLabel.styleClass.add("player-name-label")
 
-        val infoLabel = Label("${playerInfo.role.displayName}\n${playerInfo.cardCount} cartes")
+        // Créer le label de rôle avec une icône
+        val roleIcon = getRoleIcon(playerInfo.role)
+        val roleText = "$roleIcon ${playerInfo.role.displayName}"
+        
+        val infoLabel = Label("$roleText\n${playerInfo.cardCount} cartes")
         infoLabel.styleClass.add("player-info-label")
         infoLabel.alignment = Pos.CENTER
         infoLabel.textAlignment = javafx.scene.text.TextAlignment.CENTER
+
+        // Créer une représentation visuelle des cartes
+        val cardsContainer = createOpponentCardsVisual(playerInfo.cardCount)
 
         val playerBox = VBox(8.0).apply {
             styleClass.add("player-box")
@@ -439,12 +506,12 @@ class GameBoardView(private val controller: GameController) : BorderPane() {
             prefWidth = 160.0
             minWidth = 120.0
             maxWidth = Double.MAX_VALUE
-            prefHeight = 100.0
-            minHeight = 70.0
+            prefHeight = 120.0
+            minHeight = 90.0
             // permettre à la box de croître dans son conteneur
         }
 
-        playerBox.children.addAll(nameLabel, infoLabel)
+        playerBox.children.addAll(nameLabel, infoLabel, cardsContainer)
         pane.children.add(playerBox)
 
         // Autoriser l'expansion selon le type de pane
@@ -460,6 +527,41 @@ class GameBoardView(private val controller: GameController) : BorderPane() {
             }
         }
     }
+
+    /**
+     * Crée une représentation visuelle des cartes d'un adversaire
+     */
+    private fun createOpponentCardsVisual(cardCount: Int): HBox {
+        val container = HBox(-8.0)  // Espacement négatif pour superposition
+        container.styleClass.add("opponent-cards-container")
+        container.alignment = Pos.CENTER
+        container.padding = Insets(5.0, 0.0, 0.0, 0.0)
+
+        // Limiter l'affichage à maxDisplayedCards cartes maximum pour éviter de déborder
+        val displayCount = minOf(cardCount, maxDisplayedCards)
+        
+        for (i in 0 until displayCount) {
+            val cardBack = Region()
+            cardBack.styleClass.add("opponent-card-back")
+            container.children.add(cardBack)
+        }
+
+        return container
+    }
+
+    /**
+     * Retourne une icône pour le rôle du joueur
+     */
+    private fun getRoleIcon(role: model.player.Player.Role): String {
+        return when (role) {
+            model.player.Player.Role.PRESIDENT -> "👑"
+            model.player.Player.Role.VICE_PRESIDENT -> "🥈"
+            model.player.Player.Role.NEUTRAL -> "👤"
+            model.player.Player.Role.VICE_ASSHOLE -> "🥉"
+            model.player.Player.Role.ASSHOLE -> "💩"
+        }
+    }
+
     private fun handlePlayCards() {
         if (selectedCards.isEmpty()) return
 
@@ -536,10 +638,6 @@ class GameBoardView(private val controller: GameController) : BorderPane() {
      * Affiche le dialog de fin de manche avec les options pour continuer ou quitter.
      */
     private fun showRoundFinishedDialog() {
-        // Créer l'overlay semi-transparent
-        dialogOverlay = StackPane()
-        dialogOverlay?.style = "-fx-background-color: rgba(0, 0, 0, 0.7);"
-        
         // Créer le dialog
         roundFinishedDialog = RoundFinishedDialog(
             onNewRound = {
@@ -552,22 +650,24 @@ class GameBoardView(private val controller: GameController) : BorderPane() {
             }
         )
         
-        dialogOverlay?.children?.add(roundFinishedDialog)
+        // Configurer le container réutilisable
+        dialogOverlayContainer.style = "-fx-background-color: rgba(0, 0, 0, 0.7);"
+        dialogOverlayContainer.children.setAll(roundFinishedDialog)
         
-        // Ajouter l'overlay au root stack (qui contient le centre et le menu)
-        val rootStack = center as? StackPane
-        rootStack?.children?.add(dialogOverlay)
+        // Créer un StackPane pour l'overlay au dessus du centerPane
+        val overlayStack = StackPane()
+        overlayStack.children.addAll(centerPane, dialogOverlayContainer)
+        center = overlayStack
     }
     
     /**
      * Cache et nettoie le dialog de fin de manche.
      */
     private fun hideRoundFinishedDialog() {
-        val rootStack = center as? StackPane
-        dialogOverlay?.let { overlay ->
-            rootStack?.children?.remove(overlay)
-        }
-        dialogOverlay = null
+        // Restaurer le centerPane original
+        center = centerPane
+        // Nettoyer le container
+        dialogOverlayContainer.children.clear()
         roundFinishedDialog = null
     }
 }
