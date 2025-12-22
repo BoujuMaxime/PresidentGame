@@ -593,23 +593,25 @@ class GameBoardView(private val controller: GameController) : BorderPane() {
     }
 
     /**
-     * Crée une représentation visuelle des cartes d'un adversaire
+     * Crée une représentation visuelle des cartes d'un adversaire avec un espacement
+     * dynamique qui s'adapte au nombre de cartes pour éviter le débordement.
      */
     private fun createOpponentCardsVisual(cardCount: Int): HBox {
         // Limiter l'affichage à maxDisplayedCards cartes maximum pour éviter de déborder
         val displayCount = minOf(cardCount, maxDisplayedCards)
         
         // Calculer l'espacement dynamiquement en fonction du nombre de cartes
-        // Plus il y a de cartes, plus l'espacement négatif doit être grand
-        val cardWidth = 22.0  // Largeur d'une carte (définie dans le CSS)
-        val availableWidth = 150.0  // Largeur disponible dans le container (un peu moins que playerBox.prefWidth)
+        val cardWidth = 22.0  // Largeur d'une carte (définie dans le CSS .opponent-card-back)
+        val availableWidth = 145.0  // Largeur disponible (playerBox.prefWidth=170 - padding=12*2 - marges)
         
-        // Calculer l'espacement nécessaire pour que toutes les cartes rentrent
+        // Calculer l'espacement nécessaire pour que toutes les cartes rentrent dans l'espace disponible
         val spacing = if (displayCount > 1) {
-            val totalCardWidth = cardWidth * displayCount
-            val neededSpacing = (availableWidth - cardWidth) / (displayCount - 1)
-            // Si l'espacement calculé est négatif (superposition), l'utiliser, sinon utiliser un petit espacement positif
-            minOf(neededSpacing - cardWidth, 3.0)
+            // L'espacement entre deux cartes doit permettre de placer toutes les cartes dans availableWidth
+            // Formule: cardWidth + (n-1) * (cardWidth + spacing) = availableWidth
+            // => spacing = (availableWidth - cardWidth) / (n-1) - cardWidth
+            val neededSpacing = (availableWidth - cardWidth) / (displayCount - 1) - cardWidth
+            // Utiliser un espacement positif minimal pour les petits nombres de cartes, sinon superposer
+            minOf(neededSpacing, 3.0)
         } else {
             0.0
         }
