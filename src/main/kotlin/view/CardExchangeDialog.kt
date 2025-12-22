@@ -3,6 +3,7 @@ package view
 import javafx.animation.ScaleTransition
 import javafx.geometry.Insets
 import javafx.geometry.Pos
+import javafx.scene.Cursor
 import javafx.scene.control.Button
 import javafx.scene.control.Label
 import javafx.scene.effect.DropShadow
@@ -164,25 +165,24 @@ class CardExchangeDialog(
             -fx-border-radius: 8;
         """.trimIndent()
         
-        // Rang en haut-gauche
+        // Rang en haut-gauche et symbole centré (mouse transparent pour permettre les clics sur le conteneur)
         val rankLabel = Label(card.rank.displayName)
         rankLabel.font = Font.font("Arial", FontWeight.BOLD, 16.0)
         rankLabel.style = "-fx-text-fill: ${getCardColor(card.suit)};"
-        rankLabel.isMouseTransparent = true  // Permet aux événements de souris de passer au conteneur parent
+        rankLabel.isMouseTransparent = true
         StackPane.setAlignment(rankLabel, Pos.TOP_LEFT)
         StackPane.setMargin(rankLabel, Insets(4.0, 0.0, 0.0, 6.0))
         
-        // Symbole centré
         val suitLabel = Label(card.suit.icon)
         suitLabel.font = Font.font("Arial", FontWeight.BOLD, 32.0)
         suitLabel.style = "-fx-text-fill: ${getCardColor(card.suit)};"
-        suitLabel.isMouseTransparent = true  // Permet aux événements de souris de passer au conteneur parent
+        suitLabel.isMouseTransparent = true
         StackPane.setAlignment(suitLabel, Pos.CENTER)
         
         container.children.addAll(suitLabel, rankLabel)
         button.graphic = container
         button.style = "-fx-background-color: transparent; -fx-padding: 0;"
-        button.cursor = javafx.scene.Cursor.HAND  // Ajouter un curseur main pour indiquer la cliquabilité
+        button.cursor = Cursor.HAND  // Ajouter un curseur main pour indiquer la cliquabilité
         
         // Ombre et effet hover
         val normalShadow = DropShadow(8.0, Color.web("#000000", 0.3))
