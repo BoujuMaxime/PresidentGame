@@ -71,4 +71,64 @@ class GuiHumanPlayerTest {
         assertTrue(hand.any { it.rank == Card.Rank.FIVE && it.suit == Card.Suit.HEARTS })
         assertTrue(hand.any { it.rank == Card.Rank.FIVE && it.suit == Card.Suit.DIAMONDS })
     }
+
+    @Test
+    fun `selectableCardsForExchange returns highest cards when highest is true`() {
+        val hand = listOf(
+            card(Card.Rank.THREE, Card.Suit.SPADES),
+            card(Card.Rank.FIVE, Card.Suit.HEARTS),
+            card(Card.Rank.KING, Card.Suit.DIAMONDS),
+            card(Card.Rank.ACE, Card.Suit.CLUBS)
+        )
+
+        val selected = PlayerUtils.selectableCardsForExchange(hand, 2, true)
+
+        // Doit retourner les 2 meilleures cartes (cartes de rang le plus élevé: Roi et As)
+        // Note: Dans le jeu du Président, l'As et le Roi sont parmi les cartes les plus fortes
+        assertEquals(2, selected.size)
+        assertTrue(selected.any { it.rank == Card.Rank.ACE })
+        assertTrue(selected.any { it.rank == Card.Rank.KING })
+    }
+
+    @Test
+    fun `selectableCardsForExchange returns all cards when highest is false`() {
+        val hand = listOf(
+            card(Card.Rank.THREE, Card.Suit.SPADES),
+            card(Card.Rank.FIVE, Card.Suit.HEARTS),
+            card(Card.Rank.KING, Card.Suit.DIAMONDS)
+        )
+
+        val selected = PlayerUtils.selectableCardsForExchange(hand, 2, false)
+
+        // Doit retourner toutes les cartes disponibles pour que le joueur choisisse
+        assertEquals(hand, selected)
+    }
+
+    @Test
+    fun `selectableCardsForExchange handles empty hand`() {
+        val hand = emptyList<Card>()
+
+        val selected = PlayerUtils.selectableCardsForExchange(hand, 2, true)
+
+        assertTrue(selected.isEmpty())
+    }
+
+    @Test
+    fun `selectableCardsForExchange respects count parameter`() {
+        val hand = listOf(
+            card(Card.Rank.THREE, Card.Suit.SPADES),
+            card(Card.Rank.FIVE, Card.Suit.HEARTS),
+            card(Card.Rank.KING, Card.Suit.DIAMONDS),
+            card(Card.Rank.ACE, Card.Suit.CLUBS),
+            card(Card.Rank.TWO, Card.Suit.HEARTS)
+        )
+
+        val selected = PlayerUtils.selectableCardsForExchange(hand, 3, true)
+
+        // Doit retourner les 3 meilleures cartes
+        assertEquals(3, selected.size)
+        assertTrue(selected.any { it.rank == Card.Rank.TWO })
+        assertTrue(selected.any { it.rank == Card.Rank.ACE })
+        assertTrue(selected.any { it.rank == Card.Rank.KING })
+    }
 }
