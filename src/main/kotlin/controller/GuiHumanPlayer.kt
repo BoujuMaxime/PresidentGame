@@ -25,7 +25,7 @@ class GuiHumanPlayer(
 ) : Player(id, hand) {
 
     /**
-     * Future utilisé pour compléter le coup sélectionné par l'utilisateur.
+     * Future qui sera complété avec le coup choisi par l'utilisateur.
      */
     private var moveFuture: CompletableFuture<PlayerMove?>? = null
 
@@ -90,7 +90,7 @@ class GuiHumanPlayer(
     }
 
     /**
-     * Complète le future avec le coup sélectionné par l'utilisateur.
+     * Complète le coup sélectionné par l'utilisateur.
      *
      * Cette méthode est appelée par la couche UI lorsque l'utilisateur confirme
      * son choix (ou passe). Elle réinitialise ensuite le future local et désactive
@@ -134,6 +134,9 @@ class GuiHumanPlayer(
 
     /**
      * Permet de choisir des cartes à échanger lors de la phase d'échange.
+     *
+     * TODO: Donner la main au joueur humain via l'interface graphique pour performer un échange
+     *       avec verification de validité
      *
      * Comportement :
      * - Si [count] <= 0 ou la main est vide, retourne une liste vide.

@@ -67,7 +67,7 @@ class GameTurns(
             ranking.add(it)
             Utils.printGameLifecycle("${it.id} a terminé (position ${ranking.size})")
         }
-        // En cas d'edge-case, ajouter aussi tout joueur vide non enregistré
+
         players.filter { it.hand.isEmpty() && it !in ranking }.forEach {
             ranking.add(it)
             Utils.printGameLifecycle("${it.id} a terminé (position ${ranking.size})")

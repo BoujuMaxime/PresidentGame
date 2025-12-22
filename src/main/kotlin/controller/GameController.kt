@@ -31,7 +31,7 @@ class GameController {
     val currentPlayerProperty = SimpleStringProperty("")
 
     /**
-     * État global de la partie (ex: "Configuration", "Partie en cours", "Partie terminée", "Erreur").
+     * État global de la partie (ex : "Configuration", "Partie en cours", "Partie terminée", "Erreur").
      */
     val gameStateProperty = SimpleStringProperty("Configuration")
 
@@ -56,7 +56,7 @@ class GameController {
     val canPlayProperty = SimpleBooleanProperty(false)
 
     /**
-     * Rôle affiché du joueur humain (ex: "Président", "Neutre", etc.).
+     * Rôle affiché du joueur humain (ex : "Président", "Neutre", etc.).
      */
     val playerRoleProperty = SimpleStringProperty("")
 
@@ -71,7 +71,7 @@ class GameController {
     val gameMessageProperty = SimpleStringProperty("")
 
     /**
-     * Instance du modèle de jeu. Peut être null si aucune partie n'est créée.
+     * Instance du modèle de jeu. Peut-être null si aucune partie n'est créée.
      */
     private var game: Game? = null
 
@@ -176,7 +176,7 @@ class GameController {
     /**
      * Démarre une nouvelle manche avec les mêmes joueurs et paramètres.
      *
-     * Continue la partie actuelle en démarrant un nouveau round. Le classement
+     * Continue la partie actuelle en commençant un nouveau round. Le classement
      * (et donc les rôles) du tour précédent est conservé dans l'instance Game
      * pour permettre les échanges de cartes réglementaires entre les rôles
      * (Président ↔ Trou du Cul, Vice-Président ↔ Vice-Trou du Cul).

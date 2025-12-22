@@ -51,9 +51,7 @@ class ObservableAi(
         // Notifier le contrôleur
         controller.notifyAiPlayerTurn(wrappedAi.id, move)
 
-        // Petite pause pour que l'utilisateur puisse voir le coup
-        // Note: Thread.sleep est utilisé ici car nous sommes déjà dans un thread de jeu séparé
-        // et nous voulons bloquer ce thread pour ralentir le rythme du jeu
+        // Pause pour visualiser le coup
         Thread.sleep(1000)
 
         return move

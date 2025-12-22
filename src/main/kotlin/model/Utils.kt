@@ -126,7 +126,7 @@ object Utils {
 
     /**
      * Affiche une carte dans la console si l'affichage est activé.
-     * @param card La carte à afficher.
+     * @param card La carte a afficher.
      */
     fun printCard(card: Card) {
         if (!consoleOutputEnabled) return
