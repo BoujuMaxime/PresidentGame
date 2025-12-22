@@ -43,6 +43,13 @@ class CardExchangeDialog(
     private val cardWidth = 70.0
     private val cardHeight = 95.0
     
+    // Animation constants
+    private val ANIMATION_DURATION_MS = 150.0
+    private val SHAKE_DURATION_MS = 100.0
+    private val SELECTED_SCALE = 1.05
+    private val PULSE_SCALE = 1.12
+    private val SHAKE_SCALE = 1.1
+    
     init {
         spacing = 20.0
         padding = Insets(30.0)
@@ -224,11 +231,11 @@ class CardExchangeDialog(
             // Vérifier si on peut sélectionner plus de cartes
             if (selectedCards.size >= count) {
                 // Animation de rejet
-                val shake = ScaleTransition(Duration.millis(100.0), container)
+                val shake = ScaleTransition(Duration.millis(SHAKE_DURATION_MS), container)
                 shake.fromX = 1.0
                 shake.fromY = 1.0
-                shake.toX = 1.1
-                shake.toY = 1.1
+                shake.toX = SHAKE_SCALE
+                shake.toY = SHAKE_SCALE
                 shake.cycleCount = 2
                 shake.isAutoReverse = true
                 shake.play()
@@ -244,16 +251,16 @@ class CardExchangeDialog(
                 -fx-border-width: 3;
                 -fx-border-radius: 8;
             """.trimIndent()
-            container.scaleX = 1.05
-            container.scaleY = 1.05
+            container.scaleX = SELECTED_SCALE
+            container.scaleY = SELECTED_SCALE
             container.effect = hoverShadow
             
             // Animation de sélection
-            val pulse = ScaleTransition(Duration.millis(150.0), container)
-            pulse.fromX = 1.05
-            pulse.fromY = 1.05
-            pulse.toX = 1.12
-            pulse.toY = 1.12
+            val pulse = ScaleTransition(Duration.millis(ANIMATION_DURATION_MS), container)
+            pulse.fromX = SELECTED_SCALE
+            pulse.fromY = SELECTED_SCALE
+            pulse.toX = PULSE_SCALE
+            pulse.toY = PULSE_SCALE
             pulse.cycleCount = 2
             pulse.isAutoReverse = true
             pulse.play()

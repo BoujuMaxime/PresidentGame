@@ -83,7 +83,8 @@ class GuiHumanPlayerTest {
 
         val selected = PlayerUtils.selectableCardsForExchange(hand, 2, true)
 
-        // Doit retourner les 2 meilleures cartes (Roi et As)
+        // Doit retourner les 2 meilleures cartes (cartes de rang le plus élevé: Roi et As)
+        // Note: Dans le jeu du Président, l'As et le Roi sont parmi les cartes les plus fortes
         assertEquals(2, selected.size)
         assertTrue(selected.any { it.rank == Card.Rank.ACE })
         assertTrue(selected.any { it.rank == Card.Rank.KING })
