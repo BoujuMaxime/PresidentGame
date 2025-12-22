@@ -596,13 +596,28 @@ class GameBoardView(private val controller: GameController) : BorderPane() {
      * Crée une représentation visuelle des cartes d'un adversaire
      */
     private fun createOpponentCardsVisual(cardCount: Int): HBox {
-        val container = HBox(-8.0)  // Espacement négatif pour superposition
+        // Limiter l'affichage à maxDisplayedCards cartes maximum pour éviter de déborder
+        val displayCount = minOf(cardCount, maxDisplayedCards)
+        
+        // Calculer l'espacement dynamiquement en fonction du nombre de cartes
+        // Plus il y a de cartes, plus l'espacement négatif doit être grand
+        val cardWidth = 22.0  // Largeur d'une carte (définie dans le CSS)
+        val availableWidth = 150.0  // Largeur disponible dans le container (un peu moins que playerBox.prefWidth)
+        
+        // Calculer l'espacement nécessaire pour que toutes les cartes rentrent
+        val spacing = if (displayCount > 1) {
+            val totalCardWidth = cardWidth * displayCount
+            val neededSpacing = (availableWidth - cardWidth) / (displayCount - 1)
+            // Si l'espacement calculé est négatif (superposition), l'utiliser, sinon utiliser un petit espacement positif
+            minOf(neededSpacing - cardWidth, 3.0)
+        } else {
+            0.0
+        }
+        
+        val container = HBox(spacing)
         container.styleClass.add("opponent-cards-container")
         container.alignment = Pos.CENTER
         container.padding = Insets(5.0, 0.0, 0.0, 0.0)
-
-        // Limiter l'affichage à maxDisplayedCards cartes maximum pour éviter de déborder
-        val displayCount = minOf(cardCount, maxDisplayedCards)
         
         for (i in 0 until displayCount) {
             val cardBack = Region()
