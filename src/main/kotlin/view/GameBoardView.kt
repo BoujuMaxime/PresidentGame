@@ -60,6 +60,15 @@ class GameBoardView(private val controller: GameController) : BorderPane() {
     // Constante pour le nombre maximum de cartes affichées dans les panneaux adversaires
     private val maxDisplayedCards = 10
     
+    // Dimensions des cartes adversaires (doit correspondre au CSS .opponent-card-back)
+    private val opponentCardWidth = 22.0
+    private val opponentCardMinSpacing = 3.0  // Espacement minimum entre cartes quand il y a peu de cartes
+    
+    // Dimensions du player box (doit correspondre aux valeurs dans addPlayerToPane)
+    private val playerBoxWidth = 170.0
+    private val playerBoxPadding = 12.0
+    private val opponentCardsAvailableWidth = playerBoxWidth - (playerBoxPadding * 2) - 1.0  // -1 pour les marges
+    
     // Durée d'affichage des bulles de discussion
     private val speechBubbleDuration = Duration.seconds(4.0)
     
@@ -600,18 +609,14 @@ class GameBoardView(private val controller: GameController) : BorderPane() {
         // Limiter l'affichage à maxDisplayedCards cartes maximum pour éviter de déborder
         val displayCount = minOf(cardCount, maxDisplayedCards)
         
-        // Calculer l'espacement dynamiquement en fonction du nombre de cartes
-        val cardWidth = 22.0  // Largeur d'une carte (définie dans le CSS .opponent-card-back)
-        val availableWidth = 145.0  // Largeur disponible (playerBox.prefWidth=170 - padding=12*2 - marges)
-        
         // Calculer l'espacement nécessaire pour que toutes les cartes rentrent dans l'espace disponible
         val spacing = if (displayCount > 1) {
             // L'espacement entre deux cartes doit permettre de placer toutes les cartes dans availableWidth
             // Formule: cardWidth + (n-1) * (cardWidth + spacing) = availableWidth
             // => spacing = (availableWidth - cardWidth) / (n-1) - cardWidth
-            val neededSpacing = (availableWidth - cardWidth) / (displayCount - 1) - cardWidth
+            val neededSpacing = (opponentCardsAvailableWidth - opponentCardWidth) / (displayCount - 1) - opponentCardWidth
             // Utiliser un espacement positif minimal pour les petits nombres de cartes, sinon superposer
-            minOf(neededSpacing, 3.0)
+            minOf(neededSpacing, opponentCardMinSpacing)
         } else {
             0.0
         }
