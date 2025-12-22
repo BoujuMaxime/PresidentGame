@@ -67,7 +67,8 @@ class GameBoardView(private val controller: GameController) : BorderPane() {
     // Dimensions du player box (doit correspondre aux valeurs dans addPlayerToPane)
     private val playerBoxWidth = 170.0
     private val playerBoxPadding = 12.0
-    private val opponentCardsAvailableWidth = playerBoxWidth - (playerBoxPadding * 2) - 1.0  // -1 pour les marges
+    private val playerBoxMarginAdjustment = 1.0  // Ajustement pour les marges internes
+    private val opponentCardsAvailableWidth = playerBoxWidth - (playerBoxPadding * 2) - playerBoxMarginAdjustment
     
     // Durée d'affichage des bulles de discussion
     private val speechBubbleDuration = Duration.seconds(4.0)
@@ -610,11 +611,11 @@ class GameBoardView(private val controller: GameController) : BorderPane() {
         val displayCount = minOf(cardCount, maxDisplayedCards)
         
         // Calculer l'espacement nécessaire pour que toutes les cartes rentrent dans l'espace disponible
+        // Dans JavaFX HBox, le spacing est l'écart entre les éléments
+        // Formule: totalWidth = n * cardWidth + (n-1) * spacing
+        // => spacing = (availableWidth - n * cardWidth) / (n-1)
         val spacing = if (displayCount > 1) {
-            // L'espacement entre deux cartes doit permettre de placer toutes les cartes dans availableWidth
-            // Formule: cardWidth + (n-1) * (cardWidth + spacing) = availableWidth
-            // => spacing = (availableWidth - cardWidth) / (n-1) - cardWidth
-            val neededSpacing = (opponentCardsAvailableWidth - opponentCardWidth) / (displayCount - 1) - opponentCardWidth
+            val neededSpacing = (opponentCardsAvailableWidth - displayCount * opponentCardWidth) / (displayCount - 1)
             // Utiliser un espacement positif minimal pour les petits nombres de cartes, sinon superposer
             minOf(neededSpacing, opponentCardMinSpacing)
         } else {
