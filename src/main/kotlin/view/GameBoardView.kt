@@ -616,7 +616,9 @@ class GameBoardView(private val controller: GameController) : BorderPane() {
         // => spacing = (availableWidth - n * cardWidth) / (n-1)
         val spacing = if (displayCount > 1) {
             val neededSpacing = (opponentCardsAvailableWidth - displayCount * opponentCardWidth) / (displayCount - 1)
-            // Utiliser un espacement positif minimal pour les petits nombres de cartes, sinon superposer
+            // Cap l'espacement au minimum souhaité quand il y a peu de cartes (espacement positif large).
+            // Quand il y a beaucoup de cartes, neededSpacing devient négatif (superposition),
+            // et minOf retourne cette valeur négative pour permettre le chevauchement.
             minOf(neededSpacing, opponentCardMinSpacing)
         } else {
             0.0
