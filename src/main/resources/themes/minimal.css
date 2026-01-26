@@ -1,0 +1,305 @@
+/* ============================================
+   Thème Minimaliste - Style épuré et moderne
+   Ce fichier est chargé EN PLUS de base.css
+   ============================================ */
+
+/* === Fond clair === */
+.game-board {
+    -fx-background-color: #fafafa;
+}
+
+.menu-root {
+    -fx-background-color: #fafafa;
+}
+
+.menu-panel {
+    -fx-background-color: #ffffff;
+    -fx-border-color: #e0e0e0;
+    -fx-border-width: 1;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.1), 20, 0, 0, 4);
+}
+
+.menu-title {
+    -fx-text-fill: #212121;
+    -fx-font-family: "Segoe UI";
+    -fx-font-weight: 300;
+    -fx-effect: none;
+}
+
+.menu-subtitle {
+    -fx-text-fill: #757575;
+    -fx-font-family: "Segoe UI";
+}
+
+.section-title {
+    -fx-text-fill: #2196F3;
+    -fx-font-family: "Segoe UI";
+}
+
+.config-label {
+    -fx-text-fill: #212121;
+    -fx-font-family: "Segoe UI";
+}
+
+.config-value-label {
+    -fx-text-fill: #2196F3;
+    -fx-font-family: "Segoe UI";
+}
+
+.config-section, .rules-section, .theme-section {
+    -fx-background-color: #f5f5f5;
+}
+
+.config-combo {
+    -fx-background-color: #ffffff;
+    -fx-border-color: #e0e0e0;
+}
+
+.rules-info-panel {
+    -fx-background-color: #f5f5f5;
+    -fx-border-color: #eeeeee;
+}
+
+.rules-info-title {
+    -fx-text-fill: #2196F3;
+}
+
+.rules-info-text {
+    -fx-text-fill: #757575;
+}
+
+/* === Boutons flat === */
+.start-button {
+    -fx-background-color: #2196F3;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.08), 4, 0, 0, 2);
+}
+
+.start-button:hover {
+    -fx-background-color: #42A5F5;
+}
+
+.play-button {
+    -fx-background-color: #4CAF50;
+}
+
+.play-button:hover {
+    -fx-background-color: #66BB6A;
+}
+
+.pass-button {
+    -fx-background-color: #f44336;
+}
+
+.pass-button:hover {
+    -fx-background-color: #ef5350;
+}
+
+.sort-button {
+    -fx-background-color: #9C27B0;
+}
+
+.sort-button:hover {
+    -fx-background-color: #AB47BC;
+}
+
+.menu-button {
+    -fx-background-color: #f5f5f5;
+    -fx-text-fill: #212121;
+}
+
+.menu-button:hover {
+    -fx-background-color: #eeeeee;
+}
+
+/* === Zone de jeu === */
+.player-pane {
+    -fx-background-color: #ffffff;
+    -fx-border-color: #e0e0e0;
+    -fx-border-width: 1 1 0 1;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.05), 10, 0, 0, -3);
+}
+
+.status-box {
+    -fx-background-color: #f5f5f5;
+}
+
+.state-label {
+    -fx-text-fill: #2196F3;
+    -fx-font-family: "Segoe UI";
+}
+
+.current-player-label {
+    -fx-text-fill: #757575;
+    -fx-font-family: "Segoe UI";
+}
+
+/* === Pile épurée === */
+.pile-stack {
+    -fx-background-color: #f5f5f5;
+    -fx-border-color: #e0e0e0;
+    -fx-border-width: 2;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.08), 15, 0, 0, 3);
+}
+
+.empty-label {
+    -fx-text-fill: rgba(33, 33, 33, 0.4);
+    -fx-font-family: "Segoe UI";
+}
+
+/* === Messages === */
+.message-box {
+    -fx-background-color: #fafafa;
+    -fx-border-color: #eeeeee;
+}
+
+.message-label {
+    -fx-text-fill: #212121;
+    -fx-font-family: "Segoe UI";
+}
+
+.last-played-label {
+    -fx-text-fill: #757575;
+    -fx-font-family: "Segoe UI";
+}
+
+/* === Cartes épurées === */
+.card-container {
+    -fx-background-color: #ffffff;
+    -fx-border-color: #e0e0e0;
+    -fx-border-width: 1;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.1), 6, 0, 1, 2);
+}
+
+.card-container-selected {
+    -fx-background-color: #e3f2fd;
+    -fx-border-color: #2196F3;
+    -fx-effect: dropshadow(gaussian, rgba(33, 150, 243, 0.3), 10, 0, 0, 2);
+}
+
+.card-red {
+    -fx-text-fill: #d32f2f;
+}
+
+.card-black {
+    -fx-text-fill: #212121;
+}
+
+.card-rank-label, .pile-card-rank-label {
+    -fx-font-family: "Segoe UI";
+}
+
+/* === Joueurs === */
+.player-box {
+    -fx-background-color: #ffffff;
+    -fx-border-color: #e0e0e0;
+    -fx-border-width: 1;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.05), 8, 0, 0, 2);
+}
+
+.player-box-highlighted {
+    -fx-border-color: #2196F3;
+    -fx-border-width: 2;
+    -fx-effect: dropshadow(gaussian, rgba(33, 150, 243, 0.2), 12, 0, 0, 0);
+}
+
+.player-name-label {
+    -fx-text-fill: #212121;
+    -fx-font-family: "Segoe UI";
+}
+
+.player-info-label {
+    -fx-text-fill: #757575;
+    -fx-font-family: "Segoe UI";
+}
+
+.opponent-card-back {
+    -fx-background-color: linear-gradient(to bottom right, #2196F3, #1976D2, #2196F3);
+    -fx-border-color: #1565C0;
+}
+
+/* === Badges flat === */
+.role-president {
+    -fx-background-color: #FFC107;
+    -fx-background-radius: 4;
+}
+
+.role-vice-president {
+    -fx-background-color: #9E9E9E;
+    -fx-background-radius: 4;
+}
+
+.role-neutral {
+    -fx-background-color: #607D8B;
+    -fx-background-radius: 4;
+}
+
+.role-vice-asshole {
+    -fx-background-color: #FF9800;
+    -fx-background-radius: 4;
+}
+
+.role-asshole {
+    -fx-background-color: #795548;
+    -fx-background-radius: 4;
+}
+
+/* === Journal === */
+.event-log {
+    -fx-background-color: #fafafa;
+    -fx-border-color: #e0e0e0;
+    -fx-border-width: 1;
+}
+
+.event-time {
+    -fx-text-fill: rgba(33, 33, 33, 0.4);
+}
+
+.event-message {
+    -fx-text-fill: #212121;
+    -fx-font-family: "Segoe UI";
+}
+
+/* === Dialogues === */
+.ig-menu-panel, .round-finished-dialog, .card-exchange-dialog {
+    -fx-background-color: #ffffff;
+    -fx-border-color: #e0e0e0;
+    -fx-border-width: 1;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.15), 25, 0, 0, 8);
+}
+
+.ig-menu-title, .dialog-title {
+    -fx-text-fill: #212121;
+    -fx-font-family: "Segoe UI";
+}
+
+.dialog-subtitle {
+    -fx-text-fill: #757575;
+}
+
+.dialog-instruction {
+    -fx-text-fill: #212121;
+}
+
+.ig-menu-button {
+    -fx-background-color: #f5f5f5;
+    -fx-text-fill: #212121;
+}
+
+.ig-menu-button:hover {
+    -fx-background-color: #eeeeee;
+}
+
+/* === Classement === */
+.ranking-box {
+    -fx-background-color: #fafafa;
+}
+
+.ranking-name {
+    -fx-text-fill: #212121;
+    -fx-font-family: "Segoe UI";
+}
+
+.selection-counter {
+    -fx-text-fill: #2196F3;
+    -fx-font-family: "Segoe UI";
+}

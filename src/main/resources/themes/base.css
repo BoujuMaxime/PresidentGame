@@ -1,0 +1,695 @@
+/* ============================================
+   Jeu du Président - CSS de Base
+   Styles communs à tous les thèmes
+   ============================================ */
+
+/* === Structure et Layout === */
+.game-board {
+    -fx-background-color: #1e4a35;
+}
+
+.menu-root {
+    -fx-background-color: #1e4a35;
+}
+
+.menu-background {
+    -fx-background-color: transparent;
+}
+
+.menu-panel {
+    -fx-background-color: linear-gradient(to bottom, rgba(30, 74, 53, 0.95), rgba(13, 40, 24, 0.98));
+    -fx-background-radius: 20;
+    -fx-border-radius: 20;
+    -fx-border-color: #6b4c35;
+    -fx-border-width: 3;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.4), 25, 0, 0, 8);
+}
+
+/* === Titres et Labels === */
+.menu-title {
+    -fx-font-family: "Georgia";
+    -fx-font-size: 36px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #ffd700;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.5), 3, 0, 0, 2);
+}
+
+.menu-subtitle {
+    -fx-font-family: "Georgia";
+    -fx-font-size: 16px;
+    -fx-text-fill: #c8e6c9;
+    -fx-font-style: italic;
+}
+
+.section-title {
+    -fx-font-family: "Georgia";
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #ffd700;
+}
+
+.config-label {
+    -fx-font-family: "Georgia";
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #ffffff;
+}
+
+.config-value-label {
+    -fx-font-family: "Georgia";
+    -fx-font-size: 14px;
+    -fx-text-fill: #ffd700;
+    -fx-font-weight: bold;
+}
+
+/* === Contrôles de formulaire === */
+.config-section, .rules-section, .theme-section {
+    -fx-background-color: rgba(30, 74, 53, 0.6);
+    -fx-background-radius: 10;
+    -fx-padding: 15;
+}
+
+.config-slider .track {
+    -fx-background-color: rgba(30, 40, 35, 0.8);
+    -fx-background-radius: 5;
+}
+
+.config-slider .thumb {
+    -fx-background-color: #ffd700;
+}
+
+.config-combo {
+    -fx-background-color: rgba(30, 40, 35, 0.8);
+    -fx-text-fill: #ffffff;
+    -fx-font-family: "Georgia";
+    -fx-background-radius: 8;
+    -fx-border-radius: 8;
+    -fx-border-color: #6b4c35;
+    -fx-border-width: 1;
+}
+
+.config-combo .list-cell {
+    -fx-text-fill: #ffffff;
+    -fx-background-color: rgba(30, 40, 35, 0.8);
+}
+
+.config-combo-popup .list-view {
+    -fx-background-color: rgba(30, 74, 53, 0.95);
+}
+
+.config-combo-popup .list-cell:hover {
+    -fx-background-color: rgba(255, 215, 0, 0.2);
+}
+
+.config-checkbox {
+    -fx-text-fill: #ffffff;
+    -fx-font-family: "Georgia";
+}
+
+.config-checkbox .box {
+    -fx-background-color: rgba(30, 40, 35, 0.8);
+    -fx-border-color: #6b4c35;
+    -fx-border-radius: 4;
+    -fx-background-radius: 4;
+}
+
+.config-checkbox:selected .box {
+    -fx-background-color: #ffd700;
+}
+
+/* === Info Panel === */
+.rules-info-panel {
+    -fx-background-color: rgba(30, 74, 53, 0.6);
+    -fx-background-radius: 10;
+    -fx-border-radius: 10;
+    -fx-border-color: rgba(107, 76, 53, 0.4);
+    -fx-border-width: 1;
+}
+
+.rules-info-title {
+    -fx-font-family: "Georgia";
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #ffd700;
+}
+
+.rules-info-text {
+    -fx-font-family: "Georgia";
+    -fx-font-size: 12px;
+    -fx-text-fill: #c8e6c9;
+    -fx-line-spacing: 3;
+}
+
+/* === Boutons === */
+.action-button {
+    -fx-font-family: "Georgia";
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-padding: 12 24;
+    -fx-background-radius: 10;
+    -fx-border-radius: 10;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.3), 8, 0, 0, 3);
+}
+
+.action-button:hover {
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.5), 12, 0, 0, 4);
+}
+
+.action-button:disabled {
+    -fx-opacity: 0.5;
+    -fx-cursor: default;
+}
+
+.start-button {
+    -fx-background-color: linear-gradient(to bottom, #2ecc71, #27ae60, #1e8449);
+    -fx-text-fill: white;
+    -fx-font-size: 16px;
+    -fx-padding: 15 30;
+}
+
+.start-button:hover {
+    -fx-background-color: linear-gradient(to bottom, #58d68d, #2ecc71, #27ae60);
+}
+
+.play-button {
+    -fx-background-color: linear-gradient(to bottom, #2ecc71, #27ae60, #1e8449);
+    -fx-text-fill: white;
+}
+
+.play-button:hover {
+    -fx-background-color: linear-gradient(to bottom, #58d68d, #2ecc71, #27ae60);
+}
+
+.play-button:disabled {
+    -fx-background-color: linear-gradient(to bottom, #5d6d7e, #4a5568);
+}
+
+.pass-button {
+    -fx-background-color: linear-gradient(to bottom, #e74c3c, #c0392b, #922b21);
+    -fx-text-fill: white;
+}
+
+.pass-button:hover {
+    -fx-background-color: linear-gradient(to bottom, #ec7063, #e74c3c, #c0392b);
+}
+
+.pass-button:disabled {
+    -fx-background-color: linear-gradient(to bottom, #5d6d7e, #4a5568);
+}
+
+.sort-button {
+    -fx-background-color: linear-gradient(to bottom, #9b59b6, #8e44ad, #6c3483);
+    -fx-text-fill: white;
+}
+
+.sort-button:hover {
+    -fx-background-color: linear-gradient(to bottom, #af7ac5, #9b59b6, #8e44ad);
+}
+
+.menu-button {
+    -fx-background-color: linear-gradient(to bottom, #6b4c35, #4a3728);
+    -fx-text-fill: #ffffff;
+    -fx-font-size: 18px;
+    -fx-padding: 8 15;
+}
+
+.menu-button:hover {
+    -fx-background-color: linear-gradient(to bottom, #8b6c55, #6b4c35);
+}
+
+/* === Zone de jeu === */
+.top-area {
+    -fx-background-color: transparent;
+}
+
+.center-area {
+    -fx-background-color: transparent;
+}
+
+.player-pane {
+    -fx-background-color: linear-gradient(to bottom, rgba(30, 74, 53, 0.95), rgba(13, 40, 24, 0.98));
+    -fx-background-radius: 18 18 0 0;
+    -fx-border-color: #6b4c35;
+    -fx-border-width: 3 3 0 3;
+    -fx-border-radius: 18 18 0 0;
+}
+
+.status-box {
+    -fx-background-color: rgba(30, 74, 53, 0.7);
+    -fx-background-radius: 10;
+    -fx-padding: 8 12;
+    -fx-min-width: 150;
+}
+
+.state-label {
+    -fx-font-family: "Georgia";
+    -fx-font-size: 13px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #ffd700;
+    -fx-text-alignment: right;
+}
+
+.current-player-label {
+    -fx-font-family: "Georgia";
+    -fx-font-size: 11px;
+    -fx-text-fill: #c8e6c9;
+    -fx-text-alignment: right;
+}
+
+/* === Pile de cartes === */
+.pile-container {
+    -fx-background-color: transparent;
+}
+
+.pile-stack {
+    -fx-background-color: radial-gradient(center 50% 50%, radius 75%, #1a6b4a, #145a3d, #0f4a32, #0a3a25);
+    -fx-background-radius: 25;
+    -fx-border-color: #6b4c35;
+    -fx-border-width: 8;
+    -fx-border-radius: 25;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.5), 20, 0, 0, 6);
+}
+
+.empty-label {
+    -fx-font-family: "Georgia";
+    -fx-font-size: 14px;
+    -fx-text-fill: rgba(255, 255, 255, 0.5);
+    -fx-font-style: italic;
+}
+
+/* === Messages === */
+.message-box {
+    -fx-background-color: rgba(30, 74, 53, 0.8);
+    -fx-background-radius: 12;
+    -fx-border-radius: 12;
+    -fx-border-color: rgba(107, 76, 53, 0.4);
+    -fx-border-width: 1;
+    -fx-min-height: 60;
+    -fx-pref-height: 80;
+}
+
+.message-label {
+    -fx-font-family: "Georgia";
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #ffffff;
+    -fx-text-alignment: center;
+    -fx-wrap-text: true;
+}
+
+.last-played-label {
+    -fx-font-family: "Georgia";
+    -fx-font-size: 12px;
+    -fx-text-fill: #c8e6c9;
+    -fx-font-style: italic;
+}
+
+/* === Cartes === */
+.card-button {
+    -fx-background-color: transparent;
+    -fx-padding: 0;
+    -fx-cursor: hand;
+}
+
+.card-container {
+    -fx-background-color: linear-gradient(to bottom right, #fffef5, #f8f6e8, #f0edd8, #e8e4cc);
+    -fx-background-radius: 12;
+    -fx-border-radius: 12;
+    -fx-border-color: #a8a088;
+    -fx-border-width: 2;
+    -fx-padding: 6;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.3), 8, 0, 2, 3);
+}
+
+.card-container-selected {
+    -fx-background-color: linear-gradient(to bottom right, #e8f5e9, #c8e6c9, #a5d6a7);
+    -fx-background-radius: 12;
+    -fx-border-radius: 12;
+    -fx-border-color: #2e7d32;
+    -fx-border-width: 3;
+    -fx-padding: 6;
+    -fx-effect: dropshadow(gaussian, rgba(46, 125, 50, 0.7), 15, 0, 0, 4);
+}
+
+.card-rank-label {
+    -fx-font-family: "Georgia";
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+}
+
+.card-suit-label {
+    -fx-font-family: "Segoe UI Symbol";
+    -fx-font-size: 36px;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.2), 2, 0, 1, 1);
+}
+
+.pile-card-rank-label {
+    -fx-font-family: "Georgia";
+    -fx-font-size: 13px;
+    -fx-font-weight: bold;
+}
+
+.pile-card-suit-label {
+    -fx-font-family: "Segoe UI Symbol";
+    -fx-font-size: 30px;
+}
+
+.card-red {
+    -fx-text-fill: #b71c1c;
+}
+
+.card-black {
+    -fx-text-fill: #1a1a1a;
+}
+
+/* === Joueurs adverses === */
+.opponents-container {
+    -fx-background-color: transparent;
+    -fx-spacing: 20;
+}
+
+.player-box {
+    -fx-background-color: linear-gradient(to bottom, rgba(30, 74, 53, 0.95), rgba(20, 50, 35, 0.98));
+    -fx-background-radius: 15;
+    -fx-border-color: #6b4c35;
+    -fx-border-width: 3;
+    -fx-border-radius: 15;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.4), 10, 0, 0, 3);
+    -fx-min-width: 140;
+    -fx-pref-width: 160;
+    -fx-padding: 10;
+}
+
+.player-box-highlighted {
+    -fx-border-color: #ffd700;
+    -fx-border-width: 3;
+    -fx-effect: dropshadow(gaussian, rgba(255, 215, 0, 0.5), 15, 0, 0, 0);
+}
+
+.player-name-label {
+    -fx-font-family: "Georgia";
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #ffd700;
+    -fx-text-alignment: center;
+}
+
+.player-info-label {
+    -fx-font-family: "Georgia";
+    -fx-font-size: 11px;
+    -fx-text-fill: #c8e6c9;
+    -fx-text-alignment: center;
+}
+
+.player-role-badge {
+    -fx-font-family: "Georgia";
+    -fx-font-size: 10px;
+    -fx-font-weight: bold;
+    -fx-padding: 3 8;
+    -fx-background-radius: 10;
+    -fx-text-fill: white;
+    -fx-text-alignment: center;
+}
+
+.role-president {
+    -fx-background-color: #ffd700;
+    -fx-text-fill: #333333;
+}
+
+.role-vice-president {
+    -fx-background-color: #c0c0c0;
+    -fx-text-fill: #333333;
+}
+
+.role-neutral {
+    -fx-background-color: #607d8b;
+    -fx-text-fill: white;
+}
+
+.role-vice-asshole {
+    -fx-background-color: #ff9800;
+    -fx-text-fill: white;
+}
+
+.role-asshole {
+    -fx-background-color: #795548;
+    -fx-text-fill: white;
+}
+
+.opponent-card-back {
+    -fx-background-color: linear-gradient(to bottom right, #8b0000, #a52a2a, #cd5c5c, #a52a2a, #8b0000);
+    -fx-background-radius: 5;
+    -fx-border-color: #4a0000;
+    -fx-border-width: 1.5;
+    -fx-border-radius: 5;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.3), 3, 0, 1, 1);
+}
+
+/* === Journal d'événements === */
+.event-log {
+    -fx-background-color: rgba(30, 74, 53, 0.7);
+    -fx-background-radius: 12;
+    -fx-border-radius: 12;
+    -fx-border-color: #6b4c35;
+    -fx-border-width: 2;
+    -fx-min-width: 260;
+    -fx-pref-width: 300;
+}
+
+.log-container {
+    -fx-background-color: transparent;
+    -fx-padding: 8;
+}
+
+.event-scroll-pane {
+    -fx-background-color: transparent;
+    -fx-background: transparent;
+    -fx-padding: 0;
+}
+
+.event-scroll-pane .viewport {
+    -fx-background-color: transparent;
+}
+
+.event-scroll-pane .scroll-bar:vertical {
+    -fx-background-color: transparent;
+    -fx-pref-width: 10;
+}
+
+.event-scroll-pane .scroll-bar:vertical .thumb {
+    -fx-background-color: rgba(107, 76, 53, 0.6);
+    -fx-background-radius: 5;
+}
+
+.events-container {
+    -fx-background-color: transparent;
+    -fx-spacing: 4;
+}
+
+.event-entry {
+    -fx-background-color: rgba(0, 0, 0, 0.2);
+    -fx-background-radius: 6;
+    -fx-padding: 4 6;
+}
+
+.event-time {
+    -fx-font-family: "Consolas", monospace;
+    -fx-font-size: 9px;
+    -fx-text-fill: rgba(255, 255, 255, 0.5);
+    -fx-min-width: 50;
+    -fx-max-width: 50;
+}
+
+.event-icon {
+    -fx-font-size: 12px;
+    -fx-min-width: 18;
+}
+
+.event-message {
+    -fx-font-family: "Georgia";
+    -fx-font-size: 11px;
+    -fx-text-fill: #ffffff;
+    -fx-wrap-text: true;
+}
+
+.event-info {
+    -fx-background-color: rgba(52, 152, 219, 0.2);
+}
+
+.event-player {
+    -fx-background-color: rgba(46, 204, 113, 0.2);
+}
+
+.event-ai {
+    -fx-background-color: rgba(155, 89, 182, 0.2);
+}
+
+.event-success {
+    -fx-background-color: rgba(39, 174, 96, 0.3);
+}
+
+/* === Dialogues === */
+.dialog-overlay {
+    -fx-background-color: rgba(0, 0, 0, 0.7);
+}
+
+.ig-menu-panel, .round-finished-dialog, .card-exchange-dialog {
+    -fx-background-color: linear-gradient(to bottom, rgba(61, 42, 28, 0.98), rgba(45, 30, 20, 0.98));
+    -fx-background-radius: 15;
+    -fx-border-radius: 15;
+    -fx-border-color: #6b4c35;
+    -fx-border-width: 3;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.6), 30, 0, 0, 10);
+}
+
+.ig-menu-title, .dialog-title {
+    -fx-font-family: "Georgia";
+    -fx-font-size: 24px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #ffd700;
+}
+
+.dialog-subtitle {
+    -fx-font-family: "Georgia";
+    -fx-font-size: 14px;
+    -fx-text-fill: #c8e6c9;
+}
+
+.dialog-instruction {
+    -fx-font-family: "Georgia";
+    -fx-font-size: 14px;
+    -fx-text-fill: #ffffff;
+}
+
+.ig-menu-button {
+    -fx-background-color: linear-gradient(to bottom, #6b4c35, #4a3728);
+    -fx-text-fill: #ffffff;
+    -fx-font-family: "Georgia";
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-padding: 12 20;
+    -fx-background-radius: 8;
+    -fx-cursor: hand;
+}
+
+.ig-menu-button:hover {
+    -fx-background-color: linear-gradient(to bottom, #8b6c55, #6b4c35);
+}
+
+.quit-button {
+    -fx-background-color: linear-gradient(to bottom, #e74c3c, #c0392b);
+    -fx-text-fill: white;
+}
+
+.quit-button:hover {
+    -fx-background-color: linear-gradient(to bottom, #ec7063, #e74c3c);
+}
+
+/* === Classement === */
+.ranking-box {
+    -fx-background-color: rgba(30, 74, 53, 0.6);
+    -fx-background-radius: 10;
+}
+
+.ranking-row {
+    -fx-background-color: rgba(0, 0, 0, 0.2);
+    -fx-background-radius: 8;
+}
+
+.ranking-position {
+    -fx-font-size: 18px;
+}
+
+.ranking-name {
+    -fx-font-family: "Georgia";
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #ffffff;
+}
+
+.ranking-role {
+    -fx-font-family: "Georgia";
+    -fx-font-size: 11px;
+    -fx-padding: 4 8;
+    -fx-background-radius: 10;
+}
+
+.row-president {
+    -fx-background-color: rgba(255, 215, 0, 0.2);
+}
+
+.row-vice-president {
+    -fx-background-color: rgba(192, 192, 192, 0.2);
+}
+
+.row-neutral {
+    -fx-background-color: rgba(96, 125, 139, 0.2);
+}
+
+.row-vice-asshole {
+    -fx-background-color: rgba(255, 152, 0, 0.2);
+}
+
+.row-asshole {
+    -fx-background-color: rgba(121, 85, 72, 0.2);
+}
+
+/* === Bulle de dialogue === */
+.speech-bubble {
+    -fx-background-color: linear-gradient(to bottom, rgba(255, 255, 255, 0.98), rgba(245, 245, 240, 0.98));
+    -fx-background-radius: 12;
+    -fx-border-color: #6b4c35;
+    -fx-border-width: 2;
+    -fx-border-radius: 12;
+    -fx-padding: 8 12;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.3), 8, 0, 2, 3);
+}
+
+.speech-bubble-text {
+    -fx-font-family: "Georgia";
+    -fx-font-size: 12px;
+    -fx-text-fill: #2d3436;
+    -fx-font-weight: bold;
+}
+
+/* === ScrollPane main === */
+.hand-scroll-pane {
+    -fx-background-color: transparent;
+    -fx-background: transparent;
+}
+
+.hand-scroll-pane .viewport {
+    -fx-background-color: transparent;
+}
+
+.player-hand {
+    -fx-background-color: transparent;
+}
+
+/* === Échange de cartes === */
+.exchange-cards-container {
+    -fx-background-color: rgba(30, 74, 53, 0.6);
+    -fx-background-radius: 12;
+}
+
+.selection-counter {
+    -fx-font-family: "Georgia";
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #ffd700;
+}
+
+/* === Separateurs === */
+.separator .line {
+    -fx-border-color: rgba(107, 76, 53, 0.4);
+    -fx-border-width: 1 0 0 0;
+}
+
+/* === More cards label === */
+.more-cards-label {
+    -fx-font-family: "Georgia";
+    -fx-font-size: 10px;
+    -fx-text-fill: #ffd700;
+    -fx-font-weight: bold;
+}

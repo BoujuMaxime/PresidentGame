@@ -1,128 +1,290 @@
 # PresidentGame 🃏
 
-Une base en Kotlin pour expérimenter le jeu de cartes « Président » : distribution, échanges, tours de jeu avec règles spéciales (Carré Magique, Force Play) et attribution des rôles (Président, Vice-Président, Vice-Trou du Cul, Trou du Cul). Le projet expose l’architecture nécessaire pour piloter des IA (Random, Evaluate, MiniMax) et poser les fondations d’un vrai client humain ou distant.
+Un jeu de cartes « Président » complet en Kotlin avec interface graphique JavaFX. Distribution, échanges, tours de jeu avec règles spéciales (Carré Magique, Ta Gueule) et attribution des rôles (Président, Vice-Président, Vice-Trou du Cul, Trou du Cul). Le projet propose une architecture MVC extensible avec système de thèmes, animations et IA configurables.
 
-## Vue d’ensemble
+## 🎮 Captures d'écran
+
+L'application propose 4 thèmes visuels différents :
+- **Casino** : Style classique poker avec fond vert et accents dorés
+- **Cartoon** : Couleurs vives et ludiques avec dégradés violets/roses
+- **Sombre Élégant** : Thème dark avec accents néon rose/violet
+- **Minimaliste** : Design épuré blanc/bleu Material Design
+
+## Vue d'ensemble
 
 - **Langage** : Kotlin 2.2.20
-- **Cible JVM** : Java 21 (défini via `kotlin.jvmToolchain(21)` dans `build.gradle.kts`)
+- **Interface** : JavaFX 21 avec CSS personnalisé
+- **Cible JVM** : Java 21 (défini via `kotlin.jvmToolchain(21)`)
 - **Build** : Gradle Kotlin DSL (wrapper `gradlew` / `gradlew.bat` inclus)
 - **Tests** : JUnit 5 avec `useJUnitPlatform()`
-- **Entrée** : `src/main/kotlin/Main.kt` lance deux parties consécutives (deux IA `EvaluateAi`/`RandomAi`) et affiche un résumé des mains et rôles.
+- **Entrée** : `src/main/kotlin/Main.kt` lance l'application JavaFX
 
-## Architecture principale
+## ✨ Fonctionnalités
 
-### Domaine des cartes
-- `model/Card.kt` : représentation `Rank` (de 3 à 2) et `Suit` (Trèfle, Carreau, Cœur, Pique), comparables et affichables.
-- `model/PlayerMove.kt` : encapsule une combinaison jouée (SINGLE, PAIR, THREE_OF_A_KIND, FOUR_OF_A_KIND) avec validation et logique `canBePlayedOn`.
-- `model/Utils.kt` : création/mélange/vérification du deck, suivi des états de jeu via les helpers `printPlay`, `printAction`, `printRolesSummary`, etc.
+### Interface Graphique
+- ✅ **Menu de configuration** : Sélection du nombre de joueurs (3-6), difficulté IA, règles spéciales
+- ✅ **Sélecteur de thèmes** : 4 thèmes visuels interchangeables en temps réel
+- ✅ **Plateau de jeu interactif** : Vue des adversaires, pile centrale, main du joueur
+- ✅ **Sélection de cartes** : Clic pour sélectionner, validation automatique des combinaisons
+- ✅ **Animations** : Hover, sélection, distribution, jeu de cartes
+- ✅ **Journal d'événements** : Historique scrollable des actions de la partie
+- ✅ **Dialogues modaux** : Fin de manche avec classement, échange de cartes
 
-### Mécanique de partie
-- `model/Game.kt` orchestre le cycle complet (validation du nombre de joueurs, distribution, échanges de cartes selon les rôles précédents, appel à `RoundManager`, attribution finale des rôles).
-- `model/GameTurns.kt` gère les piles, les tours des joueurs, la détection des passes, les règles spéciales (`Carré Magique`, `Force Play`), la mise à jour du classement et la terminaison d’un pli.
+### Règles du Jeu
+- ✅ Distribution cyclique des 52 cartes
+- ✅ Combinaisons : Simple, Paire, Brelan, Carré
+- ✅ Échange de cartes selon les rôles (Président ↔ Trou du Cul)
+- ✅ Règle "Carré Magique" : Un carré termine le pli
+- ✅ Règle "Ta Gueule" : Forcer la même valeur après 2 cartes identiques consécutives
 
-### Joueurs et IA
-- `model/player/Player.kt` : base abstraite avec `id`, main mutable et énumération des rôles.
-- `PlayerInterface` définit `playTurn()` et `giveCardsToPlayer()`.
-- `PlayerUtils` trie les mains et génère les coups possibles en appliquant `lastPlayerMove` et la contrainte de suite (`straightRank`).
-- `HumanPlayer` & `RemoteHumanPlayer` sont des `TODO` prêts à recevoir de l’input externe.
-- `model/player/ai/` contient :
-  - `Ai` + `AiInterface` héritant du système joueur.
-  - `RandomAi` choisit un coup aléatoire parmi les coups valides.
-  - `EvaluateAi` est prévu pour analyser les positions (implémentation à compléter).
-  - `MiniMaxAi` délègue temporairement à `EvaluateAi` mais ouvre la voie à un vrai MiniMax adaptatif.
-  - `AiUtils` fournit des helpers de sélection (`chooseRandomPlay`, `chooseLowestPlay`).
+### Intelligence Artificielle
+- ✅ **RandomAi** : Joue aléatoirement parmi les coups valides
+- ✅ **EvaluateAi** : Stratégie basique (à améliorer)
+- 🚧 **MiniMaxAi** : En développement
 
-## Fonctionnalités et état actuel
+## 🏗️ Architecture
 
-- ✅ Paquet de 52 cartes bien défini et vérifié, avec affichage et mélange dans `Utils`.
-- ✅ Distribution cyclique des cartes et échange automatique entre rôles (Président ↔ Trou du Cul, Vice-Président ↔ Vice-Trou du Cul).
-- ✅ `RoundManager` orchestre les tours, détecte les passes, applique les règles spéciales et maintient un classement dynamique.
-- ✅ Architecture extensible pour intégrer des IA plus poussées et des clients humains.
-- ✅ Tests unitaires sur `Card` (comparaison, égalité, `toString`).
-- 🚧 Les interfaces humaines et AI d’évaluation restent à implémenter.
+### Pattern MVC
 
-## Prérequis
-
-1. Java JDK 21 ou supérieur.
-2. Wrapper Gradle fourni (`gradlew`, `gradlew.bat`).
-3. Console UTF-8 (le `main` force déjà UTF-8 pour `System.out` et `System.err`).
-
-## Compilation, tests et exécution
-
-Lancez les commandes depuis la racine. Sous PowerShell, les deux variantes (Unix-like et Windows) sont valides :
-
-```powershell
-./gradlew clean build
-./gradlew test
-./gradlew run
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                           VIEW (JavaFX)                         │
+├─────────────────────────────────────────────────────────────────┤
+│  PresidentGameApp    │  MenuView      │  GameBoardView          │
+│  (Navigation)        │  (Config)      │  (Plateau de jeu)       │
+├──────────────────────┼────────────────┼─────────────────────────┤
+│  Components:         │  Dialogs:      │  Themes:                │
+│  - CardView          │  - InGameMenu  │  - ThemeManager         │
+│  - PlayerPanel       │  - RoundFinish │  - base.css             │
+│  - PileView          │  - CardExchange│  - casino/cartoon/...   │
+│  - PlayerHandView    │                │                         │
+│  - ActionBar         │                │                         │
+│  - EventLog          │                │                         │
+└──────────────────────┴────────────────┴─────────────────────────┘
+                              │
+                              ▼
+┌─────────────────────────────────────────────────────────────────┐
+│                        CONTROLLER                               │
+├─────────────────────────────────────────────────────────────────┤
+│  GameController      │  GuiHumanPlayer  │  ObservableAi         │
+│  - Properties obs.   │  - Future-based  │  - Wrapper IA         │
+│  - État de la partie │  - Sélection UI  │  - Notifications      │
+└──────────────────────┴──────────────────┴───────────────────────┘
+                              │
+                              ▼
+┌─────────────────────────────────────────────────────────────────┐
+│                          MODEL                                  │
+├─────────────────────────────────────────────────────────────────┤
+│  Game / GameTurns    │  Card / PlayerMove  │  Player / AI       │
+│  - Cycle de partie   │  - Domaine cartes   │  - Abstraction     │
+│  - Règles spéciales  │  - Combinaisons     │  - Stratégies      │
+└──────────────────────┴─────────────────────┴────────────────────┘
 ```
 
-```powershell
-.\gradlew.bat clean build
-.\gradlew.bat test
-.\gradlew.bat run
-```
-
-- `clean build` compile les sources et produit `PresidentGame-1.0-SNAPSHOT.jar` dans `build/libs`.
-- `test` exécute la suite JUnit 5 (notamment `CardTest`).
-- `run` exécute `Main.kt`, qui joue deux parties d’IA et affiche leur statut.
-
-## Organisation des sources
+### Organisation des sources
 
 ```
 PresidentGame/
 ├── src/main/kotlin/
-│   ├── Main.kt                      # Lance l'application JavaFX
-│   ├── controller/                  # Contrôleurs MVC
-│   │   ├── GameController.kt        # Contrôleur principal
-│   │   ├── GuiHumanPlayer.kt        # Joueur humain GUI
-│   │   └── ObservableAi.kt          # Wrapper IA observable
-│   ├── view/                        # Vues JavaFX
-│   │   ├── PresidentGameApp.kt      # Application principale
-│   │   ├── MenuView.kt              # Menu de configuration
-│   │   └── GameBoardView.kt         # Plateau de jeu
-│   └── model/                       # Modèle de données
-│       ├── Card.kt
-│       ├── PlayerMove.kt
-│       ├── Utils.kt
-│       ├── Game.kt
-│       ├── GameTurns.kt
+│   ├── Main.kt                          # Point d'entrée JavaFX
+│   │
+│   ├── controller/                      # Contrôleurs MVC
+│   │   ├── GameController.kt            # Contrôleur principal avec propriétés observables
+│   │   ├── GuiHumanPlayer.kt            # Joueur humain connecté à l'UI
+│   │   └── ObservableAi.kt              # Wrapper IA avec notifications
+│   │
+│   ├── view/                            # Interface graphique JavaFX
+│   │   ├── PresidentGameApp.kt          # Application principale, navigation
+│   │   ├── MenuView.kt                  # Menu de configuration
+│   │   ├── GameBoardView.kt             # Plateau de jeu principal
+│   │   │
+│   │   ├── components/                  # Composants réutilisables
+│   │   │   ├── CardView.kt              # Vue d'une carte (face/dos)
+│   │   │   ├── PlayerPanel.kt           # Panneau joueur adverse
+│   │   │   ├── PileView.kt              # Pile centrale de cartes
+│   │   │   ├── PlayerHandView.kt        # Main du joueur humain
+│   │   │   ├── ActionBar.kt             # Boutons Jouer/Passer/Trier
+│   │   │   └── EventLog.kt              # Journal des événements
+│   │   │
+│   │   ├── dialogs/                     # Dialogues modaux
+│   │   │   ├── InGameMenuView.kt        # Menu pause
+│   │   │   ├── RoundFinishedDialog.kt   # Fin de manche
+│   │   │   └── CardExchangeDialog.kt    # Échange de cartes
+│   │   │
+│   │   └── themes/                      # Système de thèmes
+│   │       └── ThemeManager.kt          # Gestion des thèmes CSS
+│   │
+│   └── model/                           # Modèle de données
+│       ├── Card.kt                      # Carte (Rank + Suit)
+│       ├── PlayerMove.kt                # Combinaison jouée
+│       ├── Utils.kt                     # Utilitaires deck/affichage
+│       ├── Game.kt                      # Orchestration partie
+│       ├── GameTurns.kt                 # Gestion des plis
 │       └── player/
-│           ├── Player.kt
-│           ├── PlayerInterface.kt
-│           ├── PlayerUtils.kt
-│           ├── HumanPlayer.kt
-│           ├── RemoteHumanPlayer.kt
+│           ├── Player.kt                # Classe abstraite joueur
+│           ├── PlayerInterface.kt       # Interface de jeu
+│           ├── PlayerUtils.kt           # Calcul coups possibles
+│           ├── HumanPlayer.kt           # Joueur console (TODO)
+│           ├── RemoteHumanPlayer.kt     # Joueur réseau (TODO)
 │           └── ai/
-│               ├── Ai.kt
-│               ├── AiInterface.kt
-│               ├── AiUtils.kt
-│               ├── RandomAi.kt
-│               ├── EvaluateAi.kt
-│               └── MiniMaxAi.kt
-└── src/test/kotlin/model/
-    ├── AiTest.kt
-    ├── CardTest.kt
-    ├── GameTest.kt
-    ├── PlayerUtilsTest.kt
-    └── PlayTest.kt
+│               ├── Ai.kt                # Base IA
+│               ├── AiInterface.kt       # Interface IA
+│               ├── AiUtils.kt           # Helpers sélection
+│               ├── RandomAi.kt          # IA aléatoire
+│               ├── EvaluateAi.kt        # IA évaluative
+│               └── MiniMaxAi.kt         # IA MiniMax (TODO)
+│
+├── src/main/resources/
+│   └── themes/                          # Fichiers CSS des thèmes
+│       ├── base.css                     # Styles communs (thème Casino)
+│       ├── casino.css                   # Surcharges Casino
+│       ├── cartoon.css                  # Thème Cartoon
+│       ├── dark.css                     # Thème Sombre
+│       └── minimal.css                  # Thème Minimaliste
+│
+└── src/test/kotlin/
+    ├── controller/
+    │   └── GuiHumanPlayerTest.kt
+    └── model/
+        ├── AiTest.kt
+        ├── CardTest.kt
+        ├── GameTest.kt
+        ├── PlayerUtilsTest.kt
+        └── PlayTest.kt
 ```
 
-## Roadmap
+## 🚀 Installation et Exécution
 
-1. ✅ Interface graphique JavaFX complète avec architecture MVC
-2. ✅ Menu de configuration et plateau de jeu interactif
-3. 🚧 Améliorer l'UI/UX avec animations et effets visuels
-4. 🚧 Finaliser `EvaluateAi` et ajouter des tests de stratégie supplémentaires
-5. 🚧 Implémenter l'IA `MiniMax` réelle et documenter les scénarios de parties
-6. 🚧 Ajouter le mode multijoueur en réseau avec `RemoteHumanPlayer`
-## Contribution
+### Prérequis
 
-1. Forkez le dépôt et créez une branche dédiée (`feature/…`).
-2. Travaillez avec `./gradlew build`, `./gradlew test` pour valider vos modifications.
-3. Ouvrez une PR décrivant les changements et les tests effectués.
+1. **Java JDK 21** ou supérieur
+2. Wrapper Gradle fourni (`gradlew`, `gradlew.bat`)
 
-## Licence
+### Commandes
 
-Projet sans licence définie — contactez l’auteur pour plus de détails.
+```powershell
+# Compilation
+./gradlew clean build
+
+# Tests
+./gradlew test
+
+# Exécution de l'application
+./gradlew run
+```
+
+## 🎨 Système de Thèmes
+
+L'application utilise un système de thèmes CSS modulaire :
+
+### Structure
+- `base.css` : Contient tous les styles de base (thème Casino par défaut)
+- `{theme}.css` : Surcharge les styles pour personnaliser l'apparence
+
+### Créer un nouveau thème
+
+1. Créer un fichier `src/main/resources/themes/mon-theme.css`
+2. Surcharger les classes CSS souhaitées
+3. Ajouter le thème dans `ThemeManager.kt` :
+
+```kotlin
+val availableThemes: Map<String, String> = mapOf(
+    // ...existing themes...
+    "mon-theme" to "🎯 Mon Thème"
+)
+```
+
+### Classes CSS principales
+
+| Classe | Description |
+|--------|-------------|
+| `.game-board` | Fond du plateau de jeu |
+| `.menu-panel` | Panneau du menu principal |
+| `.card-container` | Conteneur d'une carte |
+| `.card-container-selected` | Carte sélectionnée |
+| `.player-box` | Boîte d'un joueur adverse |
+| `.pile-stack` | Zone de la pile centrale |
+| `.action-button` | Boutons d'action |
+
+## 📖 Guide d'utilisation
+
+### Menu Principal
+1. **Nombre de joueurs** : Glissez le curseur (3-6 joueurs)
+2. **Difficulté IA** : Facile / Moyen / Difficile
+3. **Règles spéciales** : Activez/désactivez Carré Magique et Ta Gueule
+4. **Thème** : Choisissez parmi les 4 thèmes disponibles
+5. Cliquez sur **Démarrer la partie**
+
+### Plateau de Jeu
+1. **Sélection** : Cliquez sur vos cartes pour les sélectionner (même rang uniquement)
+2. **Jouer** : Cliquez sur le bouton vert pour jouer votre combinaison
+3. **Passer** : Cliquez sur le bouton rouge si vous ne pouvez/voulez pas jouer
+4. **Trier** : Réorganise votre main par rang
+5. **Menu** : Bouton ☰ en haut à gauche pour pause/nouvelle partie/quitter
+
+### Fin de Manche
+- Un dialogue affiche le classement avec les rôles attribués
+- Choisissez de continuer (nouvelle manche) ou retourner au menu
+
+## 🔧 Configuration du Projet
+
+### build.gradle.kts
+
+```kotlin
+plugins {
+    kotlin("jvm") version "2.2.20"
+    id("org.openjfx.javafxplugin") version "0.1.0"
+    application
+}
+
+javafx {
+    version = "21"
+    modules = listOf("javafx.controls", "javafx.fxml")
+}
+
+kotlin {
+    jvmToolchain(21)
+}
+```
+
+## 🗺️ Roadmap
+
+### Terminé ✅
+- [x] Interface graphique JavaFX complète
+- [x] Système de thèmes CSS modulaire (4 thèmes)
+- [x] Menu de configuration interactif
+- [x] Plateau de jeu avec adversaires et pile
+- [x] Sélection et validation des cartes
+- [x] Journal d'événements
+- [x] Dialogues fin de manche et échange
+- [x] Animations de base (hover, sélection)
+
+### En cours 🚧
+- [ ] Animations avancées (distribution, jeu vers pile)
+- [ ] Bulles de dialogue au-dessus des adversaires
+- [ ] Sons et effets audio
+- [ ] IA EvaluateAi améliorée
+- [ ] IA MiniMax fonctionnelle
+
+### Planifié 📋
+- [ ] Mode multijoueur réseau
+- [ ] Statistiques et historique des parties
+- [ ] Personnalisation des règles avancée
+- [ ] Mode tutoriel
+- [ ] Sauvegarde/chargement de parties
+
+## 🤝 Contribution
+
+1. Forkez le dépôt et créez une branche dédiée (`feature/ma-feature`)
+2. Travaillez avec `./gradlew build`, `./gradlew test` pour valider
+3. Respectez le style Kotlin et la documentation KDoc
+4. Ouvrez une PR décrivant les changements
+
+## 📄 Licence
+
+Projet sans licence définie — contactez l'auteur pour plus de détails.
+
+---
+
+**Auteur** : BOUJU Maxime  
+**Version** : 1.0-SNAPSHOT

@@ -18,6 +18,7 @@ javafx {
 
 dependencies {
     testImplementation(kotlin("test"))
+    testImplementation("junit:junit:4.12")
 }
 
 application {

@@ -101,6 +101,15 @@ class GameController {
     var onCardExchangeRequired: ((count: Int, highest: Boolean) -> Unit)? = null
 
     /**
+     * Callback appelé au début d'une manche pour déclencher l'animation de distribution.
+     * Paramètres: Map<playerName, cardCount> et callback à appeler quand l'animation est terminée
+     */
+    var onDealCards: ((Map<String, Int>, () -> Unit) -> Unit)? = null
+
+    /** Dernier message affiché pour éviter les répétitions */
+    private var lastDisplayedMessage: String = ""
+
+    /**
      * Représentation synthétique des informations nécessaires pour la vue par joueur.
      *
      * @property name Identifiant du joueur
@@ -147,7 +156,40 @@ class GameController {
             gameModeParameters = gameModeParams
         )
 
-        game = Game(gameParams, onPileUpdated = { updateCurrentPile(it) })
+        // Semaphore pour attendre la fin de l'animation
+        val animationLatch = java.util.concurrent.CountDownLatch(1)
+
+        game = Game(
+            gameParams,
+            onPileUpdated = { updateCurrentPile(it) },
+            onCardsDistributed = {
+                // Appelé après que les cartes soient distribuées
+                val dealCallback = onDealCards
+                if (dealCallback != null) {
+                    val cardCounts = game?.players?.associate { player ->
+                        player.id to player.hand.size
+                    } ?: emptyMap()
+
+                    Platform.runLater {
+                        // Mettre à jour la main du joueur AVANT l'animation
+                        updateHumanPlayerHand()
+                        updatePlayersInfo()
+
+                        dealCallback(cardCounts) {
+                            // Animation terminée, continuer le jeu
+                            animationLatch.countDown()
+                        }
+                    }
+
+                    // Attendre la fin de l'animation (max 10 secondes)
+                    try {
+                        animationLatch.await(10, java.util.concurrent.TimeUnit.SECONDS)
+                    } catch (e: InterruptedException) {
+                        // Continuer quand même
+                    }
+                }
+            }
+        )
 
         humanPlayer = GuiHumanPlayer("Vous", mutableListOf(), this)
         game!!.players.add(humanPlayer!!)
@@ -201,13 +243,22 @@ class GameController {
     private fun startGameExecution(initialStateMessage: String) {
         isGameRunning = true
         updateGameState(initialStateMessage)
+        resetMessageTracking()
 
+        // Démarrer le jeu directement - l'animation est gérée dans le callback onCardsDistributed
+        startGameThread()
+    }
+
+    /**
+     * Démarre le thread d'exécution du jeu.
+     */
+    private fun startGameThread() {
         gameThread = Thread {
             try {
                 game?.startGame()
                 Platform.runLater {
-                    updateGameState("Partie terminée")
-                    updateGameMessage("La partie est terminée! Les rôles ont été attribués.")
+                    updateGameState("Manche terminée")
+                    updateGameMessage("Les rôles ont été attribués!")
                     updatePlayersInfo()
                     onRoundFinished?.invoke()
                 }
@@ -249,11 +300,22 @@ class GameController {
 
     /**
      * Met à jour le message d'information principal affiché à l'utilisateur.
+     * Évite les messages en double en vérifiant si le message a déjà été affiché.
      *
      * @param message Texte à afficher
      */
     fun updateGameMessage(message: String) {
-        Platform.runLater { gameMessageProperty.set(message) }
+        if (message != lastDisplayedMessage && message.isNotBlank()) {
+            lastDisplayedMessage = message
+            Platform.runLater { gameMessageProperty.set(message) }
+        }
+    }
+
+    /**
+     * Réinitialise le suivi des messages (à appeler au début d'une nouvelle partie).
+     */
+    fun resetMessageTracking() {
+        lastDisplayedMessage = ""
     }
 
     /**

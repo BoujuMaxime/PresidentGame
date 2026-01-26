@@ -15,6 +15,7 @@ class Game(
     val players: MutableList<Player> = mutableListOf(),
     val deck: MutableList<Card> = Utils.createDeck(),
     private val onPileUpdated: ((List<Card>) -> Unit)? = null,
+    private val onCardsDistributed: (() -> Unit)? = null,
 ) {
 
     /**
@@ -61,6 +62,7 @@ class Game(
 
         resetDeck()
         distributeCards()
+        onCardsDistributed?.invoke()
         exchangeCards()
         playTurn()
         assignRoles()

@@ -1,0 +1,218 @@
+/* ============================================
+   Thème Sombre Élégant - Style luxe moderne
+   Ce fichier est chargé EN PLUS de base.css
+   ============================================ */
+
+/* === Fond sombre === */
+.game-board {
+    -fx-background-color: linear-gradient(to bottom, #0f0f1a, #1a1a2e, #16213e);
+}
+
+.menu-root {
+    -fx-background-color: linear-gradient(to bottom, #0f0f1a, #1a1a2e, #16213e);
+}
+
+.menu-panel {
+    -fx-background-color: linear-gradient(to bottom, rgba(26, 26, 46, 0.95), rgba(15, 15, 26, 0.98));
+    -fx-border-color: #e94560;
+}
+
+.menu-title {
+    -fx-text-fill: #e94560;
+    -fx-effect: dropshadow(gaussian, rgba(233, 69, 96, 0.6), 10, 0, 0, 0);
+}
+
+.menu-subtitle {
+    -fx-text-fill: #a0a0a0;
+}
+
+.section-title {
+    -fx-text-fill: #e94560;
+}
+
+.config-label {
+    -fx-text-fill: #eaeaea;
+}
+
+.config-value-label {
+    -fx-text-fill: #e94560;
+}
+
+.config-section, .rules-section, .theme-section {
+    -fx-background-color: rgba(233, 69, 96, 0.1);
+}
+
+.config-combo {
+    -fx-background-color: rgba(26, 26, 46, 0.8);
+    -fx-border-color: rgba(233, 69, 96, 0.3);
+}
+
+.rules-info-panel {
+    -fx-background-color: rgba(233, 69, 96, 0.1);
+    -fx-border-color: rgba(233, 69, 96, 0.3);
+}
+
+.rules-info-title {
+    -fx-text-fill: #e94560;
+}
+
+.rules-info-text {
+    -fx-text-fill: #a0a0a0;
+}
+
+/* === Boutons néon === */
+.start-button {
+    -fx-background-color: linear-gradient(to bottom, #00d9a5, #00b386);
+}
+
+.play-button {
+    -fx-background-color: linear-gradient(to bottom, #00d9a5, #00b386);
+}
+
+.pass-button {
+    -fx-background-color: linear-gradient(to bottom, #e94560, #c73e54);
+}
+
+.sort-button {
+    -fx-background-color: linear-gradient(to bottom, #533483, #3f2666);
+}
+
+.menu-button {
+    -fx-background-color: linear-gradient(to bottom, #533483, #3f2666);
+}
+
+/* === Zone de jeu === */
+.player-pane {
+    -fx-background-color: linear-gradient(to bottom, rgba(26, 26, 46, 0.95), rgba(22, 33, 62, 0.98));
+    -fx-border-color: linear-gradient(to right, #e94560, #533483);
+}
+
+.status-box {
+    -fx-background-color: rgba(233, 69, 96, 0.1);
+}
+
+.state-label {
+    -fx-text-fill: #e94560;
+}
+
+.current-player-label {
+    -fx-text-fill: #a0a0a0;
+}
+
+/* === Pile sombre === */
+.pile-stack {
+    -fx-background-color: radial-gradient(center 50% 50%, radius 75%, #2a2a4a, #1a1a2e, #0f0f1a);
+    -fx-border-color: #e94560;
+    -fx-border-width: 4;
+}
+
+.empty-label {
+    -fx-text-fill: rgba(234, 234, 234, 0.4);
+}
+
+/* === Messages === */
+.message-box {
+    -fx-background-color: rgba(26, 26, 46, 0.85);
+    -fx-border-color: rgba(233, 69, 96, 0.3);
+}
+
+.message-label {
+    -fx-text-fill: #eaeaea;
+}
+
+.last-played-label {
+    -fx-text-fill: #a0a0a0;
+}
+
+/* === Cartes sombres === */
+.card-container {
+    -fx-background-color: linear-gradient(to bottom, #2a2a4a, #1a1a2e);
+    -fx-border-color: #3a3a5a;
+}
+
+.card-container-selected {
+    -fx-background-color: linear-gradient(to bottom, #3a2a4a, #2a1a3e);
+    -fx-border-color: #e94560;
+    -fx-effect: dropshadow(gaussian, rgba(233, 69, 96, 0.5), 15, 0, 0, 4);
+}
+
+.card-red {
+    -fx-text-fill: #ff6b6b;
+}
+
+.card-black {
+    -fx-text-fill: #d0d0d0;
+}
+
+/* === Joueurs === */
+.player-box {
+    -fx-background-color: linear-gradient(to bottom, rgba(26, 26, 46, 0.9), rgba(22, 33, 62, 0.95));
+    -fx-border-color: rgba(233, 69, 96, 0.4);
+}
+
+.player-box-highlighted {
+    -fx-border-color: #e94560;
+    -fx-effect: dropshadow(gaussian, rgba(233, 69, 96, 0.6), 20, 0, 0, 0);
+}
+
+.player-name-label {
+    -fx-text-fill: #e94560;
+}
+
+.player-info-label {
+    -fx-text-fill: #a0a0a0;
+}
+
+.opponent-card-back {
+    -fx-background-color: linear-gradient(to bottom right, #1a1a2e, #533483, #1a1a2e);
+    -fx-border-color: #e94560;
+}
+
+/* === Journal === */
+.event-log {
+    -fx-background-color: rgba(15, 15, 26, 0.8);
+    -fx-border-color: rgba(233, 69, 96, 0.4);
+}
+
+.event-time {
+    -fx-text-fill: rgba(234, 234, 234, 0.4);
+}
+
+.event-message {
+    -fx-text-fill: #eaeaea;
+}
+
+/* === Dialogues === */
+.ig-menu-panel, .round-finished-dialog, .card-exchange-dialog {
+    -fx-background-color: linear-gradient(to bottom, rgba(26, 26, 46, 0.98), rgba(15, 15, 26, 0.98));
+    -fx-border-color: #e94560;
+}
+
+.ig-menu-title, .dialog-title {
+    -fx-text-fill: #e94560;
+}
+
+.dialog-subtitle {
+    -fx-text-fill: #a0a0a0;
+}
+
+.dialog-instruction {
+    -fx-text-fill: #eaeaea;
+}
+
+.ig-menu-button {
+    -fx-background-color: linear-gradient(to bottom, #533483, #3f2666);
+}
+
+/* === Classement === */
+.ranking-box {
+    -fx-background-color: rgba(233, 69, 96, 0.1);
+}
+
+.ranking-name {
+    -fx-text-fill: #eaeaea;
+}
+
+.selection-counter {
+    -fx-text-fill: #e94560;
+}

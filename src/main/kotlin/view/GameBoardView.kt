@@ -1,808 +1,434 @@
 package view
 
 import controller.GameController
-import javafx.animation.FadeTransition
-import javafx.animation.ParallelTransition
-import javafx.animation.PauseTransition
-import javafx.animation.ScaleTransition
-import javafx.animation.TranslateTransition
+import javafx.animation.*
+import javafx.application.Platform
 import javafx.geometry.Insets
 import javafx.geometry.Pos
-import javafx.scene.control.Button
-import javafx.scene.control.Label
-import javafx.scene.effect.DropShadow
+import javafx.scene.control.*
 import javafx.scene.layout.*
-import javafx.scene.paint.Color
 import javafx.util.Duration
 import model.Card
-import model.PlayerMove
+import model.player.Player
+import view.components.*
+import view.dialogs.CardExchangeDialog
+import view.dialogs.InGameMenuView
+import view.dialogs.RoundFinishedDialog
+import view.themes.ThemeManager
 
-class GameBoardView(private val controller: GameController) : BorderPane() {
+/**
+ * Vue principale du plateau de jeu.
+ *
+ * @property controller Contrôleur du jeu
+ * @property onBackToMenu Callback retour menu
+ * @property themeManager Gestionnaire de thèmes
+ */
+class GameBoardView(
+    private val controller: GameController,
+    private val onBackToMenu: () -> Unit,
+    private val themeManager: ThemeManager
+) : StackPane() {
 
-    private val playerHandPane: FlowPane
-    private val centerPane: StackPane
-    private val messageLabel: Label
-    private val lastPlayedLabel: Label
-    private val pileStack: StackPane
-    private val playButton: Button
-    private val passButton: Button
-    private val sortButton: Button
-    private val menuButton: Button
-    private val inGameMenu: InGameMenuView
-    
-    // Panneaux pour les autres joueurs (autour du plateau)
-    private val topPlayerPane: HBox
-    private val leftPlayerPane: VBox
-    private val rightPlayerPane: VBox
+    private val gamePane = BorderPane()
+    private val eventLog = EventLog()
+    private val pileView = PileView()
+    private val playerHandView = PlayerHandView { onCardSelectionChanged() }
+    private val actionBar = ActionBar(
+        onPlay = { handlePlayCards() },
+        onPass = { handlePass() },
+        onSort = { handleSort() }
+    )
 
-    // Notifications et bulles de discussion
-    private val playerNotificationLabel: Label
-    
-    // Stockage des speech bubbles par joueur pour les mettre à jour
-    private val playerSpeechBubbles = mutableMapOf<String, SpeechBubble>()
-    private val playerBoxes = mutableMapOf<String, VBox>()
+    private val opponentPanels = mutableMapOf<String, PlayerPanel>()
+    private val selectedCards = mutableListOf<Card>()
+    private var messageLabel: Label? = null
+    private var opponentsContainer: HBox? = null
 
-    private val selectedCards = mutableSetOf<Card>()
-    private val cardButtons = mutableMapOf<Card, Button>()
-
-    // Dialog de fin de manche - container réutilisable pour éviter les fuites mémoire
-    private var roundFinishedDialog: RoundFinishedDialog? = null
-    private val dialogOverlayContainer: StackPane = StackPane()
-
-    // Tailles de carte
-    private val cardWidth = 90.0 * 0.75
-    private val cardHeight = 120.0 * 0.75
-    private val pileCardWidth = cardWidth * 1.2
-    private val pileCardHeight = cardHeight * 1.2
-    private val pileAnimationDuration = Duration.millis(350.0)
-    private var lastPileSnapshot: List<Card> = emptyList()
-
-    // Constante pour le nombre maximum de cartes affichées dans les panneaux adversaires
-    private val maxDisplayedCards = 10
-    
-    // Dimensions des cartes adversaires (doit correspondre au CSS .opponent-card-back)
-    private val opponentCardWidth = 22.0
-    private val opponentCardMinSpacing = 3.0  // Espacement minimum entre cartes quand il y a peu de cartes
-    
-    // Dimensions du player box (doit correspondre aux valeurs dans addPlayerToPane)
-    private val playerBoxWidth = 170.0
-    private val playerBoxPadding = 12.0
-    private val playerBoxMarginAdjustment = 1.0  // Ajustement pour les marges internes
-    private val opponentCardsAvailableWidth = playerBoxWidth - (playerBoxPadding * 2) - playerBoxMarginAdjustment
-    
-    // Durée d'affichage des bulles de discussion
-    private val speechBubbleDuration = Duration.seconds(4.0)
-    
-    // Animation constants for pile cards
-    companion object {
-        private const val MAX_CARD_ROTATION_DEGREES = 3.0
-        private const val ROTATION_VARIANCE = 3
+    private val dialogOverlay = StackPane().apply {
+        isVisible = false
+        styleClass.add("dialog-overlay")
+        // S'assurer que l'overlay couvre tout et bloque les interactions
+        setOnMouseClicked { it.consume() }
     }
 
-
     init {
-        // Charger le fichier CSS
-        val cssResource = javaClass.getResource("/game-board.css")
-        if (cssResource != null) {
-            stylesheets.add(cssResource.toExternalForm())
-        }
-        
         styleClass.add("game-board")
+        setupLayout()
+        setupBindings()
+    }
+
+    private fun setupLayout() {
+        // Configurer le gamePane (BorderPane interne)
+        gamePane.styleClass.add("game-pane")
+
+        // Zone supérieure : adversaires + menu
+        gamePane.top = createTopArea()
+
+        // Zone centrale : pile de cartes + log d'événements
+        gamePane.center = createCenterArea()
+
+        // Zone inférieure : main du joueur + boutons d'action
+        gamePane.bottom = createBottomArea()
+
+        // Ajouter le gamePane et l'overlay dans ce StackPane
+        // L'overlay est ajouté après, donc il sera par-dessus
+        children.addAll(gamePane, dialogOverlay)
+    }
+
+    private fun createTopArea(): HBox = HBox(20.0).apply {
+        styleClass.add("top-area")
+        alignment = Pos.CENTER
         padding = Insets(15.0)
 
-        // === Zone centrale (pile de cartes) ===
-        pileStack = StackPane()
-        pileStack.styleClass.add("pile-stack")
-        pileStack.prefWidth = pileCardWidth * 3.5
-        pileStack.prefHeight = pileCardHeight * 2.2
-        pileStack.padding = Insets(15.0)
-
-        messageLabel = Label("En attente...")
-        messageLabel.styleClass.add("message-label")
-        messageLabel.isWrapText = true
-
-        lastPlayedLabel = Label("Aucun coup joué")
-        lastPlayedLabel.styleClass.add("last-played-label")
-        lastPlayedLabel.isWrapText = true
-
-        val centerInfo = VBox(10.0)
-        centerInfo.alignment = Pos.CENTER
-        centerInfo.children.addAll(messageLabel, lastPlayedLabel, pileStack)
-        
-        centerPane = StackPane(centerInfo)
-        centerPane.styleClass.add("center-pane")
-        centerPane.alignment = Pos.CENTER
-
-        // === Joueurs autour du plateau ===
-        topPlayerPane = HBox(25.0)
-        topPlayerPane.styleClass.add("opponent-pane")
-        topPlayerPane.alignment = Pos.CENTER
-        topPlayerPane.padding = Insets(10.0)
-        topPlayerPane.minHeight = 140.0
-
-        leftPlayerPane = VBox(25.0)
-        leftPlayerPane.styleClass.add("opponent-pane")
-        leftPlayerPane.alignment = Pos.CENTER
-        leftPlayerPane.padding = Insets(10.0)
-        leftPlayerPane.minWidth = 180.0
-
-        rightPlayerPane = VBox(25.0)
-        rightPlayerPane.styleClass.add("opponent-pane")
-        rightPlayerPane.alignment = Pos.CENTER
-        rightPlayerPane.padding = Insets(10.0)
-        rightPlayerPane.minWidth = 180.0
-
-        // === Main du joueur (en bas) ===
-        playerHandPane = FlowPane()
-        playerHandPane.styleClass.add("player-pane")
-        playerHandPane.hgap = 12.0
-        playerHandPane.vgap = 12.0
-        playerHandPane.alignment = Pos.CENTER
-        playerHandPane.padding = Insets(15.0)
-
-        // Notification du joueur (messages personnels)
-        playerNotificationLabel = Label("")
-        playerNotificationLabel.styleClass.add("player-notification")
-        playerNotificationLabel.isWrapText = true
-        playerNotificationLabel.maxWidth = 600.0
-        playerNotificationLabel.isVisible = false
-
-        val notificationContainer = StackPane(playerNotificationLabel)
-        notificationContainer.alignment = Pos.CENTER
-        notificationContainer.padding = Insets(5.0)
-
-        // Boutons d'action principaux (jouer/passer)
-        val actionButtonPane = HBox(15.0)
-        actionButtonPane.styleClass.add("button-pane")
-        actionButtonPane.alignment = Pos.CENTER
-        actionButtonPane.padding = Insets(10.0)
-
-        playButton = Button("Jouer les cartes sélectionnées")
-        playButton.styleClass.addAll("action-button", "play-button")
-        playButton.isDisable = true
-        playButton.setOnAction { handlePlayCards() }
-
-        passButton = Button("Passer mon tour")
-        passButton.styleClass.addAll("action-button", "pass-button")
-        passButton.isDisable = true
-        passButton.setOnAction { handlePass() }
-
-        sortButton = Button("↕ Trier la main")
-        sortButton.styleClass.addAll("action-button", "sort-button")
-        sortButton.setOnAction { handleSortHand() }
-
-        actionButtonPane.children.addAll(playButton, passButton, sortButton)
-        
-        val bottomPane = VBox(12.0)
-        bottomPane.alignment = Pos.CENTER
-        bottomPane.padding = Insets(8.0, 10.0, 12.0, 10.0)
-        bottomPane.children.addAll(notificationContainer, playerHandPane, actionButtonPane)
-
-        // === Menu in-game ===
-        inGameMenu = InGameMenuView()
-        
-        // Ajouter le bouton "Nouvelle partie" dans le menu
-        inGameMenu.addMenuItem("⟲ Nouvelle partie", listOf("new-game-button")) {
-            handleNewGame()
-            inGameMenu.close()
+        val menuButton = Button("☰").apply {
+            styleClass.addAll("action-button", "menu-button")
+            setOnAction { showInGameMenu() }
         }
-        
-        // Bouton pour ouvrir le menu
-        menuButton = Button("☰")
-        menuButton.styleClass.addAll("action-button", "menu-button")
-        menuButton.setOnAction { inGameMenu.toggle() }
-        
-        // Conteneur pour le bouton de menu et le menu lui-même dans le coin supérieur droit du BorderPane
-        val menuBox = VBox(10.0)
-        menuBox.alignment = Pos.TOP_RIGHT
-        menuBox.padding = Insets(10.0)
-        menuBox.children.addAll(menuButton, inGameMenu)
 
-        // === Disposition finale ===
-        // Créer un conteneur pour le panneau du haut avec le menu superposé
-        val topContainer = StackPane()
-        topContainer.children.addAll(topPlayerPane, menuBox)
-        StackPane.setAlignment(menuBox, Pos.TOP_RIGHT)
-        
-        top = topContainer
-        left = leftPlayerPane
-        right = rightPlayerPane
-        bottom = bottomPane
-        center = centerPane
+        opponentsContainer = HBox(30.0).apply {
+            styleClass.add("opponents-container")
+            alignment = Pos.CENTER
+            HBox.setHgrow(this, Priority.ALWAYS)
+        }
 
-        setupBindings()
-        updateCurrentPile(emptyList())
-        
-        // Configurer le callback de fin de manche
-        controller.onRoundFinished = {
-            showRoundFinishedDialog()
+        children.addAll(menuButton, opponentsContainer, createStatusBox())
+    }
+
+    private fun createStatusBox(): VBox = VBox(5.0).apply {
+        styleClass.add("status-box")
+        alignment = Pos.CENTER_RIGHT
+        padding = Insets(10.0)
+
+        children.addAll(
+            Label().apply {
+                styleClass.add("state-label")
+                textProperty().bind(controller.gameStateProperty)
+            },
+            Label().apply {
+                styleClass.add("current-player-label")
+                textProperty().bind(controller.currentPlayerProperty)
+            }
+        )
+    }
+
+    private fun createCenterArea(): HBox = HBox(15.0).apply {
+        styleClass.add("center-area")
+        alignment = Pos.CENTER
+        padding = Insets(15.0)
+
+        val pileContainer = VBox(10.0).apply {
+            styleClass.add("pile-container")
+            alignment = Pos.CENTER
+            HBox.setHgrow(this, Priority.ALWAYS)
+            minWidth = 350.0
+
+            messageLabel = Label().apply {
+                styleClass.add("message-label")
+                isWrapText = true
+                maxWidth = 420.0
+                alignment = Pos.CENTER
+            }
+
+            children.addAll(
+                Label("🎴 Pile de jeu").apply { styleClass.add("section-title") },
+                pileView,
+                VBox(8.0).apply {
+                    styleClass.add("message-box")
+                    alignment = Pos.CENTER
+                    padding = Insets(12.0)
+                    maxWidth = 450.0
+                    children.add(messageLabel)
+                }
+            )
         }
-        
-        // Configurer le callback d'échange de cartes
-        controller.onCardExchangeRequired = { count, highest ->
-            showCardExchangeDialog(count, highest)
+
+        val logContainer = VBox(8.0).apply {
+            styleClass.add("log-container")
+            prefWidth = 320.0
+            minWidth = 280.0
+            maxWidth = 380.0
+            children.addAll(
+                Label("📜 Historique").apply { styleClass.add("section-title") },
+                eventLog
+            )
+            VBox.setVgrow(eventLog, Priority.ALWAYS)
         }
+
+        children.addAll(pileContainer, logContainer)
+    }
+
+    private fun createBottomArea(): VBox = VBox(15.0).apply {
+        styleClass.add("player-pane")
+        alignment = Pos.CENTER
+        padding = Insets(20.0)
+
+        val playerInfoBox = HBox(20.0).apply {
+            alignment = Pos.CENTER_LEFT
+            children.addAll(
+                Label("Vous").apply { styleClass.add("player-name-label") },
+                Label().apply {
+                    styleClass.add("player-role-badge")
+                    textProperty().bind(controller.playerRoleProperty)
+                }
+            )
+        }
+
+        val handScrollPane = ScrollPane(playerHandView).apply {
+            styleClass.add("hand-scroll-pane")
+            isFitToHeight = true
+            vbarPolicy = ScrollPane.ScrollBarPolicy.NEVER
+            hbarPolicy = ScrollPane.ScrollBarPolicy.AS_NEEDED
+            maxHeight = 180.0
+        }
+
+        actionBar.disableProperty().bind(controller.canPlayProperty.not())
+        children.addAll(playerInfoBox, handScrollPane, actionBar)
     }
 
     private fun setupBindings() {
         controller.humanPlayerHandProperty.addListener { _, _, newHand ->
-            updatePlayerHand(newHand)
-        }
-
-        controller.lastPlayedMoveProperty.addListener { _, _, newMove ->
-            updateLastPlayedMove(newMove)
+            Platform.runLater {
+                playerHandView.updateHand(newHand ?: emptyList())
+                selectedCards.clear()
+                updateActionBarState()
+            }
         }
 
         controller.currentPileProperty.addListener { _, _, newPile ->
-            updateCurrentPile(newPile)
+            Platform.runLater { pileView.updatePile(newPile ?: emptyList()) }
         }
 
-        controller.gameMessageProperty.addListener { _, _, newMessage ->
-            updateGameMessage(newMessage)
+        controller.playersInfoProperty.addListener { _, oldInfos, newInfos ->
+            Platform.runLater {
+                val infos = newInfos ?: emptyList()
+                // Ne mettre à jour que si c'est vraiment nécessaire
+                if (oldInfos?.size != infos.size || opponentPanels.isEmpty()) {
+                    updateOpponentPanels(infos)
+                } else {
+                    // Mise à jour partielle des panneaux existants
+                    infos.filter { it.name != "Vous" }.forEach { info ->
+                        opponentPanels[info.name]?.update(info.role, info.cardCount, info.isCurrentPlayer)
+                    }
+                }
+            }
         }
 
         controller.canPlayProperty.addListener { _, _, canPlay ->
-            playButton.isDisable = !canPlay || selectedCards.isEmpty()
-            passButton.isDisable = !canPlay
+            Platform.runLater {
+                playerHandView.setInteractive(canPlay)
+                updateActionBarState()
+            }
         }
 
-        controller.playersInfoProperty.addListener { _, _, newPlayers ->
-            updatePlayersInfo(newPlayers)
+        controller.gameMessageProperty.addListener { _, oldMessage, newMessage ->
+            Platform.runLater {
+                if (!newMessage.isNullOrBlank()) {
+                    // Mettre à jour le label principal
+                    messageLabel?.text = newMessage
+
+                    // Ajouter au journal seulement certains types de messages
+                    val eventType = categorizeMessage(newMessage)
+                    if (eventType != null && newMessage != oldMessage) {
+                        eventLog.addEvent(newMessage, eventType)
+                    }
+                }
+            }
+        }
+
+        controller.currentPlayerProperty.addListener { _, _, player ->
+            Platform.runLater {
+                if (!player.isNullOrBlank()) {
+                    if (player == "À vous de jouer!") {
+                        highlightCurrentPlayer("Vous")
+                    } else {
+                        highlightCurrentPlayer(player)
+                    }
+                }
+            }
         }
     }
 
-    private fun updatePlayerHand(hand: List<Card>) {
-        playerHandPane.children.clear()
-        cardButtons.clear()
+    private fun categorizeMessage(message: String): EventLog.EventType? = when {
+        // Messages des tours des joueurs
+        message.contains("joue:") || message.contains("joue ") -> EventLog.EventType.AI_ACTION
+        message.contains("passe son tour") -> EventLog.EventType.AI_ACTION
+        // Messages importants du jeu
+        message.contains("terminée") || message.contains("terminé") -> EventLog.EventType.ROUND
+        message.contains("commence") -> EventLog.EventType.SYSTEM
+        message.contains("Carré") -> EventLog.EventType.SUCCESS
+        // Messages d'instruction pour le joueur - ne pas ajouter au journal
+        message.contains("Choisissez") || message.contains("À vous") || message.contains("Sélectionnez") -> null
+        // Autres messages - ajouter comme info
+        else -> null
+    }
+
+    private fun updateOpponentPanels(infos: List<GameController.PlayerInfo>) {
+        opponentsContainer?.children?.clear()
+        opponentPanels.clear()
+
+        infos.filter { it.name != "Vous" }.forEach { info ->
+            val panel = PlayerPanel(info.name, info.role, info.cardCount, info.isCurrentPlayer)
+            opponentPanels[info.name] = panel
+            opponentsContainer?.children?.add(panel)
+        }
+    }
+
+    private fun highlightCurrentPlayer(playerName: String) {
+        opponentPanels.values.forEach { it.setHighlighted(false) }
+        opponentPanels[playerName]?.setHighlighted(true)
+    }
+
+    private fun onCardSelectionChanged() {
         selectedCards.clear()
-
-        if (hand.isEmpty()) {
-            val emptyLabel = Label("Aucune carte")
-            emptyLabel.styleClass.add("empty-label")
-            playerHandPane.children.add(emptyLabel)
-            return
-        }
-
-        hand.forEach { card ->
-            val cardButton = createCardButton(card)
-            cardButtons[card] = cardButton
-            playerHandPane.children.add(cardButton)
-        }
+        selectedCards.addAll(playerHandView.getSelectedCards())
+        updateActionBarState()
     }
 
-    private fun createCardButton(card: Card): Button {
-        val button = Button()
-        button.styleClass.add("card-button")
-        button.prefWidth = cardWidth
-        button.prefHeight = cardHeight
-        button.minWidth = cardWidth
-        button.minHeight = cardHeight
-
-        // Conteneur visuel de la carte
-        val container = StackPane()
-        container.styleClass.add("card-container")
-        container.prefWidth = cardWidth
-        container.prefHeight = cardHeight
-
-        // Rang en haut-gauche
-        val rankLabel = Label(card.rank.displayName)
-        rankLabel.styleClass.addAll("card-rank-label", getCardColorClass(card.suit))
-        StackPane.setAlignment(rankLabel, Pos.TOP_LEFT)
-        StackPane.setMargin(rankLabel, Insets(6.0, 0.0, 0.0, 8.0))
-
-        // Symbole centré
-        val suitLabel = Label(card.suit.icon)
-        suitLabel.styleClass.addAll("card-suit-label", getCardColorClass(card.suit))
-        StackPane.setAlignment(suitLabel, Pos.CENTER)
-
-        container.children.addAll(suitLabel, rankLabel)
-        button.graphic = container
-
-        // Ombre et effet hover
-        val hoverShadow = DropShadow(10.0, Color.web("#000000", 0.22))
-        button.setOnMouseEntered {
-            container.scaleX = 1.03
-            container.scaleY = 1.03
-            container.effect = hoverShadow
-        }
-        button.setOnMouseExited {
-            container.scaleX = 1.0
-            container.scaleY = 1.0
-            container.effect = null
+    private fun updateActionBarState() {
+        val canPlay = controller.canPlayProperty.get()
+        val isValidMove = selectedCards.isNotEmpty() && controller.getPossibleMoves().any { move ->
+            move.size == selectedCards.size &&
+            move.all { card -> selectedCards.any { it.rank == card.rank && it.suit == card.suit } }
         }
 
-        button.setOnAction {
-            toggleCardSelection(card, button)
-        }
-
-        return button
-    }
-
-    private fun createPileCard(card: Card): StackPane {
-        val container = StackPane().apply {
-            styleClass.add("card-container")
-            prefWidth = pileCardWidth
-            prefHeight = pileCardHeight
-            minWidth = pileCardWidth
-            minHeight = pileCardHeight
-            maxWidth = pileCardWidth
-            maxHeight = pileCardHeight
-        }
-
-        val rankLabel = Label(card.rank.displayName).apply {
-            styleClass.addAll("pile-card-rank-label", getCardColorClass(card.suit))
-            StackPane.setAlignment(this, Pos.TOP_LEFT)
-            StackPane.setMargin(this, Insets(6.0, 0.0, 0.0, 7.0))
-        }
-
-        val suitLabel = Label(card.suit.icon).apply {
-            styleClass.addAll("pile-card-suit-label", getCardColorClass(card.suit))
-            StackPane.setAlignment(this, Pos.CENTER)
-        }
-
-        container.effect = DropShadow(8.0, Color.web("#000000", 0.28))
-        container.children.addAll(suitLabel, rankLabel)
-        return container
-    }
-
-    private fun getCardColorClass(suit: Card.Suit): String {
-        return when (suit) {
-            Card.Suit.HEARTS, Card.Suit.DIAMONDS -> "card-red"
-            Card.Suit.CLUBS, Card.Suit.SPADES -> "card-black"
-        }
-    }
-
-    private fun toggleCardSelection(card: Card, button: Button) {
-        if (!controller.canPlayProperty.get()) return
-
-        val container = button.graphic as? StackPane ?: return
-
-        if (selectedCards.contains(card)) {
-            selectedCards.remove(card)
-            container.styleClass.remove("card-container-selected")
-            container.styleClass.add("card-container")
-        } else {
-            selectedCards.add(card)
-            container.styleClass.remove("card-container")
-            container.styleClass.add("card-container-selected")
-        }
-
-        playButton.isDisable = selectedCards.isEmpty() || !controller.canPlayProperty.get()
-    }
-
-    /**
-     * Met à jour l'affichage des messages du jeu en séparant les messages généraux
-     * des notifications personnelles au joueur.
-     */
-    private fun updateGameMessage(message: String) {
-        // Extraire le nom du joueur et son action pour afficher une bulle
-        val playerActionMatch = Regex("^(.+) (joue|passe)").find(message)
-        if (playerActionMatch != null) {
-            val playerName = playerActionMatch.groupValues[1]
-            val action = playerActionMatch.groupValues[2]
-            
-            // Afficher la bulle de discussion pour ce joueur
-            if (playerName != "Vous") {
-                showSpeechBubble(playerName, message)
-            }
-        }
-        
-        // Séparer les messages destinés au joueur des messages généraux
-        when {
-            message.contains("C'est votre tour", ignoreCase = true) ||
-            message.contains("Vous devez", ignoreCase = true) ||
-            message.contains("Vous pouvez", ignoreCase = true) ||
-            message.contains("Veuillez", ignoreCase = true) -> {
-                // Message pour le joueur
-                playerNotificationLabel.text = "🎯 $message"
-                playerNotificationLabel.isVisible = true
-                animateNotification()
-                messageLabel.text = "À votre tour de jouer"
-            }
-            message.contains("gagne", ignoreCase = true) ||
-            message.contains("termine", ignoreCase = true) -> {
-                // Annonce générale importante
-                messageLabel.text = "🏆 $message"
-                playerNotificationLabel.isVisible = false
-            }
-            else -> {
-                // Message général
-                messageLabel.text = message
-                // Masquer la notification après un court délai
-                PauseTransition(Duration.seconds(3.0)).apply {
-                    setOnFinished { playerNotificationLabel.isVisible = false }
-                    play()
-                }
-            }
-        }
-    }
-    
-    /**
-     * Affiche une bulle de discussion pour un joueur avec son action.
-     */
-    private fun showSpeechBubble(playerName: String, message: String) {
-        val bubble = playerSpeechBubbles[playerName] ?: return
-        
-        // Extraire l'action du message
-        val actionText = when {
-            message.contains("passe", ignoreCase = true) -> "Passe ✋"
-            message.contains("joue:", ignoreCase = true) -> {
-                val playedPart = message.substringAfter("joue:").trim()
-                "Joue $playedPart 🃏"
-            }
-            message.contains("joue", ignoreCase = true) -> "Joue 🃏"
-            else -> message
-        }
-        
-        bubble.showMessage(actionText, speechBubbleDuration)
-    }
-
-    /**
-     * Anime l'apparition de la notification du joueur.
-     */
-    private fun animateNotification() {
-        playerNotificationLabel.opacity = 0.0
-        val fadeIn = FadeTransition(Duration.millis(300.0), playerNotificationLabel)
-        fadeIn.fromValue = 0.0
-        fadeIn.toValue = 1.0
-        fadeIn.play()
-    }
-
-    private fun updateLastPlayedMove(move: PlayerMove?) {
-        lastPlayedLabel.text = if (move != null) {
-            "Dernier coup: $move"
-        } else {
-            "Aucun coup joué - Vous commencez"
-        }
-    }
-
-    private fun updateCurrentPile(pile: List<Card>) {
-        val previousSize = lastPileSnapshot.size
-        lastPileSnapshot = pile.toList()
-
-        pileStack.children.clear()
-
-        if (pile.isEmpty()) {
-            val emptyLabel = Label("Pile vide")
-            emptyLabel.styleClass.add("empty-label")
-            pileStack.children.add(emptyLabel)
-            return
-        }
-
-        val addedCount = (pile.size - previousSize).coerceAtLeast(0)
-        val animateFromIndex = if (addedCount > 0) pile.size - addedCount else null
-
-        pile.forEachIndexed { index, card ->
-            val cardNode = createPileCard(card)
-            cardNode.translateX = index * 14.0
-            cardNode.translateY = -index * 2.0
-            // Slight rotation for natural pile effect: varies between -MAX_CARD_ROTATION_DEGREES and +MAX_CARD_ROTATION_DEGREES
-            cardNode.rotate = (index % ROTATION_VARIANCE - 1) * MAX_CARD_ROTATION_DEGREES
-            pileStack.children.add(cardNode)
-
-            if (animateFromIndex != null && index >= animateFromIndex) {
-                cardNode.opacity = 0.0
-                cardNode.scaleX = 0.7
-                cardNode.scaleY = 0.7
-                
-                val fade = FadeTransition(pileAnimationDuration, cardNode)
-                fade.fromValue = 0.0
-                fade.toValue = 1.0
-
-                val slide = TranslateTransition(pileAnimationDuration, cardNode)
-                slide.fromY = cardNode.translateY - 40.0
-                slide.toY = cardNode.translateY
-                
-                val scale = ScaleTransition(pileAnimationDuration, cardNode)
-                scale.fromX = 0.7
-                scale.fromY = 0.7
-                scale.toX = 1.0
-                scale.toY = 1.0
-
-                ParallelTransition(fade, slide, scale).play()
-            }
-        }
-    }
-
-    private fun updatePlayersInfo(players: List<GameController.PlayerInfo>) {
-        topPlayerPane.children.clear()
-        leftPlayerPane.children.clear()
-        rightPlayerPane.children.clear()
-        playerSpeechBubbles.clear()
-        playerBoxes.clear()
-
-        // Séparer le joueur humain des autres joueurs
-        val otherPlayers = players.filter { !it.isCurrentPlayer }
-
-        // Distribuer les autres joueurs autour du plateau
-        when (otherPlayers.size) {
-            1 -> {
-                // 1 adversaire: en haut
-                addPlayerToPane(topPlayerPane, otherPlayers[0])
-            }
-            2 -> {
-                // 2 adversaires: à gauche et à droite
-                addPlayerToPane(leftPlayerPane, otherPlayers[0])
-                addPlayerToPane(rightPlayerPane, otherPlayers[1])
-            }
-            3 -> {
-                // 3 adversaires: en haut, à gauche, à droite
-                addPlayerToPane(topPlayerPane, otherPlayers[0])
-                addPlayerToPane(leftPlayerPane, otherPlayers[1])
-                addPlayerToPane(rightPlayerPane, otherPlayers[2])
-            }
-            else -> {
-                // Plus de 3 adversaires: répartir autour
-                val third = otherPlayers.size / 3
-                val remainder = otherPlayers.size % 3
-                
-                var index = 0
-                // Top players
-                val topCount = third + if (remainder > 0) 1 else 0
-                for (i in 0 until topCount) {
-                    addPlayerToPane(topPlayerPane, otherPlayers[index++])
-                }
-                
-                // Left players
-                val leftCount = third + if (remainder > 1) 1 else 0
-                for (i in 0 until leftCount) {
-                    addPlayerToPane(leftPlayerPane, otherPlayers[index++])
-                }
-                
-                // Right players (remaining)
-                while (index < otherPlayers.size) {
-                    addPlayerToPane(rightPlayerPane, otherPlayers[index++])
-                }
-            }
-        }
-    }
-    private fun addPlayerToPane(pane: Pane, playerInfo: GameController.PlayerInfo) {
-        val nameLabel = Label(playerInfo.name)
-        nameLabel.styleClass.add("player-name-label")
-
-        // Créer le label de rôle avec une icône
-        val roleIcon = getRoleIcon(playerInfo.role)
-        val roleText = "$roleIcon ${playerInfo.role.displayName}"
-        
-        val infoLabel = Label("$roleText\n${playerInfo.cardCount} cartes")
-        infoLabel.styleClass.add("player-info-label")
-        infoLabel.alignment = Pos.CENTER
-        infoLabel.textAlignment = javafx.scene.text.TextAlignment.CENTER
-
-        // Créer une représentation visuelle des cartes
-        val cardsContainer = createOpponentCardsVisual(playerInfo.cardCount)
-        
-        // Créer la bulle de discussion
-        val speechBubble = SpeechBubble()
-        speechBubble.isVisible = false
-        playerSpeechBubbles[playerInfo.name] = speechBubble
-
-        val playerBox = VBox(8.0).apply {
-            styleClass.add("player-box")
-            alignment = Pos.CENTER
-            padding = Insets(12.0)
-            prefWidth = 170.0
-            minWidth = 130.0
-            maxWidth = Double.MAX_VALUE
-            prefHeight = 130.0
-            minHeight = 100.0
-        }
-        
-        playerBoxes[playerInfo.name] = playerBox
-
-        playerBox.children.addAll(speechBubble, nameLabel, infoLabel, cardsContainer)
-        pane.children.add(playerBox)
-
-        // Autoriser l'expansion selon le type de pane
-        when (pane) {
-            is HBox -> {
-                HBox.setHgrow(playerBox, Priority.ALWAYS)
-            }
-            is VBox -> {
-                VBox.setVgrow(playerBox, Priority.ALWAYS)
-            }
-            else -> {
-                // pas d'action
-            }
-        }
-    }
-
-    /**
-     * Crée une représentation visuelle des cartes d'un adversaire avec un espacement
-     * dynamique qui s'adapte au nombre de cartes pour éviter le débordement.
-     */
-    private fun createOpponentCardsVisual(cardCount: Int): HBox {
-        // Limiter l'affichage à maxDisplayedCards cartes maximum pour éviter de déborder
-        val displayCount = minOf(cardCount, maxDisplayedCards)
-        
-        // Calculer l'espacement nécessaire pour que toutes les cartes rentrent dans l'espace disponible
-        // Dans JavaFX HBox, le spacing est l'écart entre les éléments
-        // Formule: totalWidth = n * cardWidth + (n-1) * spacing
-        // => spacing = (availableWidth - n * cardWidth) / (n-1)
-        val spacing = if (displayCount > 1) {
-            val neededSpacing = (opponentCardsAvailableWidth - displayCount * opponentCardWidth) / (displayCount - 1)
-            // Cap l'espacement au minimum souhaité quand il y a peu de cartes (espacement positif large).
-            // Quand il y a beaucoup de cartes, neededSpacing devient négatif (superposition),
-            // et minOf retourne cette valeur négative pour permettre le chevauchement.
-            minOf(neededSpacing, opponentCardMinSpacing)
-        } else {
-            0.0
-        }
-        
-        val container = HBox(spacing)
-        container.styleClass.add("opponent-cards-container")
-        container.alignment = Pos.CENTER
-        container.padding = Insets(5.0, 0.0, 0.0, 0.0)
-        
-        for (i in 0 until displayCount) {
-            val cardBack = Region()
-            cardBack.styleClass.add("opponent-card-back")
-            container.children.add(cardBack)
-        }
-
-        return container
-    }
-
-    /**
-     * Retourne une icône pour le rôle du joueur
-     */
-    private fun getRoleIcon(role: model.player.Player.Role): String {
-        return when (role) {
-            model.player.Player.Role.PRESIDENT -> "👑"
-            model.player.Player.Role.VICE_PRESIDENT -> "🥈"
-            model.player.Player.Role.NEUTRAL -> "👤"
-            model.player.Player.Role.VICE_ASSHOLE -> "🥉"
-            model.player.Player.Role.ASSHOLE -> "💩"
-        }
+        actionBar.setPlayEnabled(canPlay && isValidMove)
+        actionBar.setPassEnabled(canPlay)
     }
 
     private fun handlePlayCards() {
         if (selectedCards.isEmpty()) return
 
-        val humanPlayer = controller.humanPlayerHandProperty.get()
-        if (humanPlayer.isEmpty()) return
-
-        val sortedSelected = selectedCards.sortedBy { it.rank }
-
-        val playType = when (sortedSelected.size) {
-            1 -> PlayerMove.PlayType.SINGLE
-            2 -> PlayerMove.PlayType.PAIR
-            3 -> PlayerMove.PlayType.THREE_OF_A_KIND
-            4 -> PlayerMove.PlayType.FOUR_OF_A_KIND
-            else -> {
-                messageLabel.text = "Nombre de cartes invalide"
-                return
-            }
+        val matchingMove = controller.getPossibleMoves().find { move ->
+            move.size == selectedCards.size &&
+            move.all { card -> selectedCards.any { it.rank == card.rank && it.suit == card.suit } }
         }
 
-        if (sortedSelected.size > 1 && !sortedSelected.all { it.rank == sortedSelected[0].rank }) {
-            messageLabel.text = "Les cartes doivent avoir le même rang"
-            return
-        }
+        matchingMove?.let { move ->
+            // Animation de jeu
+            animatePlayCards(selectedCards.toList())
 
-        try {
-            val move = PlayerMove(sortedSelected, playType)
-            
-            // Vérifier si le coup est dans les coups possibles
-            val possibleMoves = controller.getPossibleMoves()
-            val isValidMove = possibleMoves.any { possibleMove ->
-                // Comparer par type de jeu et par le fait que le coup peut être joué
-                possibleMove.playType == move.playType && 
-                possibleMove.getRank() == move.getRank()
-            }
-            
-            if (!isValidMove) {
-                messageLabel.text = "Coup illégal: vous ne pouvez pas jouer ces cartes maintenant"
-                return
-            }
-            
-            submitMove(move)
-        } catch (e: Exception) {
-            messageLabel.text = "Coup invalide: ${e.message}"
+            eventLog.addEvent("Vous jouez: $move", EventLog.EventType.PLAYER_ACTION)
+            controller.submitPlayerMove(move)
+            controller.setCanPlay(false)
         }
     }
 
     private fun handlePass() {
-        submitMove(null)
+        eventLog.addEvent("Vous passez votre tour", EventLog.EventType.PLAYER_ACTION)
+        controller.submitPlayerMove(null)
+        controller.setCanPlay(false)
     }
 
-    private fun handleSortHand() {
+    private fun handleSort() {
         controller.sortHumanPlayerHand()
+        controller.updateHumanPlayerHand()
     }
 
-    private fun submitMove(move: PlayerMove?) {
-        selectedCards.clear()
-        playButton.isDisable = true
-        passButton.isDisable = true
-        controller.submitPlayerMove(move)
-    }
+    private fun animatePlayCards(cards: List<Card>) {
+        val selectedViews = playerHandView.getSelectedCardViews()
+        val pileCenter = pileView.localToScene(pileView.width / 2, pileView.height / 2)
 
-    private fun handleNewGame() {
-        controller.stopGame()
-        (scene?.window as? javafx.stage.Stage)?.let { stage ->
-            val menuView = MenuView(controller) {
-                stage.scene.root = GameBoardView(controller)
-                controller.runGame()
+        var completedAnimations = 0
+        selectedViews.forEachIndexed { index, cardView ->
+            val cardCenter = cardView.localToScene(cardView.width / 2, cardView.height / 2)
+            val targetX = pileCenter.x - cardCenter.x + (index * 10)
+            val targetY = pileCenter.y - cardCenter.y
+
+            cardView.playCardAnimation(targetX, targetY) {
+                completedAnimations++
+                if (completedAnimations == selectedViews.size) {
+                    SequentialTransition(
+                        ScaleTransition(Duration.millis(150.0), pileView).apply { toX = 1.1; toY = 1.1 },
+                        ScaleTransition(Duration.millis(150.0), pileView).apply { toX = 1.0; toY = 1.0 }
+                    ).play()
+                }
             }
-            stage.scene.root = menuView
         }
     }
-    
-    /**
-     * Affiche le dialog de fin de manche avec les options pour continuer ou quitter.
-     */
-    private fun showRoundFinishedDialog() {
-        // Créer le dialog
-        roundFinishedDialog = RoundFinishedDialog(
-            onNewRound = {
-                hideRoundFinishedDialog()
-                controller.startNewRound()
-            },
-            onQuit = {
-                hideRoundFinishedDialog()
-                handleNewGame()
+
+    fun animateDealCards(cardCounts: Map<String, Int>, onComplete: () -> Unit) {
+        Platform.runLater {
+            eventLog.addEvent("🎴 Distribution des cartes...", EventLog.EventType.SYSTEM)
+            messageLabel?.text = "Distribution des cartes..."
+
+            ensureOpponentPanelsExist(cardCounts)
+            val humanCards = controller.humanPlayerHandProperty.get() ?: emptyList()
+
+            var totalDelay = 0.0
+            opponentPanels.forEach { (name, panel) ->
+                val count = cardCounts[name] ?: 0
+                if (count > 0) {
+                    panel.dealCards(count, totalDelay)
+                    totalDelay += minOf(count, 8) * 100.0 + 200.0
+                }
             }
-        )
-        
-        // Configurer le container réutilisable
-        dialogOverlayContainer.style = "-fx-background-color: rgba(0, 0, 0, 0.7);"
-        dialogOverlayContainer.children.setAll(roundFinishedDialog)
-        
-        // Créer un StackPane pour l'overlay au dessus du centerPane
-        val overlayStack = StackPane()
-        overlayStack.children.addAll(centerPane, dialogOverlayContainer)
-        center = overlayStack
+
+            if (humanCards.isNotEmpty()) {
+                Timeline(KeyFrame(Duration.millis(totalDelay + 300.0), {
+                    playerHandView.dealCards(humanCards) {
+                        eventLog.addEvent("Distribution terminée!", EventLog.EventType.SUCCESS)
+                        messageLabel?.text = "La partie peut commencer!"
+                        onComplete()
+                    }
+                })).play()
+            } else {
+                Timeline(KeyFrame(Duration.millis(totalDelay + 500.0), { onComplete() })).play()
+            }
+        }
     }
-    
-    /**
-     * Cache et nettoie le dialog de fin de manche.
-     */
-    private fun hideRoundFinishedDialog() {
-        // Restaurer le centerPane original
-        center = centerPane
-        // Nettoyer le container
-        dialogOverlayContainer.children.clear()
-        roundFinishedDialog = null
+
+    private fun ensureOpponentPanelsExist(cardCounts: Map<String, Int>) {
+        cardCounts.keys.filter { it != "Vous" }.forEach { playerName ->
+            if (!opponentPanels.containsKey(playerName)) {
+                val panel = PlayerPanel(playerName, Player.Role.NEUTRAL, 0, false)
+                opponentPanels[playerName] = panel
+                opponentsContainer?.children?.add(panel)
+            }
+        }
     }
-    
-    /**
-     * Affiche le dialog de sélection de cartes à échanger.
-     *
-     * @param count Nombre de cartes à sélectionner
-     * @param highest True si le joueur doit donner ses meilleures cartes
-     */
-    private fun showCardExchangeDialog(count: Int, highest: Boolean) {
-        val currentHand = controller.humanPlayerHandProperty.get() ?: emptyList()
-        if (currentHand.isEmpty()) return
-        
-        // Créer le dialog d'échange
-        val exchangeDialog = CardExchangeDialog(
-            cards = currentHand,
+
+    private fun showInGameMenu() {
+        showDialog(InGameMenuView(
+            onResume = { hideDialog() },
+            onNewGame = { hideDialog(); onBackToMenu() },
+            onQuit = { Platform.exit() }
+        ))
+    }
+
+    fun showRoundFinishedDialog() {
+        showDialog(RoundFinishedDialog(
+            playersInfo = controller.playersInfoProperty.get() ?: emptyList(),
+            onContinue = { hideDialog(); controller.startNewRound() },
+            onBackToMenu = { hideDialog(); onBackToMenu() }
+        ))
+    }
+
+    fun showCardExchangeDialog(count: Int, highest: Boolean) {
+        showDialog(CardExchangeDialog(
+            hand = controller.humanPlayerHandProperty.get() ?: emptyList(),
             count = count,
-            highest = highest,
-            onConfirm = { selectedCards ->
-                hideCardExchangeDialog()
-                controller.submitExchangeCards(selectedCards)
-            }
-        )
-        
-        // Configurer le container réutilisable
-        dialogOverlayContainer.style = "-fx-background-color: rgba(0, 0, 0, 0.7);"
-        dialogOverlayContainer.children.setAll(exchangeDialog)
-        
-        // Créer un StackPane pour l'overlay au dessus du centerPane
-        val overlayStack = StackPane()
-        overlayStack.children.addAll(centerPane, dialogOverlayContainer)
-        center = overlayStack
+            mustSelectHighest = highest,
+            onConfirm = { cards -> hideDialog(); controller.submitExchangeCards(cards) }
+        ))
     }
-    
-    /**
-     * Cache et nettoie le dialog d'échange de cartes.
-     */
-    private fun hideCardExchangeDialog() {
-        // Restaurer le centerPane original
-        center = centerPane
-        // Nettoyer le container
-        dialogOverlayContainer.children.clear()
+
+    private fun showDialog(content: Region) {
+        dialogOverlay.children.setAll(content)
+        dialogOverlay.isVisible = true
+        FadeTransition(Duration.millis(200.0), dialogOverlay).apply {
+            fromValue = 0.0
+            toValue = 1.0
+        }.play()
+    }
+
+    private fun hideDialog() {
+        FadeTransition(Duration.millis(200.0), dialogOverlay).apply {
+            fromValue = 1.0
+            toValue = 0.0
+            setOnFinished {
+                dialogOverlay.isVisible = false
+                dialogOverlay.children.clear()
+            }
+        }.play()
     }
 }
