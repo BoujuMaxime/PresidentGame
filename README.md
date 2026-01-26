@@ -2,6 +2,8 @@
 
 Une base en Kotlin pour expérimenter le jeu de cartes « Président » : distribution, échanges, tours de jeu avec règles spéciales (Carré Magique, Force Play) et attribution des rôles (Président, Vice-Président, Vice-Trou du Cul, Trou du Cul). Le projet expose l’architecture nécessaire pour piloter des IA (Random, Evaluate, MiniMax) et poser les fondations d’un vrai client humain ou distant.
 
+> **🚀 Pour lancer l'application rapidement, consultez [EXECUTION_GUIDE.md](EXECUTION_GUIDE.md)**
+
 ## Vue d’ensemble
 
 - **Langage** : Kotlin 2.2.20
@@ -47,6 +49,40 @@ Une base en Kotlin pour expérimenter le jeu de cartes « Président » : distri
 1. Java JDK 21 ou supérieur.
 2. Wrapper Gradle fourni (`gradlew`, `gradlew.bat`).
 3. Console UTF-8 (le `main` force déjà UTF-8 pour `System.out` et `System.err`).
+
+## 🚀 Démarrage rapide (Quick Start)
+
+### Exécution en un clic
+
+**Linux / macOS :**
+```bash
+./run.sh
+```
+
+**Windows :**
+```cmd
+run.bat
+```
+
+Ces scripts compilent automatiquement le projet et lancent l'application JavaFX.
+
+### Exécution manuelle avec Gradle
+
+**Pour lancer l'application directement :**
+```bash
+./gradlew run        # Linux/macOS
+.\gradlew.bat run    # Windows
+```
+
+**Pour compiler le projet :**
+```bash
+./gradlew clean build
+```
+
+**Pour exécuter les tests :**
+```bash
+./gradlew test
+```
 
 ## Compilation, tests et exécution
 
