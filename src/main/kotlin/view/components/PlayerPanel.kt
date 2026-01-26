@@ -11,23 +11,20 @@ import javafx.util.Duration
 import model.player.Player
 
 /**
- * Panneau affichant les informations d'un joueur adverse.
+ * Panneau d'affichage d'un joueur dans l'interface du jeu.
  *
- * Affiche le nom, le rôle, le nombre de cartes et une bulle
- * de dialogue pour les actions. Peut être mis en évidence.
+ * Ce composant affiche les informations d'un joueur incluant son nom, son rôle,
+ * le nombre de cartes qu'il possède et une représentation visuelle de ses cartes.
+ * Il gère également les animations de distribution de cartes, la mise en surbrillance
+ * du joueur actif et l'affichage de bulles de dialogue.
  *
- * @property playerName Nom du joueur affiché
- * @property role Rôle actuel du joueur
- * @property cardCount Nombre de cartes en main
- * @property isCurrentPlayer Vrai si c'est le tour de ce joueur
- * @property nameLabel Label du nom
- * @property roleLabel Badge du rôle
- * @property cardCountLabel Label du compteur de cartes
- * @property cardsContainer Conteneur des dos de cartes
- * @property speechBubble Bulle de dialogue
- * @property highlightAnimation Animation de pulsation
+ * @property playerName Le nom du joueur à afficher.
+ * @property role Le rôle actuel du joueur (Président, Vice-Président, etc.).
+ * @property cardCount Le nombre de cartes que le joueur possède.
+ * @property isCurrentPlayer Indique si ce joueur est le joueur actif.
  *
- * @author BOUJU Maxime
+ * @constructor Crée un panneau joueur avec les informations spécifiées et initialise
+ *              l'affichage avec la mise en surbrillance si le joueur est actif.
  */
 class PlayerPanel(
     private val playerName: String,
@@ -36,11 +33,15 @@ class PlayerPanel(
     private var isCurrentPlayer: Boolean
 ) : VBox(8.0) {
 
-    private val nameLabel: Label
-    private val roleLabel: Label
-    private val cardCountLabel: Label
-    private val cardsContainer: HBox
-    private val speechBubble: SpeechBubble
+    private val nameLabel = createLabel(playerName, "player-name-label")
+    private val roleLabel = createLabel(role.displayName, "player-role-badge", getRoleBadgeClass())
+    private val cardCountLabel = createLabel("$cardCount cartes", "player-info-label")
+    private val cardsContainer = HBox(2.0).apply {
+        styleClass.add("opponent-cards-container")
+        alignment = Pos.CENTER
+        maxWidth = 140.0
+    }
+    private val speechBubble = SpeechBubble().apply { isVisible = false }
     private var highlightAnimation: Timeline? = null
 
     init {
@@ -48,39 +49,30 @@ class PlayerPanel(
         alignment = Pos.CENTER
         padding = Insets(12.0)
         prefWidth = 160.0
-        minWidth = 140.0
-        maxWidth = 200.0
-
-        speechBubble = SpeechBubble().apply { isVisible = false }
-        nameLabel = Label(playerName).apply {
-            styleClass.add("player-name-label")
-            maxWidth = Double.MAX_VALUE
-            alignment = Pos.CENTER
-        }
-        roleLabel = Label(role.displayName).apply {
-            styleClass.addAll("player-role-badge", getRoleBadgeClass())
-            maxWidth = Double.MAX_VALUE
-            alignment = Pos.CENTER
-        }
-        cardsContainer = HBox(2.0).apply {
-            styleClass.add("opponent-cards-container")
-            alignment = Pos.CENTER
-        }
-        cardCountLabel = Label("$cardCount cartes").apply {
-            styleClass.add("player-info-label")
-        }
-
-        updateCardDisplay()
         children.addAll(speechBubble, nameLabel, roleLabel, cardsContainer, cardCountLabel)
+        updateCardDisplay()
         if (isCurrentPlayer) setHighlighted(true)
     }
 
     /**
-     * Retourne la classe CSS du badge selon le rôle.
+     * Crée un label stylisé avec le texte et les classes CSS spécifiés.
      *
-     * @return Nom de la classe CSS
+     * @param text Le texte à afficher dans le label.
+     * @param styleClasses Les classes CSS à appliquer au label.
+     * @return Un [Label] configuré et centré.
      */
-    private fun getRoleBadgeClass(): String = when (role) {
+    private fun createLabel(text: String, vararg styleClasses: String) = Label(text).apply {
+        styleClass.addAll(*styleClasses)
+        maxWidth = Double.MAX_VALUE
+        alignment = Pos.CENTER
+    }
+
+    /**
+     * Retourne la classe CSS correspondant au rôle du joueur.
+     *
+     * @return Le nom de la classe CSS pour le badge de rôle.
+     */
+    private fun getRoleBadgeClass() = when (role) {
         Player.Role.PRESIDENT -> "role-president"
         Player.Role.VICE_PRESIDENT -> "role-vice-president"
         Player.Role.VICE_ASSHOLE -> "role-vice-asshole"
@@ -89,36 +81,38 @@ class PlayerPanel(
     }
 
     /**
-     * Met à jour l'affichage visuel des cartes.
+     * Met à jour l'affichage visuel des cartes du joueur.
+     *
+     * Affiche jusqu'à 8 cartes face cachée avec un indicateur "+N" si le joueur
+     * possède plus de 8 cartes. L'espacement entre les cartes est ajusté
+     * automatiquement selon le nombre de cartes affichées.
      */
     private fun updateCardDisplay() {
         cardsContainer.children.clear()
         val displayCount = minOf(cardCount, 8)
+        cardsContainer.spacing = if (displayCount > 5) -5.0 else 2.0
         repeat(displayCount) { cardsContainer.children.add(CardBackView()) }
         if (cardCount > 8) {
-            cardsContainer.children.add(Label("+${cardCount - 8}").apply {
-                styleClass.add("more-cards-label")
-            })
+            cardsContainer.children.add(createLabel("+${cardCount - 8}", "more-cards-label"))
         }
     }
 
     /**
-     * Distribue les cartes avec animation.
+     * Anime la distribution de cartes au joueur.
      *
-     * @param count Nombre de cartes à distribuer
-     * @param delayOffset Délai initial (ms)
-     * @param onComplete Callback de fin
+     * Chaque carte apparaît avec une animation de fondu et de glissement depuis le bas,
+     * avec un délai progressif entre chaque carte pour créer un effet de cascade.
+     *
+     * @param count Le nombre de cartes à distribuer.
+     * @param delayOffset Le délai initial avant de commencer l'animation (en millisecondes).
+     * @param onComplete Callback appelé lorsque toutes les animations sont terminées.
      */
     fun dealCards(count: Int, delayOffset: Double = 0.0, onComplete: () -> Unit = {}) {
         cardsContainer.children.clear()
         cardCount = count
         cardCountLabel.text = "$cardCount cartes"
-
         val displayCount = minOf(count, 8)
-        if (displayCount == 0) { onComplete(); return }
-
-        val delayPerCard = 100.0
-        val animDuration = 300.0
+        if (displayCount == 0) return onComplete()
 
         repeat(displayCount) { index ->
             val cardBack = CardBackView().apply {
@@ -128,49 +122,37 @@ class PlayerPanel(
                 translateY = 150.0
             }
             cardsContainer.children.add(cardBack)
-
-            val delay = delayOffset + index * delayPerCard
+            val delay = delayOffset + index * 100.0
             Timeline(
-                KeyFrame(Duration.millis(delay),
-                    KeyValue(cardBack.opacityProperty(), 0.0),
-                    KeyValue(cardBack.translateYProperty(), 150.0),
-                    KeyValue(cardBack.scaleXProperty(), 0.3),
-                    KeyValue(cardBack.scaleYProperty(), 0.3)
-                ),
-                KeyFrame(Duration.millis(delay + animDuration),
+                KeyFrame(Duration.millis(delay)),
+                KeyFrame(
+                    Duration.millis(delay + 300.0),
                     KeyValue(cardBack.opacityProperty(), 1.0, Interpolator.EASE_OUT),
                     KeyValue(cardBack.translateYProperty(), 0.0, Interpolator.EASE_OUT),
                     KeyValue(cardBack.scaleXProperty(), 1.0, Interpolator.EASE_OUT),
                     KeyValue(cardBack.scaleYProperty(), 1.0, Interpolator.EASE_OUT)
                 )
             ).apply {
-                if (index == displayCount - 1) {
-                    setOnFinished {
-                        if (count > 8) {
-                            cardsContainer.children.add(Label("+${count - 8}").apply {
-                                styleClass.add("more-cards-label")
-                            })
-                        }
-                        onComplete()
-                    }
+                if (index == displayCount - 1) setOnFinished {
+                    if (count > 8) cardsContainer.children.add(createLabel("+${count - 8}", "more-cards-label"))
+                    onComplete()
                 }
             }.play()
         }
     }
 
     /**
-     * Met à jour les informations affichées.
+     * Met à jour les informations du joueur si elles ont changé.
      *
-     * @param newRole Nouveau rôle
-     * @param newCardCount Nouveau nombre de cartes
-     * @param newIsCurrentPlayer Nouveau statut joueur actif
+     * @param newRole Le nouveau rôle du joueur.
+     * @param newCardCount Le nouveau nombre de cartes.
+     * @param newIsCurrentPlayer Indique si le joueur devient le joueur actif.
      */
     fun update(newRole: Player.Role, newCardCount: Int, newIsCurrentPlayer: Boolean) {
         if (role != newRole) {
             role = newRole
             roleLabel.text = role.displayName
-            roleLabel.styleClass.removeAll("role-president", "role-vice-president", "role-vice-asshole", "role-asshole", "role-neutral")
-            roleLabel.styleClass.add(getRoleBadgeClass())
+            roleLabel.styleClass.setAll("player-role-badge", getRoleBadgeClass())
         }
         if (cardCount != newCardCount) {
             cardCount = newCardCount
@@ -184,9 +166,11 @@ class PlayerPanel(
     }
 
     /**
-     * Active ou désactive la mise en évidence du panneau.
+     * Active ou désactive la mise en surbrillance du panneau joueur.
      *
-     * @param highlighted Vrai pour activer
+     * Lorsque activée, une animation de pulsation d'opacité est jouée en boucle.
+     *
+     * @param highlighted `true` pour activer la surbrillance, `false` pour la désactiver.
      */
     fun setHighlighted(highlighted: Boolean) {
         highlightAnimation?.stop()
@@ -204,17 +188,19 @@ class PlayerPanel(
     }
 
     /**
-     * Affiche un message temporaire dans la bulle.
+     * Affiche un message dans une bulle de dialogue au-dessus du joueur.
      *
-     * @param message Texte à afficher
-     * @param duration Durée d'affichage (ms)
+     * @param message Le texte du message à afficher.
+     * @param duration La durée d'affichage du message en millisecondes.
      */
     fun showMessage(message: String, duration: Double = 2000.0) {
         speechBubble.show(message, duration)
     }
 
     /**
-     * Anime le jeu d'une carte (effet bounce).
+     * Joue une animation de réduction/agrandissement sur le conteneur de cartes.
+     *
+     * Utilisée pour indiquer visuellement qu'une carte a été jouée.
      */
     fun animateCardPlay() {
         ScaleTransition(Duration.millis(150.0), cardsContainer).apply {
@@ -227,37 +213,33 @@ class PlayerPanel(
 }
 
 /**
- * Bulle de dialogue pour messages temporaires au-dessus d'un joueur.
+ * Bulle de dialogue animée pour afficher des messages temporaires.
  *
- * @property messageLabel Label du texte affiché
- *
- * @author BOUJU Maxime
+ * La bulle apparaît avec un fondu entrant, reste visible pendant la durée spécifiée,
+ * puis disparaît avec un fondu sortant.
  */
 class SpeechBubble : StackPane() {
-
-    private val messageLabel: Label
+    private val messageLabel = Label().apply {
+        styleClass.add("speech-bubble-text")
+        isWrapText = true
+        maxWidth = 120.0
+    }
 
     init {
         styleClass.add("speech-bubble")
-        messageLabel = Label().apply {
-            styleClass.add("speech-bubble-text")
-            isWrapText = true
-            maxWidth = 120.0
-        }
         children.add(messageLabel)
     }
 
     /**
-     * Affiche un message pendant une durée déterminée.
+     * Affiche un message dans la bulle avec une animation de fondu.
      *
-     * @param message Texte à afficher
-     * @param duration Durée d'affichage (ms)
+     * @param message Le texte du message à afficher.
+     * @param duration La durée pendant laquelle le message reste visible (en millisecondes).
      */
     fun show(message: String, duration: Double) {
         messageLabel.text = message
         isVisible = true
         opacity = 0.0
-
         SequentialTransition(
             FadeTransition(Duration.millis(200.0), this).apply { toValue = 1.0 },
             FadeTransition(Duration.millis(200.0), this).apply {
@@ -266,19 +248,5 @@ class SpeechBubble : StackPane() {
                 setOnFinished { isVisible = false }
             }
         ).play()
-    }
-
-    companion object {
-        /**
-         * Formate une action en texte lisible.
-         *
-         * @param action Action brute
-         * @return Texte formaté avec emoji
-         */
-        fun formatAction(action: String): String = when {
-            action.contains("passe") -> "💤 Passe"
-            action.contains("joue") -> "🎴 ${action.substringAfter("joue:")}"
-            else -> action
-        }
     }
 }
