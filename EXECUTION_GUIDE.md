@@ -53,6 +53,7 @@ run.bat
 - L'application lance une interface graphique JavaFX
 - Assurez-vous d'avoir une interface graphique disponible (pas de mode headless)
 - Les fichiers de build sont générés dans le dossier `build/`
+- Si `run.sh` n'est pas exécutable : `chmod +x run.sh`
 
 ---
 
@@ -109,6 +110,7 @@ run.bat
 - The application launches a JavaFX graphical interface
 - Make sure you have a graphical interface available (not headless mode)
 - Build files are generated in the `build/` folder
+- If `run.sh` is not executable: `chmod +x run.sh`
 
 ---
 
