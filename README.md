@@ -48,6 +48,40 @@ Une base en Kotlin pour expérimenter le jeu de cartes « Président » : distri
 2. Wrapper Gradle fourni (`gradlew`, `gradlew.bat`).
 3. Console UTF-8 (le `main` force déjà UTF-8 pour `System.out` et `System.err`).
 
+## 🚀 Démarrage rapide (Quick Start)
+
+### Exécution en un clic
+
+**Linux / macOS :**
+```bash
+./run.sh
+```
+
+**Windows :**
+```cmd
+run.bat
+```
+
+Ces scripts compilent automatiquement le projet et lancent l'application JavaFX.
+
+### Exécution manuelle avec Gradle
+
+**Pour lancer l'application directement :**
+```bash
+./gradlew run        # Linux/macOS
+.\gradlew.bat run    # Windows
+```
+
+**Pour compiler le projet :**
+```bash
+./gradlew clean build
+```
+
+**Pour exécuter les tests :**
+```bash
+./gradlew test
+```
+
 ## Compilation, tests et exécution
 
 Lancez les commandes depuis la racine. Sous PowerShell, les deux variantes (Unix-like et Windows) sont valides :
