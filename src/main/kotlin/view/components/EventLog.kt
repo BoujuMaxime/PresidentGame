@@ -15,9 +15,14 @@ import java.time.format.DateTimeFormatter
 
 /**
  * Journal des événements de la partie avec historique scrollable.
+ *
+ * @author BOUJU Maxime
  */
 class EventLog : VBox() {
 
+    /**
+     * Enumération des types d'événements avec leur icône et classe de style associée.
+     */
     enum class EventType(val icon: String, val styleClass: String) {
         INFO("ℹ️", "event-info"),
         PLAYER_ACTION("🎴", "event-player"),
@@ -28,11 +33,17 @@ class EventLog : VBox() {
         ROUND("🏆", "event-round")
     }
 
+    /** Conteneur pour les événements. */
     private val eventsContainer: VBox
+
+    /** Panneau de défilement pour le conteneur d'événements. */
     private val scrollPane: ScrollPane
+
+    /** Formateur pour l'heure des événements. */
     private val timeFormatter = DateTimeFormatter.ofPattern("HH:mm:ss")
 
     companion object {
+        /** Nombre maximum d'événements conservés. */
         private const val MAX_EVENTS = 50
     }
 
@@ -56,6 +67,11 @@ class EventLog : VBox() {
         setVgrow(scrollPane, Priority.ALWAYS)
     }
 
+    /**
+     * Ajoute un événement au journal avec un type par défaut INFO.
+     * @param message Le message de l'événement.
+     * @param type Le type de l'événement.
+     */
     fun addEvent(message: String, type: EventType = EventType.INFO) {
         val eventBox = createEventEntry(message, type)
         eventBox.opacity = 0.0
@@ -72,6 +88,12 @@ class EventLog : VBox() {
         scrollPane.vvalue = 1.0
     }
 
+    /**
+     * Crée une entrée d'événement sous forme de HBox.
+     * @param message Le message de l'événement.
+     * @param type Le type de l'événement.
+     * @return L'HBox représentant l'entrée d'événement.
+     */
     private fun createEventEntry(message: String, type: EventType): HBox {
         return HBox(6.0).apply {
             styleClass.addAll("event-entry", type.styleClass)
@@ -98,10 +120,17 @@ class EventLog : VBox() {
         }
     }
 
+    /**
+     * Efface tous les événements du journal.
+     */
     fun clear() {
         eventsContainer.children.clear()
     }
 
+    /**
+     * Ajoute un séparateur avec un titre au journal.
+     * @param title Le titre du séparateur.
+     */
     fun addSeparator(title: String) {
         eventsContainer.children.add(HBox().apply {
             styleClass.add("event-separator")
